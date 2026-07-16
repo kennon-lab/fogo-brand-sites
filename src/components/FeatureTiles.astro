@@ -1,0 +1,40 @@
+---
+import { getBrand } from '../lib/supabase.js';
+import { localBucketImage } from '../lib/images.js';
+
+// "Shop by category" tiles from brand_sites.feature_tiles:
+// [{image_path, label, asin}] — owned storefront creative mirrored into the
+// bucket. Renders nothing when the brand has no tiles configured.
+const brand = await getBrand();
+const tiles = Array.isArray(brand.feature_tiles) ? brand.feature_tiles : [];
+const localized = await Promise.all(
+  tiles.map(async (t) => ({ ...t, src: await localBucketImage(t.image_path, 900) }))
+);
+---
+
+{
+  localized.length > 0 && (
+    <section class="mx-auto max-w-6xl px-4 py-14">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Shop by category</h2>
+      <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {localized.map((tile) => (
+          <a
+            href={`/products/${tile.asin}/`}
+            class="group block overflow-hidden rounded-2xl border border-black/10 shadow-sm hover:shadow-md transition-shadow"
+            aria-label={tile.label}
+          >
+            <img
+              src={tile.src}
+              alt={tile.label}
+              loading="lazy"
+              decoding="async"
+              width="900"
+              height="450"
+              class="aspect-[2/1] w-full object-cover group-hover:scale-[1.02] transition-transform"
+            />
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}

@@ -1,14 +1,31 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getBrand, getProducts } from '../lib/supabase.js';
+import { localBucketImage } from '../lib/images.js';
 
 const brand = await getBrand();
 const products = await getProducts();
 
 const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
+const banner = brand.about_banner_path ? await localBucketImage(brand.about_banner_path, 1200) : null;
 ---
 
-<Base title="About" description={`About ${brand.brand}. ${brand.tagline ?? ''}`.trim()}>
+<Base title="About" description={`About ${brand.brand}. ${brand.tagline ?? ''}`.trim()} ogImage={banner}>
+  {
+    banner && (
+      <div class="mx-auto max-w-5xl px-4 pt-10">
+        <img
+          src={banner}
+          alt={`${brand.brand} brand`}
+          width="1200"
+          height="600"
+          fetchpriority="high"
+          decoding="async"
+          class="w-full rounded-3xl shadow-md"
+        />
+      </div>
+    )
+  }
   <section class="mx-auto max-w-3xl px-4 py-14">
     <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">About {brand.brand}</h1>
     {

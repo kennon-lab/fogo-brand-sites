@@ -9,6 +9,16 @@ import { getImagesByAsin } from './supabase.js';
 
 const singleCache = new Map();
 
+/** Full public URL for a path inside the brand-site-images bucket. */
+export function bucketUrl(path) {
+  return `${import.meta.env.SUPABASE_URL}/storage/v1/object/public/brand-site-images/${path}`;
+}
+
+/** Local optimized path for a bucket-relative path (logo, hero, tiles). */
+export function localBucketImage(path, width = 800) {
+  return localImage(bucketUrl(path), width);
+}
+
 /** Local optimized path for one bucket URL (e.g. the brand logo). */
 export async function localImage(remoteUrl, width = 800) {
   const key = `${remoteUrl}#${width}`;

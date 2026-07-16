@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
+import FeatureTiles from '../components/FeatureTiles.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { getBrand, getProducts } from '../lib/supabase.js';
 import { getLocalImagesByAsin } from '../lib/images.js';
@@ -17,6 +18,8 @@ const ogImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]
 
 <Base description={brand.tagline ?? undefined} ogImage={ogImage}>
   <Hero />
+
+  <FeatureTiles />
 
   <section class="mx-auto max-w-6xl px-4 py-14">
     <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Featured products</h2>

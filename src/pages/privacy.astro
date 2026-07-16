@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import { getBrand } from '../lib/supabase.js';
+
+const brand = await getBrand();
+const domain = brand.domain;
+const hasAnalytics = Boolean(brand.google_analytics_id);
+---
+
+<Base title="Privacy Policy" description={`Privacy policy for ${domain}.`}>
+  <section class="mx-auto max-w-3xl px-4 py-14">
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Privacy Policy</h1>
+    <div class="mt-6 space-y-5 text-black/80">
+      <p>
+        This website ({domain}) is an informational site for {brand.brand} products. We do not sell products
+        directly on this site, we do not operate a shopping cart or checkout, and we do not collect payment
+        information of any kind.
+      </p>
+
+      <h2 class="text-xl font-bold pt-2">What we collect</h2>
+      {
+        hasAnalytics ? (
+          <p>
+            We use Google Analytics to understand aggregate site traffic (pages visited, referral sources, and
+            clicks to Amazon). Google Analytics may set cookies and collect your IP address and device
+            information under Google's privacy policy. We do not combine this data with any personally
+            identifying information, and we do not sell it.
+          </p>
+        ) : (
+          <p>
+            This site does not set cookies and does not collect personal information. Standard web server logs
+            (IP address, user agent, pages requested) may be retained by our hosting provider for security and
+            operational purposes.
+          </p>
+        )
+      }
+
+      <h2 class="text-xl font-bold pt-2">Amazon links</h2>
+      <p>
+        Product links on this site lead to Amazon.com, including links that use Amazon Attribution tags so we
+        can measure which of our pages are useful. Once you are on Amazon, Amazon's own{' '}
+        <a
+          href="https://www.amazon.com/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ"
+          target="_blank"
+          rel="noopener"
+          class="underline underline-offset-4"
+        >privacy notice</a>{' '}
+        governs your visit and any purchase you make there.
+      </p>
+
+      <h2 class="text-xl font-bold pt-2">Contact</h2>
+      <p>
+        {
+          brand.contact_email
+            ? `Questions about this policy? Email ${brand.contact_email}.`
+            : 'Questions about this policy? Reach us via the contact page.'
+        }
+      </p>
+    </div>
+  </section>
+</Base>

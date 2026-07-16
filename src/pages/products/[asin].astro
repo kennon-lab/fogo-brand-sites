@@ -1,0 +1,125 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductGallery from '../../components/ProductGallery.astro';
+import AmazonCTA from '../../components/AmazonCTA.astro';
+import { getBrand, getProducts } from '../../lib/supabase.js';
+import { getLocalImagesByAsin } from '../../lib/images.js';
+import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
+
+export async function getStaticPaths() {
+  const products = await getProducts();
+  return products.map((product) => ({ params: { asin: product.asin }, props: { product } }));
+}
+
+const { product } = Astro.props;
+const brand = await getBrand();
+const products = await getProducts();
+const imagesByAsin = await getLocalImagesByAsin();
+
+const images = imagesByAsin.get(product.asin) ?? [];
+const siblings = products.filter((p) => groupKey(p) === groupKey(product));
+const price = formatPrice(product.item_price);
+
+const metaDescription = (product.bullets[0] ?? product.display_title ?? '').slice(0, 155);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.display_title,
+  ...(images.length > 0 && { image: images.map((src) => new URL(src, Astro.site).href) }),
+  ...(product.display_description && { description: product.display_description.replace(/<[^>]+>/g, ' ').trim() }),
+  brand: { '@type': 'Brand', name: brand.brand },
+  sku: product.asin,
+  offers: {
+    '@type': 'Offer',
+    url: product.amazon_url,
+    priceCurrency: 'USD',
+    ...(product.item_price != null && { price: product.item_price.toFixed(2) }),
+    availability: 'https://schema.org/InStock',
+  },
+};
+---
+
+<Base title={product.display_title} description={metaDescription} ogImage={images[0] ?? null} jsonLd={jsonLd}>
+  <nav class="mx-auto max-w-6xl px-4 pt-6 text-sm text-black/50" aria-label="Breadcrumb">
+    <a href="/products/" class="hover:underline underline-offset-4">Products</a>
+    <span aria-hidden="true"> / </span>
+    <span class="text-black/70">{product.display_title}</span>
+  </nav>
+
+  <section class="mx-auto max-w-6xl px-4 py-8 grid gap-10 lg:grid-cols-2">
+    <div>
+      {
+        images.length > 0 ? (
+          <ProductGallery images={images} title={product.display_title} />
+        ) : (
+          <div class="rounded-2xl border border-black/10 bg-[var(--surface)] p-12 text-center text-black/50 font-semibold">
+            {brand.brand}
+          </div>
+        )
+      }
+    </div>
+
+    <div class="flex flex-col gap-5">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">{product.display_title}</h1>
+      {price && <p class="text-3xl font-extrabold" style="color: var(--brand-2);">{price}</p>}
+
+      {
+        siblings.length > 1 && (
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wide text-black/50 mb-2">Options</h2>
+            <ul class="flex flex-wrap gap-2">
+              {siblings.map((s) => {
+                const label = variantLabel(s, siblings) ?? s.asin;
+                const isCurrent = s.asin === product.asin;
+                return (
+                  <li>
+                    {isCurrent ? (
+                      <span class="inline-block rounded-full bg-[var(--brand)] px-3 py-1 text-xs font-bold" style="color: var(--brand-2);" aria-current="true">
+                        {label}
+                      </span>
+                    ) : (
+                      <a
+                        href={`/products/${s.asin}/`}
+                        class="inline-block rounded-full border border-black/15 px-3 py-1 text-xs font-semibold hover:border-[var(--brand)] hover:bg-[var(--bg)]"
+                      >
+                        {label}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )
+      }
+
+      <div class="py-2">
+        <AmazonCTA product={product} size="lg" />
+        <p class="mt-2 text-xs text-black/40">Ships and sold via Amazon.com</p>
+      </div>
+
+      {
+        product.bullets.length > 0 && (
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wide text-black/50 mb-2">Highlights</h2>
+            <ul class="list-disc pl-5 space-y-2 text-black/80">
+              {product.bullets.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+      {
+        product.display_description && (
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wide text-black/50 mb-2">About this product</h2>
+            <div class="prose-desc text-black/80" set:html={product.display_description} />
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Base>

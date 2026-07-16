@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getBrand, getProducts } from '../../lib/supabase.js';
+import { getLocalImagesByAsin } from '../../lib/images.js';
+import { groupByParent } from '../../lib/catalog.js';
+
+const brand = await getBrand();
+const products = await getProducts();
+const imagesByAsin = await getLocalImagesByAsin();
+const groups = groupByParent(products);
+---
+
+<Base title="Products" description={`The full ${brand.brand} catalog. Every product ships via Amazon.`}>
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">All products</h1>
+    <p class="mt-2 text-black/60">
+      {products.length} {products.length === 1 ? 'product' : 'products'} — all available on Amazon.
+    </p>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        groups.map((group) => (
+          <ProductCard
+            representative={group.representative}
+            children={group.children}
+            images={imagesByAsin.get(group.representative.asin) ?? []}
+          />
+        ))
+      }
+    </div>
+  </section>
+</Base>

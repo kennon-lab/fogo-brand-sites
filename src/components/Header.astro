@@ -1,0 +1,57 @@
+---
+import { getBrand } from '../lib/supabase.js';
+import { localImage } from '../lib/images.js';
+
+const brand = await getBrand();
+const logoUrl = brand.logo_path
+  ? await localImage(
+      `${import.meta.env.SUPABASE_URL}/storage/v1/object/public/brand-site-images/${brand.logo_path}`,
+      240
+    )
+  : null;
+
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/products/', label: 'Products' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
+];
+const current = Astro.url.pathname;
+---
+
+<header class="border-b border-black/10 bg-[var(--surface)]">
+  <div class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-6">
+    <a href="/" class="flex items-center gap-3 shrink-0" aria-label={`${brand.brand} home`}>
+      {
+        logoUrl ? (
+          <img src={logoUrl} alt={`${brand.brand} logo`} class="h-10 w-auto" width="120" height="40" />
+        ) : (
+          <span class="text-2xl font-extrabold tracking-tight" style="color: var(--brand-2);">
+            {brand.brand}
+          </span>
+        )
+      }
+    </a>
+    <nav aria-label="Main">
+      <ul class="flex items-center gap-5 text-sm font-semibold">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  'hover:underline underline-offset-4',
+                  current === item.href || (item.href !== '/' && current.startsWith(item.href))
+                    ? 'underline decoration-[var(--brand)] decoration-2'
+                    : '',
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { getBrand, getProducts } from '../lib/supabase.js';
+import { getLocalImagesByAsin } from '../lib/images.js';
+import { groupByParent } from '../lib/catalog.js';
+
+const brand = await getBrand();
+const products = await getProducts();
+const imagesByAsin = await getLocalImagesByAsin();
+
+// Featured: top sort_weight groups first (catalog order), capped for the home page.
+const featured = groupByParent(products).slice(0, 6);
+const ogImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]).find(Boolean) ?? null;
+---
+
+<Base description={brand.tagline ?? undefined} ogImage={ogImage}>
+  <Hero />
+
+  <section class="mx-auto max-w-6xl px-4 py-14">
+    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Featured products</h2>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        featured.map((group) => (
+          <ProductCard
+            representative={group.representative}
+            children={group.children}
+            images={imagesByAsin.get(group.representative.asin) ?? []}
+          />
+        ))
+      }
+    </div>
+    <div class="mt-10 text-center">
+      <a href="/products/" class="font-bold underline underline-offset-4 decoration-[var(--brand)] decoration-2">
+        Browse the full catalog →
+      </a>
+    </div>
+  </section>
+
+  {
+    brand.about_html && (
+      <section class="bg-[var(--surface)] border-y border-black/10">
+        <div class="mx-auto max-w-3xl px-4 py-14 prose-desc">
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4">Our story</h2>
+          <div set:html={brand.about_html} />
+        </div>
+      </section>
+    )
+  }
+</Base>

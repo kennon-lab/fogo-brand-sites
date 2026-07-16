@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getBrand } from '../lib/supabase.js';
+
+const brand = await getBrand();
+
+const {
+  title,
+  description = brand.tagline ?? `${brand.brand} — shop our products on Amazon.`,
+  ogImage = null,
+  jsonLd = null,
+} = Astro.props;
+
+const pageTitle = title ? `${title} | ${brand.brand}` : `${brand.brand} — ${brand.tagline ?? 'Official Site'}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageAbs = ogImage ? new URL(ogImage, Astro.site).href : null;
+
+const primary = brand.primary_color ?? '#171310';
+const secondary = brand.secondary_color ?? '#5b5147';
+const themeVars = `:root{--brand:${primary};--brand-2:${secondary};}`;
+
+const gaId = brand.google_analytics_id;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={brand.brand} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImageAbs && <meta property="og:image" content={ogImageAbs} />}
+    <meta name="twitter:card" content={ogImageAbs ? 'summary_large_image' : 'summary'} />
+    <style set:html={themeVars}></style>
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {
+      gaId && (
+        <>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+          <script
+            set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');
+document.addEventListener('click',function(e){var a=e.target.closest('a[data-amazon-cta]');if(a){gtag('event','amazon_click',{asin:a.dataset.asin||'',link_url:a.href});}});`}
+          />
+        </>
+      )
+    }
+  </head>
+  <body class="min-h-screen flex flex-col font-sans antialiased">
+    <Header />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

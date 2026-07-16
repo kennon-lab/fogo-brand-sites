@@ -1,0 +1,19 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# environment — real keys never committed
+.env
+.env.local
+.env.production
+
+# transient mirror-script fallback output
+scripts/mirror-manifest.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

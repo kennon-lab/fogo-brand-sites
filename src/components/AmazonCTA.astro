@@ -1,0 +1,33 @@
+---
+// Every purchase-intent CTA on the site. href is the Attribution-tagged URL
+// when one exists for (brand, asin, channel='brand_site'), else the plain
+// Amazon PDP link. Always opens Amazon in a new tab.
+const { product, size = 'md', label = 'View on Amazon' } = Astro.props;
+
+const href = product.attribution_url || product.plain_amazon_url;
+const sizeClasses =
+  size === 'lg'
+    ? 'px-8 py-4 text-lg'
+    : size === 'sm'
+      ? 'px-4 py-2 text-sm'
+      : 'px-6 py-3 text-base';
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="sponsored noopener"
+  data-amazon-cta
+  data-asin={product.asin}
+  class:list={[
+    'inline-flex items-center justify-center gap-2 rounded-full font-bold no-underline',
+    'bg-[var(--brand)] text-[var(--brand-2)] shadow-sm hover:opacity-90 transition-opacity',
+    sizeClasses,
+  ]}
+>
+  {label}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+  </svg>
+</a>

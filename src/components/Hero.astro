@@ -1,0 +1,28 @@
+---
+import { getBrand } from '../lib/supabase.js';
+
+const brand = await getBrand();
+---
+
+<section class="bg-[var(--brand)]">
+  <div class="mx-auto max-w-6xl px-4 py-20 sm:py-28 text-center">
+    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight" style="color: var(--brand-2);">
+      {brand.brand}
+    </h1>
+    {
+      brand.tagline && (
+        <p class="mt-4 text-xl sm:text-2xl font-semibold" style="color: var(--brand-2);">
+          {brand.tagline}
+        </p>
+      )
+    }
+    <div class="mt-8">
+      <a
+        href="/products/"
+        class="inline-flex items-center rounded-full bg-[var(--brand-2)] px-8 py-4 text-lg font-bold text-white no-underline shadow hover:opacity-90 transition-opacity"
+      >
+        Shop the collection
+      </a>
+    </div>
+  </div>
+</section>

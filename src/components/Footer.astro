@@ -1,0 +1,22 @@
+---
+import { getBrand } from '../lib/supabase.js';
+
+const brand = await getBrand();
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-16 border-t border-black/10 bg-[var(--surface)]">
+  <div class="mx-auto max-w-6xl px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-black/60">
+    <p>&copy; {year} {brand.brand}. All rights reserved.</p>
+    <nav aria-label="Footer">
+      <ul class="flex items-center gap-5">
+        <li><a href="/about/" class="hover:underline underline-offset-4">About</a></li>
+        <li><a href="/contact/" class="hover:underline underline-offset-4">Contact</a></li>
+        <li><a href="/privacy/" class="hover:underline underline-offset-4">Privacy</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="mx-auto max-w-6xl px-4 pb-6 text-xs text-black/40">
+    <p>As an Amazon seller, purchases made through links on this site are completed on Amazon.com.</p>
+  </div>
+</footer>

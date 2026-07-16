@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { getBrand } from '../lib/supabase.js';
+
+const brand = await getBrand();
+---
+
+<Base title="Contact" description={`Get in touch with ${brand.brand}.`}>
+  <section class="mx-auto max-w-3xl px-4 py-14">
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Contact us</h1>
+    <div class="mt-6 space-y-4 text-lg text-black/80">
+      {
+        brand.contact_email ? (
+          <p>
+            Questions, feedback, or wholesale inquiries? Email us at{' '}
+            <a
+              href={`mailto:${brand.contact_email}`}
+              class="underline underline-offset-4 decoration-[var(--brand)] decoration-2 font-semibold"
+            >
+              {brand.contact_email}
+            </a>
+            {' '}and we'll get back to you within two business days.
+          </p>
+        ) : (
+          <p>
+            The fastest way to reach us about an order is through Amazon's messaging system — go to your order and
+            choose <em>Get product support</em> or <em>Contact seller</em>.
+          </p>
+        )
+      }
+      <p>
+        For order status, shipping, and returns, your Amazon account is the fastest route — every {brand.brand}
+        purchase is fulfilled by Amazon.
+      </p>
+    </div>
+  </section>
+</Base>

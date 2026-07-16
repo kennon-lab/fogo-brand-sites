@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import { getBrand, getProducts } from '../lib/supabase.js';
+
+const brand = await getBrand();
+const products = await getProducts();
+
+const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
+---
+
+<Base title="About" description={`About ${brand.brand}. ${brand.tagline ?? ''}`.trim()}>
+  <section class="mx-auto max-w-3xl px-4 py-14">
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">About {brand.brand}</h1>
+    {
+      brand.about_html ? (
+        <div class="mt-6 prose-desc text-lg text-black/80" set:html={brand.about_html} />
+      ) : (
+        <div class="mt-6 space-y-4 text-lg text-black/80">
+          <p>
+            {brand.brand} is dedicated to making everyday products you can rely on
+            {brand.tagline ? ` — ${brand.tagline.replace(/\.$/, '').toLowerCase()}.` : '.'}
+          </p>
+          <p>
+            Every {brand.brand} product is designed with care, backed by real customer feedback, and fulfilled
+            through Amazon so you get fast, reliable shipping and easy returns.
+          </p>
+          {categories.length > 0 && (
+            <p>
+              Explore our range across {categories.join(', ').toLowerCase()} on the{' '}
+              <a href="/products/" class="underline underline-offset-4 decoration-[var(--brand)] decoration-2 font-semibold">
+                products page
+              </a>
+              .
+            </p>
+          )}
+        </div>
+      )
+    }
+  </section>
+</Base>

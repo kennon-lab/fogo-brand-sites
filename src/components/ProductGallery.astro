@@ -1,0 +1,46 @@
+---
+// PDP image gallery. Pure HTML/CSS (no client JS): the first image renders
+// large, the rest as an anchor-linked thumbnail strip. Empty `images` renders
+// nothing — the PDP falls back to a text-only presentation.
+const { images = [], title = '' } = Astro.props;
+---
+
+{
+  images.length > 0 && (
+    <div class="flex flex-col gap-3">
+      <div class="rounded-2xl border border-black/10 bg-white overflow-x-auto flex snap-x snap-mandatory scroll-smooth" id="gallery">
+        {images.map((url, i) => (
+          <img
+            src={url}
+            alt={`${title} — image ${i + 1}`}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            width="800"
+            height="800"
+            id={`img-${i}`}
+            class="aspect-square w-full shrink-0 snap-center object-contain p-6"
+          />
+        ))}
+      </div>
+      {images.length > 1 && (
+        <ul class="flex gap-2 overflow-x-auto" aria-label="Gallery thumbnails">
+          {images.map((url, i) => (
+            <li>
+              <a href={`#img-${i}`} class="block rounded-lg border border-black/10 hover:border-[var(--brand)] bg-white">
+                <img
+                  src={url}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  width="80"
+                  height="80"
+                  class="h-20 w-20 object-contain p-1"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}

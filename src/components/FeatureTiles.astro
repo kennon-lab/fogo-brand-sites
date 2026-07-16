@@ -20,7 +20,7 @@ const localized = await Promise.all(
         {localized.map((tile) => (
           <a
             href={`/products/${tile.asin}/`}
-            class="group block overflow-hidden rounded-2xl border border-black/10 shadow-sm hover:shadow-md transition-shadow"
+            class="group relative block overflow-hidden rounded-2xl border border-black/10 shadow-sm hover:shadow-md transition-shadow"
             aria-label={tile.label}
           >
             <img
@@ -32,6 +32,12 @@ const localized = await Promise.all(
               height="450"
               class="aspect-[2/1] w-full object-cover group-hover:scale-[1.02] transition-transform"
             />
+            {/* caption overlay for tiles whose artwork has no baked-in text */}
+            {tile.caption && (
+              <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-3 pt-8 text-white font-bold text-lg">
+                {tile.label}
+              </span>
+            )}
           </a>
         ))}
       </div>

@@ -87,6 +87,11 @@ Known quirks (do not re-derive):
    slug, domain, store, tagline, `primary_color`/`secondary_color` (brand-guide PDFs live in
    Google Drive under Brand Assets/<brand>), upload logo to
    `brand-site-images/{slug}/logo.*` and set `logo_path`.
+   Optional visual content (all bucket-relative paths, mirrored owned creative — the brand's
+   Amazon storefront tiles are a great source; strip the `._CR..._SX..._` transform suffix
+   from store image URLs for full resolution): `hero_image_path` (square lifestyle shot →
+   split hero), `about_banner_path` (wide banner on /about), `feature_tiles` jsonb
+   `[{image_path, label, asin}]` (home "Shop by category" grid linking to PDPs).
 2. `node scripts/mirror-images.mjs --brand=<slug>`.
 3. Amazon Attribution campaign in the owning store's console → one tag per ASIN (bulk CSV
    upload) → insert `bronze.attribution_links` rows (channel `brand_site`).

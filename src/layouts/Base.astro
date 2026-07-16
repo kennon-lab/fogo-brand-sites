@@ -1,5 +1,17 @@
 ---
 import '../styles/global.css';
+// Registered brand fonts — self-hosted at build time, so no external font
+// requests at runtime. Unused @font-face rules cost only CSS bytes (browsers
+// download only fonts the page actually renders). Adding a font for a new
+// brand = `npm i @fontsource/<font>` + one import here.
+import '@fontsource/archivo-black';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/800.css';
+import '@fontsource/michroma';
+import '@fontsource/montserrat/400.css';
+import '@fontsource/montserrat/600.css';
+import '@fontsource/montserrat/800.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getBrand } from '../lib/supabase.js';
@@ -19,7 +31,10 @@ const ogImageAbs = ogImage ? new URL(ogImage, Astro.site).href : null;
 
 const primary = brand.primary_color ?? '#171310';
 const secondary = brand.secondary_color ?? '#5b5147';
-const themeVars = `:root{--brand:${primary};--brand-2:${secondary};}`;
+const systemStack = `system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
+const fontHeading = brand.font_heading ? `'${brand.font_heading}', ${systemStack}` : systemStack;
+const fontBody = brand.font_body ? `'${brand.font_body}', ${systemStack}` : systemStack;
+const themeVars = `:root{--brand:${primary};--brand-2:${secondary};--font-heading:${fontHeading};--font-body:${fontBody};}`;
 
 const gaId = brand.google_analytics_id;
 ---

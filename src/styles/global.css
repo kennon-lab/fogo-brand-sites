@@ -19,6 +19,14 @@ html {
 body {
   background-color: var(--bg);
   color: var(--ink);
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+
+h1,
+h2,
+h3,
+.font-heading {
+  font-family: var(--font-heading, var(--font-body, system-ui, sans-serif));
 }
 
 .prose-desc p {

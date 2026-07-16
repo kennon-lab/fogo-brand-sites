@@ -67,10 +67,21 @@ Known quirks (do not re-derive):
 ## Template conventions
 
 - Theming via CSS variable tokens injected in `src/layouts/Base.astro` from the brand row:
-  `--brand` = `primary_color`, `--brand-2` = `secondary_color`; neutral `--ink/--bg/--surface`
-  defaults live in `src/styles/global.css`. Same pattern as the dashboard's Sharpened Burnished
-  theme. Bean Envy palette (from BNV_PreliminaryBrandGuidelines_AMZ_US_102721.pdf): yellow
-  #fecb34, black #000000, off-white #efe7e4, orange #eda31d.
+  `--brand` = `primary_color`, `--brand-2` = `secondary_color`, `--font-heading` =
+  `font_heading`, `--font-body` = `font_body`; neutral `--ink/--bg/--surface` defaults live in
+  `src/styles/global.css`. Same pattern as the dashboard's Sharpened Burnished theme. Bean Envy
+  palette (from BNV_PreliminaryBrandGuidelines_AMZ_US_102721.pdf): yellow #fecb34, black
+  #000000, off-white #efe7e4, orange #eda31d.
+- Fonts are self-hosted via @fontsource packages, statically imported in `Base.astro` (unused
+  @font-face rules are free — browsers only fetch rendered fonts). To register a new brand
+  font: `npm i @fontsource/<font>` + one import line in Base.astro + set
+  `brand_sites.font_heading`/`font_body` to the CSS family name. Never load fonts from Google
+  Fonts CDN — the shipped site must make no external font requests. Current registry: Archivo
+  Black + Inter (Bean Envy ≈ Nimbus Sans Ext), Michroma + Montserrat (Xtreme Comforts ≈
+  Eurostile Heavy per their style guide).
+- `brand_sites.hero_style` picks the hero layout variant in `Hero.astro`: `'split'` (text
+  beside image), `'full-bleed'` (edge-to-edge image, dark overlay, white text), `'minimal'`
+  (centered text, no image). NULL = auto (split when hero_image_path set, else minimal).
 - Every purchase CTA is `src/components/AmazonCTA.astro`: `attribution_url ?? plain_amazon_url`,
   `target="_blank" rel="sponsored noopener"`, `data-amazon-cta`/`data-asin` for the GA outbound
   event (GA loads only when `google_analytics_id` is set on the brand row).

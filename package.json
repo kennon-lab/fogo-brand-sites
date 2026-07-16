@@ -13,6 +13,10 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",
     "@astrojs/tailwind": "^6.0.0",
+    "@fontsource/archivo-black": "^5.2.8",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/michroma": "^5.2.8",
+    "@fontsource/montserrat": "^5.2.8",
     "astro": "^5.1.1",
     "tailwindcss": "^3.4.17"
   }

@@ -39,7 +39,7 @@ if (-not $sites -or $sites.Count -eq 0) {
 $triggered = 0
 foreach ($site in $sites) {
     if ([string]::IsNullOrWhiteSpace($site.vercel_deploy_hook_url)) {
-        Write-Warning "$($site.slug): is_live but vercel_deploy_hook_url is empty — skipping."
+        Write-Warning "$($site.slug): is_live but vercel_deploy_hook_url is empty - skipping."
         continue
     }
     Write-Host "Triggering rebuild: $($site.slug)"

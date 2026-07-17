@@ -107,6 +107,16 @@ if (mode === 'family') {
     description: a.description_short,
     ...(images.length > 0 && { image: images.map((src) => new URL(src, Astro.site).href) }),
     brand: { '@type': 'Brand', name: brand.brand },
+    // Family aggregate from live Amazon review data (Keepa view; family MAX,
+    // never the per-ASIN sum). Kennon approved sourcing schema rating from
+    // Amazon reviews 2026-07-17.
+    ...(g.reviews && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: g.reviews.rating,
+        reviewCount: g.reviews.count,
+      },
+    }),
     offers: {
       '@type': 'AggregateOffer',
       url: g.representative.attribution_url || g.representative.plain_amazon_url,

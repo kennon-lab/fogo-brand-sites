@@ -24,13 +24,6 @@ needs:
       Sometimes better rest is about angle, not softness. A 7-inch wedge for
       reading, lounging, and sleeping slightly elevated, and a full-length
       body pillow that gives side sleepers something to hold onto.
-  - slug: refresh-refill
-    display: Refill & refresh
-    short: Shredded foam that brings cushions back to life.
-    intro: >-
-      The same shredded memory foam we fill our pillows with, sold by the
-      pound. Restuff a flattened cushion, refill a bean bag, or top up a dog
-      bed instead of replacing it.
 
 # Category collection pages (one route per product category).
 categories:
@@ -53,9 +46,3 @@ categories:
       Certified memory foam for the hours you spend sitting: seat and coccyx
       cushions that help relieve tailbone pressure, and a strapped lumbar
       pillow that keeps your lower back supported at desk or behind the wheel.
-  - slug: filler
-    display: Foam filler
-    intro: >-
-      Loose shredded memory foam in 2.5 to 20 pound bags. Restuff cushions,
-      bean bags, and pet beds with the same machine-washable fill we use in
-      our pillows.

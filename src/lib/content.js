@@ -124,6 +124,28 @@ export function getMergedCatalog() {
     }
 
     const byKey = new Map(authored.map((a) => [a.family_key, a]));
+
+    // Adoption: an authored family's variants may claim an ASIN stranded in
+    // its own single-ASIN unauthored group (Amazon variation-family artifact —
+    // e.g. the slim King pillow lives outside the flagship family on Amazon
+    // but belongs with it on the site). The stranded child moves into the
+    // authored group: it joins the price range, review MAX aggregation, and
+    // redirect-stub generation, and its orphan group disappears from grids.
+    for (const a of authored) {
+      const home = groups.find((g) => g.key === a.family_key);
+      if (!home) continue;
+      for (const v of a.variants) {
+        if (home.children.some((c) => c.asin === v.asin)) continue;
+        const donorIdx = groups.findIndex(
+          (g) => g.key !== a.family_key && !byKey.has(g.key) && g.children.length === 1 && g.children[0].asin === v.asin
+        );
+        if (donorIdx !== -1) {
+          home.children.push(groups[donorIdx].children[0]);
+          groups.splice(donorIdx, 1);
+        }
+      }
+    }
+
     return groups.map((g) => {
       const a = byKey.get(g.key) ?? null;
       const labels = new Map();

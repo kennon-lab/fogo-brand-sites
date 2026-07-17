@@ -1,6 +1,6 @@
-# Flagship family (11 variants). Note: Amazon groups the Slim Standard/Queen
-# singles and all Slim 2-packs into THIS family; only the Slim King single is
-# a standalone listing (see slim-pillow.yaml).
+# Flagship family (12 variants). The Slim King single (B014E9UMHI) is a
+# standalone listing on Amazon but belongs here on the site — content.js
+# "adopts" it into this family via the variants list below.
 family_key: B0G5Q8C8RG
 display_name: The Shredded Memory Foam Pillow
 tagline: Add or remove fill until the loft is exactly yours.
@@ -49,9 +49,8 @@ who_its_for:
     - Back sleepers who want support without being propped forward
     - Combination sleepers who change position through the night
   anti_fit: >-
-    If you sleep on your stomach and want as little pillow as possible, the
-    slim profile is the better starting point.
-  anti_fit_alternative: slim-pillow
+    If you sleep on your stomach and want as little pillow as possible, start
+    with one of the Slim options above — same fill, deliberately low profile.
 specs:
   - label: Fill
     value: Shredded memory foam, adjustable through the inner zipper
@@ -104,6 +103,7 @@ variants:
   - { asin: B0DV5PVDYG, label: King · 2-pack }
   - { asin: B014E9UMH8, label: Slim · Standard }
   - { asin: B014E9UO12, label: Slim · Queen }
+  - { asin: B014E9UMHI, label: Slim · King }
   - { asin: B0DV5RMDZN, label: Slim · Standard · 2-pack }
   - { asin: B0DV68NWY2, label: Slim · Queen · 2-pack }
   - { asin: B0DV5XGH66, label: Slim · King · 2-pack }

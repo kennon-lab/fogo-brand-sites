@@ -185,6 +185,28 @@ Built 2026-07-17.
 - check-dist: OK across 64 xtreme pages; bean-envy parity: intentional
   header nav-wrap class + whitespace only.
 
+## Pre-launch revisions (Kennon, 2026-07-17)
+
+- **Slim pillow folded into the flagship family.** slim-pillow.yaml deleted;
+  B014E9UMHI is adopted into B0G5Q8C8RG via the new adoption logic in
+  content.js (authored variants may claim an ASIN stranded in its own
+  single-ASIN unauthored group). It joins the price range, review MAX, the
+  variant chips ("Slim · King"), and stub generation (/products/B014E9UMHI/
+  → /products/shredded-pillow/).
+- **Shredded Foam Filler removed from the site.** Data-layer:
+  bronze.brand_site_product_overrides.hide_from_site=true for B01DR0YUXC,
+  B01DR5GDIC, B07HB52YZL, B07WW975P9 (flip back to false to restore).
+  foam-filler.yaml deleted; refresh-refill need + filler category removed;
+  homepage needs grid now 3 cards. The old filler ASIN URLs 404 by design.
+- **AggregateRating added to family PDP JSON-LD** (Kennon approved sourcing
+  schema rating from Amazon review data): ratingValue/reviewCount from the
+  live family aggregate; omitted automatically when stats are stale.
+- **LAUNCHED 2026-07-17**: branch merged to master with all of PR 1–5;
+  Vercel git integration deploys xtremecomforts.com (and rebuilds bean-envy,
+  verified byte-safe). Still open post-launch: seat-cushion variant label
+  differentiators, real review quotes (site renders nothing until then),
+  attribution links + campaign, Lighthouse pass, Search Console re-submit.
+
 ## Then
 - **Review quotes (Kennon)**: `REVIEW_EXCERPT_CANDIDATES.md` (repo root, on
   this branch) holds draft theme targets + search terms + paste-ready YAML

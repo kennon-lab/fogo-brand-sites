@@ -40,26 +40,22 @@ Spread across families — the wall should prove the catalog, not one pillow.
 | 1 | Shredded Memory Foam Pillow | Adjustability actually used | "I took out about a third of the fill the first night and it's been perfect since. First pillow I haven't given up on in years." | adjust, removed fill, take out foam |
 | 2 | Shredded Memory Foam Pillow | Side-sleeper fit | "I'm a side sleeper and this is the first pillow that keeps my neck straight without going flat by 3am." | side sleeper, neck, flat |
 | 3 | Shredded Memory Foam Pillow | Longevity / repeat purchase | "Bought one three years ago, just ordered two more for the guest room. Still holds its shape after countless washes." | years, bought another, still |
-| 4 | Slim Low-Profile Pillow | Stomach-sleeper relief | "Every 'thin' pillow I tried was still too tall. This one finally lets me sleep face down without craning my neck." | stomach sleeper, thin, low |
+| 4 | Shredded Memory Foam Pillow (Slim variant) | Stomach-sleeper relief | "Every 'thin' pillow I tried was still too tall. This one finally lets me sleep face down without craning my neck." | stomach sleeper, thin, low |
 | 5 | Seat & Coccyx Cushions | Desk-hours relief | "I sit 9+ hours a day and my tailbone used to ache by lunch. With this cushion I honestly forget I'm sitting on it." | tailbone, office chair, hours |
 | 6 | Seat & Coccyx Cushions (or Back & Lumbar) | Driving | "Made a 12-hour road trip bearable. It stays put on the car seat and doesn't flatten like the cheap ones." | car, road trip, driving |
 | 7 | Wedge & Body Pillows | Reading / elevation | "We keep it against the headboard for reading and my husband steals it to elevate his knees. It never loses the angle." | reading, incline, elevate |
-| 8 | Foam Filler | Revived furniture | "Refilled two sagging couch cushions with the 10 lb bag and they look brand new. Way cheaper than reupholstering." | couch cushion, refill, bean bag |
-| 9 | Shredded Memory Foam Pillow (4★, honesty slot) | Minor caveat + win | "Took a few nights of adding and removing foam to dial it in, but once I did, best sleep I've had in ages. 4 stars only because setup takes patience." | took a while, adjust, but |
+| 8 | Shredded Memory Foam Pillow (4★, honesty slot) | Minor caveat + win | "Took a few nights of adding and removing foam to dial it in, but once I did, best sleep I've had in ages. 4 stars only because setup takes patience." | took a while, adjust, but |
 
 ## PDP excerpts (family YAML → review_excerpts, 2–3 each)
 
-**shredded-pillow.yaml** — reuse wall #1/#2/#9 themes, or find distinct ones:
+**shredded-pillow.yaml** — reuse wall #1/#2/#4/#8 themes, or find distinct ones:
 - Loft dialing: "Add foam, remove foam, whatever your neck wants that week."
   (search: loft, customize)
 - Cooling/washability: "Cover washes up like new and it doesn't sleep hot
   like my old solid foam pillow." (search: hot, wash)
-
-**slim-pillow.yaml**
-- Wall #4 theme (stomach sleeper).
-- Back-sleeper chin angle: "Normal pillows shove my chin into my chest.
-  This one keeps my head level — didn't know a pillow could fix that."
-  (search: back sleeper, angle, neutral)
+- Slim variant, back-sleeper chin angle: "Normal pillows shove my chin into
+  my chest. This one keeps my head level — didn't know a pillow could fix
+  that." (search on the slim listings: back sleeper, angle, neutral)
 
 **seat-cushions.yaml**
 - Wall #5 theme (desk hours).
@@ -79,12 +75,6 @@ Spread across families — the wall should prove the catalog, not one pillow.
 - Body pillow side-sleep: "Wrapped around it the first night and my
   shoulders finally relaxed. My knees stopped knocking together too."
   (search: body pillow, knees, shoulder)
-
-**foam-filler.yaml**
-- Wall #8 theme (couch revival).
-- Dog bed: "Restuffed the dog's bed and washed the foam twice since —
-  fluffs right back. The polyfill version never survived one wash."
-  (search: dog bed, wash)
 
 ---
 

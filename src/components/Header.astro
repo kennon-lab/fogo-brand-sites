@@ -4,10 +4,12 @@ import { localImage } from '../lib/images.js';
 import { getSiteContent } from '../lib/content.js';
 
 const brand = await getBrand();
+// 480px for a ~200 CSS-px display = ~2.4x density, so the logo stays crisp
+// on retina screens (240 was ~1.2x and visibly soft).
 const logoUrl = brand.logo_path
   ? await localImage(
       `${import.meta.env.SUPABASE_URL}/storage/v1/object/public/brand-site-images/${brand.logo_path}`,
-      240
+      480
     )
   : null;
 

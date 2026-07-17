@@ -41,14 +41,13 @@ Spread across families — the wall should prove the catalog, not one pillow.
 | 2 | Shredded Memory Foam Pillow | Side-sleeper fit | "I'm a side sleeper and this is the first pillow that keeps my neck straight without going flat by 3am." | side sleeper, neck, flat |
 | 3 | Shredded Memory Foam Pillow | Longevity / repeat purchase | "Bought one three years ago, just ordered two more for the guest room. Still holds its shape after countless washes." | years, bought another, still |
 | 4 | Shredded Memory Foam Pillow (Slim variant) | Stomach-sleeper relief | "Every 'thin' pillow I tried was still too tall. This one finally lets me sleep face down without craning my neck." | stomach sleeper, thin, low |
-| 5 | Seat & Coccyx Cushions | Desk-hours relief | "I sit 9+ hours a day and my tailbone used to ache by lunch. With this cushion I honestly forget I'm sitting on it." | tailbone, office chair, hours |
-| 6 | Seat & Coccyx Cushions (or Back & Lumbar) | Driving | "Made a 12-hour road trip bearable. It stays put on the car seat and doesn't flatten like the cheap ones." | car, road trip, driving |
-| 7 | Wedge & Body Pillows | Reading / elevation | "We keep it against the headboard for reading and my husband steals it to elevate his knees. It never loses the angle." | reading, incline, elevate |
-| 8 | Shredded Memory Foam Pillow (4★, honesty slot) | Minor caveat + win | "Took a few nights of adding and removing foam to dial it in, but once I did, best sleep I've had in ages. 4 stars only because setup takes patience." | took a while, adjust, but |
+| 5 | Back & Lumbar Support | Driving | "Made a 12-hour road trip bearable. It stays put on the car seat and doesn't flatten like the cheap ones." | car, road trip, driving |
+| 6 | Wedge & Body Pillows | Reading / elevation | "We keep it against the headboard for reading and my husband steals it to elevate his knees. It never loses the angle." | reading, incline, elevate |
+| 7 | Shredded Memory Foam Pillow (4★, honesty slot) | Minor caveat + win | "Took a few nights of adding and removing foam to dial it in, but once I did, best sleep I've had in ages. 4 stars only because setup takes patience." | took a while, adjust, but |
 
 ## PDP excerpts (family YAML → review_excerpts, 2–3 each)
 
-**shredded-pillow.yaml** — reuse wall #1/#2/#4/#8 themes, or find distinct ones:
+**shredded-pillow.yaml** — reuse wall #1/#2/#4/#7 themes, or find distinct ones:
 - Loft dialing: "Add foam, remove foam, whatever your neck wants that week."
   (search: loft, customize)
 - Cooling/washability: "Cover washes up like new and it doesn't sleep hot
@@ -56,12 +55,6 @@ Spread across families — the wall should prove the catalog, not one pillow.
 - Slim variant, back-sleeper chin angle: "Normal pillows shove my chin into
   my chest. This one keeps my head level — didn't know a pillow could fix
   that." (search on the slim listings: back sleeper, angle, neutral)
-
-**seat-cushions.yaml**
-- Wall #5 theme (desk hours).
-- Wheelchair use: "Bought it for my mother's wheelchair — she stopped
-  complaining about pressure sores within the week." ⚠ borderline medical —
-  prefer a comfort-phrased equivalent. (search: wheelchair)
 
 **back-lumbar.yaml**
 - Strap actually working: "The strap is the whole game. Every other lumbar
@@ -71,7 +64,7 @@ Spread across families — the wall should prove the catalog, not one pillow.
   I sit straighter without thinking about it." (search: posture, lower back)
 
 **wedge-body.yaml**
-- Wall #7 theme (reading/elevation).
+- Wall #6 theme (reading/elevation).
 - Body pillow side-sleep: "Wrapped around it the first night and my
   shoulders finally relaxed. My knees stopped knocking together too."
   (search: body pillow, knees, shoulder)

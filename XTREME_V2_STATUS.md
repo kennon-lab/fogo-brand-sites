@@ -207,6 +207,18 @@ Built 2026-07-17.
   differentiators, real review quotes (site renders nothing until then),
   attribution links + campaign, Lighthouse pass, Search Console re-submit.
 
+## Post-launch: seat cushions removed for now (Kennon, 2026-07-17)
+
+Seat & Coccyx Cushions family (B0G2DZQGN7) pulled from the site until the
+three look-alike variants (B01N2VSUAE / B09H3JG56W / B09KNVQRMK) have real
+differentiators. Back & Lumbar Support stays live. To restore:
+1. Flip hide_from_site=false for B00V2L5JRA, B01N2VSUAE, B09H3JG56W,
+   B09KNVQRMK in bronze.brand_site_product_overrides.
+2. `git show <this commit>^:src/content/brands/xtreme-comforts/products/seat-cushions.yaml`
+   → restore the file, fix the three variant labels, re-add the
+   anti_fit_alternative cross-link in back-lumbar.yaml.
+3. Rebuild.
+
 ## Then
 - **Review quotes (Kennon)**: `REVIEW_EXCERPT_CANDIDATES.md` (repo root, on
   this branch) holds draft theme targets + search terms + paste-ready YAML

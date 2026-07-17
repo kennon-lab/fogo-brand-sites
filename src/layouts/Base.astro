@@ -13,6 +13,14 @@ import '@fontsource/michroma';
 import '@fontsource/montserrat/400.css';
 import '@fontsource/montserrat/600.css';
 import '@fontsource/montserrat/800.css';
+import '@fontsource/fraunces/400.css';
+import '@fontsource/fraunces/500.css';
+import '@fontsource/fraunces/600.css';
+import '@fontsource/fraunces/500-italic.css';
+import '@fontsource/figtree/400.css';
+import '@fontsource/figtree/500.css';
+import '@fontsource/figtree/600.css';
+import '@fontsource/figtree/700.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getBrand } from '../lib/supabase.js';
@@ -33,12 +41,24 @@ const pageTitle = title ? `${title} | ${brand.brand}` : `${brand.brand} — ${br
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImageAbs = ogImage ? new URL(ogImage, Astro.site).href : null;
 
+// Brand identity stylesheet: when src/styles/brands/<slug>.css exists it owns
+// the full token set (colors AND fonts), so the DB-driven :root injection is
+// skipped entirely — the stylesheet is inlined in its place, same cascade
+// position, so it wins over tokens.css defaults exactly like themeVars did.
+// Brands without a stylesheet (e.g. bean-envy) are untouched.
+const brandCssFiles = import.meta.glob('../styles/brands/*.css', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const brandCss = brandCssFiles[`../styles/brands/${brand.slug}.css`] ?? null;
+
 const primary = brand.primary_color ?? '#171310';
 const secondary = brand.secondary_color ?? '#5b5147';
 const systemStack = `system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
 const fontHeading = brand.font_heading ? `'${brand.font_heading}', ${systemStack}` : systemStack;
 const fontBody = brand.font_body ? `'${brand.font_body}', ${systemStack}` : systemStack;
-const themeVars = `:root{--brand:${primary};--brand-2:${secondary};--font-heading:${fontHeading};--font-body:${fontBody};}`;
+const themeVars = brandCss ?? `:root{--brand:${primary};--brand-2:${secondary};--font-heading:${fontHeading};--font-body:${fontBody};}`;
 
 const gaId = brand.google_analytics_id;
 ---

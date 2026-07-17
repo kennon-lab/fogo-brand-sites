@@ -1,0 +1,37 @@
+---
+// PDP variant chips grouped under a dimension label ("Loft", "Size"). Static
+// site: each chip is a link to the sibling page; the current page's chip is
+// marked with aria-current and the night fill.
+// Props: label, options [{ label, href, selected }].
+const { label, options = [] } = Astro.props;
+---
+
+<div>
+  {
+    label && (
+      <p class="mb-2 text-[0.72rem] font-semibold uppercase tracking-[var(--track-caps,0.08em)] text-[var(--mist,var(--ink))]">
+        {label}
+      </p>
+    )
+  }
+  <ul class="flex flex-wrap gap-2" aria-label={label ?? 'Variants'}>
+    {
+      options.map((opt) => (
+        <li>
+          <a
+            href={opt.href}
+            aria-current={opt.selected ? 'true' : undefined}
+            class:list={[
+              'inline-block rounded-full border px-4 py-1.5 text-sm font-semibold no-underline transition-colors duration-150 motion-reduce:transition-none',
+              opt.selected
+                ? 'border-[var(--night,var(--ink))] bg-[var(--night,var(--ink))] text-[var(--night-ink,var(--bg))]'
+                : 'border-[var(--line)] text-[var(--ink)] hover:border-[var(--ink)]',
+            ]}
+          >
+            {opt.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>

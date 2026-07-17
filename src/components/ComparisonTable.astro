@@ -1,0 +1,88 @@
+---
+// Semantic product comparison table. Scrolls horizontally inside its own
+// container on small screens with a sticky feature column. Cell values:
+// true (check) | false/null (dash) | string | { positions: [...] } which
+// renders the signature sleep-position glyphs.
+// Props: caption (visually hidden, for AT), columns [{ name, href?,
+// highlight? }], rows [{ label, values: [...] }].
+import SleepPosition from './ui/SleepPosition.astro';
+
+const { caption = 'Product comparison', columns = [], rows = [] } = Astro.props;
+---
+
+<div class="overflow-x-auto rounded-token-lg border border-[var(--line)] bg-[var(--surface)]">
+  <table class="w-full min-w-[640px] border-collapse text-sm">
+    <caption class="sr-only">{caption}</caption>
+    <thead>
+      <tr class="border-b border-[var(--line)]">
+        <th scope="col" class="sticky left-0 z-10 bg-[var(--surface)] p-4 text-left font-semibold text-[var(--mist,var(--ink))]">
+          <span class="sr-only">Feature</span>
+        </th>
+        {
+          columns.map((col) => (
+            <th
+              scope="col"
+              class:list={[
+                'p-4 text-left align-bottom',
+                col.highlight && 'border-t-2 border-t-[var(--accent)] bg-[var(--surface-2)]',
+              ]}
+            >
+              {col.href ? (
+                <a href={col.href} class="font-heading text-base leading-snug hover:underline underline-offset-4">
+                  {col.name}
+                </a>
+              ) : (
+                <span class="font-heading text-base leading-snug">{col.name}</span>
+              )}
+            </th>
+          ))
+        }
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map(({ label, values }) => (
+          <tr class="border-b border-[var(--line)] last:border-b-0">
+            <th scope="row" class="sticky left-0 z-10 bg-[var(--surface)] p-4 text-left font-semibold">
+              {label}
+            </th>
+            {columns.map((col, i) => {
+              const v = values[i];
+              return (
+                <td class:list={['p-4 align-middle', col.highlight && 'bg-[var(--surface-2)]']}>
+                  {v === true ? (
+                    <svg
+                      viewBox="0 0 20 20"
+                      class="h-5 w-5 text-[var(--accent-ink,var(--ink))]"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      role="img"
+                      aria-label="Yes"
+                    >
+                      <path d="M4 10.5 L8.5 15 L16 5.5" />
+                    </svg>
+                  ) : v == null || v === false ? (
+                    <span class="text-[var(--mist,var(--ink))]" aria-label="No">
+                      —
+                    </span>
+                  ) : v.positions ? (
+                    <span class="flex flex-wrap items-center gap-2 text-[var(--ink)]">
+                      {v.positions.map((pos) => (
+                        <SleepPosition position={pos} size={26} title={pos} />
+                      ))}
+                    </span>
+                  ) : (
+                    v
+                  )}
+                </td>
+              );
+            })}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

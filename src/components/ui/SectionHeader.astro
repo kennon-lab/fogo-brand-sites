@@ -1,0 +1,38 @@
+---
+// Section lead: eyebrow (letterspaced caps + short rule), Fraunces title,
+// optional lede. `on="night"` flips to the dark-section palette.
+// Props: eyebrow, title, lede, align left|center, on light|night, level (h2/h3).
+const {
+  eyebrow = null,
+  title,
+  lede = null,
+  align = 'left',
+  on = 'light',
+  level = 'h2',
+} = Astro.props;
+
+const Heading = level;
+const centered = align === 'center';
+const eyebrowColor = on === 'night' ? 'text-[var(--accent)]' : 'text-[var(--accent-ink,var(--ink))]';
+const titleColor = on === 'night' ? 'text-[var(--night-ink,var(--bg))]' : 'text-[var(--ink)]';
+const ledeColor = on === 'night' ? 'text-[var(--night-mist,var(--bg))]' : 'text-[var(--mist,var(--ink))]';
+---
+
+<div class:list={['max-w-2xl', centered && 'mx-auto text-center']}>
+  {
+    eyebrow && (
+      <p
+        class:list={[
+          'mb-3 flex items-center gap-3 text-[0.72rem] font-semibold uppercase tracking-[var(--track-caps,0.08em)]',
+          eyebrowColor,
+          centered && 'justify-center',
+        ]}
+      >
+        {!centered && <span class="h-px w-6 bg-current" aria-hidden="true" />}
+        {eyebrow}
+      </p>
+    )
+  }
+  <Heading class:list={['text-[length:var(--step-3)] leading-tight', titleColor]}>{title}</Heading>
+  {lede && <p class:list={['mt-4 text-[length:var(--step-0)] leading-relaxed', ledeColor]}>{lede}</p>}
+</div>

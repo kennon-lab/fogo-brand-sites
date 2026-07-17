@@ -1,0 +1,42 @@
+---
+// Star rating display. Fractional fill via a clipped overlay, so 4.3 renders
+// as 4.3 — never rounded up. Announced to screen readers as a single label;
+// the star glyphs themselves are decorative.
+// Props: rating (0–5), size sm|md, showValue (prints "4.3" after the stars).
+const { rating = 0, size = 'md', showValue = false } = Astro.props;
+
+const clamped = Math.max(0, Math.min(5, Number(rating) || 0));
+const pct = (clamped / 5) * 100;
+const starPx = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
+const starPath =
+  'M10 1.5l2.47 5.14 5.65.72-4.15 3.9 1.08 5.58L10 14.12l-5.05 2.72 1.08-5.58-4.15-3.9 5.65-.72L10 1.5z';
+const stars = [0, 1, 2, 3, 4];
+---
+
+<span
+  class="inline-flex items-center gap-2"
+  role="img"
+  aria-label={`Rated ${clamped.toFixed(1)} out of 5 stars`}
+>
+  <span class="relative inline-flex" aria-hidden="true">
+    <span class="inline-flex gap-0.5 text-[var(--line)]">
+      {stars.map(() => (
+        <svg viewBox="0 0 20 20" fill="currentColor" class={starPx}>
+          <path d={starPath} />
+        </svg>
+      ))}
+    </span>
+    <span
+      class="absolute inset-0 inline-flex gap-0.5 overflow-hidden text-[var(--accent)]"
+      style={`width: ${pct}%;`}
+    >
+      {stars.map(() => (
+        <svg viewBox="0 0 20 20" fill="currentColor" class={`${starPx} shrink-0`}>
+          <path d={starPath} />
+        </svg>
+      ))}
+    </span>
+  </span>
+  {showValue && <span class="font-semibold tabular-nums">{clamped.toFixed(1)}</span>}
+  <slot />
+</span>

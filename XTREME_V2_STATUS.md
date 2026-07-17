@@ -43,10 +43,39 @@ session (Claude Code desktop or web) can pick up mid-stream.
   Verified: bean-envy + xtreme dists byte-identical to baselines except intended
   deltas; merge smoke-tested end-to-end (51,492 @ 4.3 confirmed in-build).
 
-## Next: PR 2 — design system ("Rested Modern")
+## PR 2 — design system ("Rested Modern") — BUILT, awaiting palette/type gate
 
-**Run the `frontend-design` skill for this phase** (brainstorm → token plan →
-critique → build). Direction brief (scope §6):
+Built 2026-07-17 (desktop session, frontend-design skill). **Gate outstanding:
+Kennon approves palette + type before merge** — preview at `/design-preview`
+(temp page, local-only/uncommitted; run `npm run dev` with
+BRAND_SLUG=xtreme-comforts).
+
+Chosen direction ("dusk to first light"): ink-navy #222839 / night #171C29 +
+linen #F4F0E7 / oat #EAE3D3 + ONE accent, honeyed amber #D39A3F (bronze
+#875E17 as the AA text-accent). Type: Fraunces (display, 500) + Figtree
+(body), self-hosted via @fontsource. Signature element: sleep-position
+iconography (side/back/stomach/combination, `ui/SleepPosition.astro`) — used
+in badges, comparison tables, PDP fit guidance.
+
+Shipped: `src/styles/brands/xtreme-comforts.css` (full token contract +
+focus-visible + `.reveal` motion util, reduced-motion safe); Base.astro loads
+`src/styles/brands/<slug>.css` via eager `?raw` glob and inlines it INSTEAD of
+the DB themeVars (bean-envy path unchanged); ui/{Button,Badge,ReviewStars,
+SectionHeader,SleepPosition} + TrustBar, FaqAccordion, ComparisonTable,
+VariantSelector, StickyCta; ProductCard `authored` prop branch (without it →
+v1 markup, only inter-tag whitespace shifted).
+
+⚠ Cascade correction to PR 1 notes: Astro places the bundled stylesheet LINK
+*after* inline head styles, so tokens.css would beat an inline brand sheet for
+any token both define (v1 never noticed — themeVars only sets vars tokens.css
+omits). The brand sheet therefore uses `:root:root` to out-specify tokens.css
+regardless of order. Keep that doubled selector.
+
+Verified: both brands build clean (check-dist passes); bean-envy dist vs
+pre-PR2 baseline differs only by CSS bundle hash, added font files, and
+ProductCard whitespace collapse — zero markup/visual changes.
+
+### PR 2 direction brief (scope §6, for reference)
 
 - Palette: deep restful ink/night-navy family + warm linen/oat neutrals + ONE accent
   with genuine character. Explicitly avoid: cream+terracotta, near-black+acid-green,

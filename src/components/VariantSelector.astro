@@ -1,0 +1,52 @@
+---
+// PDP variant chips grouped under a dimension label ("Loft", "Size").
+// Two modes:
+// - link chips (default): options [{ label, href, selected }] — each chip
+//   navigates; the current page's chip carries aria-current + night fill.
+// - interactive chips: options [{ label, asin, price, amazonUrl, selected }]
+//   — renders <button data-variant ...>; a page-level script swaps price/CTA.
+// Props: label, options, interactive.
+const { label, options = [], interactive = false } = Astro.props;
+
+const chipClasses = (selected) => [
+  'inline-block rounded-full border px-4 py-1.5 text-sm font-semibold no-underline transition-colors duration-150 motion-reduce:transition-none',
+  selected
+    ? 'border-[var(--night,var(--ink))] bg-[var(--night,var(--ink))] text-[var(--night-ink,var(--bg))]'
+    : 'border-[var(--line)] text-[var(--ink)] hover:border-[var(--ink)]',
+];
+---
+
+<div>
+  {
+    label && (
+      <p class="mb-2 text-[0.72rem] font-semibold uppercase tracking-[var(--track-caps,0.08em)] text-[var(--mist,var(--ink))]">
+        {label}
+      </p>
+    )
+  }
+  <ul class="flex flex-wrap gap-2" aria-label={label ?? 'Variants'}>
+    {
+      options.map((opt) => (
+        <li>
+          {interactive ? (
+            <button
+              type="button"
+              data-variant
+              data-asin={opt.asin}
+              data-price={opt.price ?? ''}
+              data-amazon-url={opt.amazonUrl}
+              aria-pressed={opt.selected ? 'true' : 'false'}
+              class:list={chipClasses(false)}
+            >
+              {opt.label}
+            </button>
+          ) : (
+            <a href={opt.href} aria-current={opt.selected ? 'true' : undefined} class:list={chipClasses(opt.selected)}>
+              {opt.label}
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</div>

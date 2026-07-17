@@ -1,0 +1,75 @@
+# ⚠ PROVISIONAL VARIANT LABELS: B01N2VSUAE / B09H3JG56W / B09KNVQRMK have
+# near-identical titles and no differentiating attributes in our data (size or
+# construction differences are not visible). Kennon: correct these three
+# labels before launch.
+family_key: B0G2DZQGN7
+display_name: Seat & Coccyx Cushions
+tagline: Memory foam that makes long sitting survivable.
+category: seat-lumbar
+needs: [all-day-sitting]
+hero_benefit: >-
+  Certified memory foam cushions that help relieve pressure on your tailbone
+  and sit bones — at a desk, behind the wheel, or in a wheelchair.
+description_short: >-
+  Ergonomic memory foam seat cushions, CertiPUR-US and OEKO-TEX certified,
+  including a cut-out coccyx design for tailbone pressure relief.
+description_long: >-
+  Chairs are built for averages; your tailbone is not. These cushions put
+  resilient memory foam between you and the seat, shaped to distribute weight
+  across your sit bones instead of concentrating it where it hurts. The
+  coccyx design adds a rear cut-out that keeps pressure off the tailbone
+  entirely — the option people choose when sitting is the painful part of
+  their day.
+
+
+  The foam is CertiPUR-US and OEKO-TEX certified for material safety, and the
+  cushions move where you do: office chair, car seat, wheelchair, stadium
+  bench.
+badges: [certipur, oeko-tex, prime]
+benefits:
+  - icon: support
+    title: Pressure where it isn't
+    body: >-
+      Memory foam spreads your weight across the whole seat, helping relieve
+      the pressure points that make hour three feel like hour ten.
+  - icon: certified
+    title: Certified materials
+    body: >-
+      CertiPUR-US and OEKO-TEX certifications — third-party testing for
+      chemical safety, on record.
+  - icon: portable
+    title: Goes where you sit
+    body: >-
+      Desk to car to bleachers. A cushion only helps if it's under you, and
+      these are light enough to actually carry.
+who_its_for:
+  fits:
+    - Desk workers whose discomfort builds through the afternoon
+    - Drivers on long hauls or daily commutes
+    - Wheelchair users who need reliable, certified foam underneath
+  anti_fit: >-
+    If your discomfort is in your lower back rather than your seat, a lumbar
+    support pillow addresses it more directly.
+  anti_fit_alternative: back-lumbar
+specs:
+  - label: Material
+    value: Ergonomic memory foam
+  - label: Certifications
+    value: CertiPUR-US, OEKO-TEX
+  - label: Use
+    value: Office chairs, car seats, wheelchairs, travel
+faq:
+  - q: What does the coccyx cut-out do?
+    a: >-
+      The rear section of the cushion is cut away so your tailbone floats
+      rather than presses into the seat. If tailbone pressure is your main
+      complaint, choose the coccyx design.
+  - q: Will it flatten out?
+    a: >-
+      The foam is built to recover its shape between uses. Unlike polyfill
+      cushions, memory foam compresses under you and returns when you stand.
+variants:
+  - { asin: B00V2L5JRA, label: Coccyx relief cushion }
+  - { asin: B09H3JG56W, label: Everyday seat cushion }
+  - { asin: B01N2VSUAE, label: Extra-support seat cushion }
+  - { asin: B09KNVQRMK, label: Premium seat cushion }

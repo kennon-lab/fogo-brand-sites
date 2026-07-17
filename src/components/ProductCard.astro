@@ -1,11 +1,19 @@
 ---
 import AmazonCTA from './AmazonCTA.astro';
+import ReviewStars from './ui/ReviewStars.astro';
+import Badge from './ui/Badge.astro';
 import { variantLabel, formatPrice } from '../lib/catalog.js';
 
 // One catalog card per parent group. `images` is string[] of mirrored bucket
 // URLs for the representative ASIN (may be empty → text-only card, never a
 // broken <img>). `children` are the variant products (length 1 = standalone).
-const { representative: p, children = [p], images = [] } = Astro.props;
+// `authored` (v2 brands only): { name, tagline, href, badge?, reviews?:
+// { rating, count } } from the content layer — switches to the editorial
+// card. Without it the card renders exactly as v1.
+// `labels` (optional Map<asin, label> from getMergedCatalog): authored human
+// variant labels, preferred over title-diffing so ASINs never render as chips
+// on authored brands. Unauthored brands pass nothing — output unchanged.
+const { representative: p, children = [p], images = [], authored = null, labels = null } = Astro.props;
 
 const prices = children.map((c) => c.item_price).filter((v) => v != null);
 const minPrice = prices.length ? Math.min(...prices) : null;
@@ -14,6 +22,47 @@ const priceLabel =
   minPrice == null ? null : minPrice === maxPrice ? formatPrice(minPrice) : `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`;
 ---
 
+{authored ? (
+<article class="group flex flex-col overflow-hidden rounded-token-lg border border-[var(--line)] bg-[var(--surface)] shadow-token-1 transition-shadow duration-150 hover:shadow-token-2 motion-reduce:transition-none">
+  <a href={authored.href} class="relative block bg-[var(--surface-2)]">
+    {
+      images.length > 0 ? (
+        <img
+          src={images[0]}
+          alt={authored.name}
+          loading="lazy"
+          decoding="async"
+          width="600"
+          height="600"
+          class="aspect-square w-full object-contain p-6 transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+        />
+      ) : (
+        <div class="flex aspect-square w-full items-center justify-center p-8 text-center">
+          <span class="font-heading text-lg text-[var(--mist,var(--ink))]">{authored.name}</span>
+        </div>
+      )
+    }
+    {authored.badge && <span class="absolute left-4 top-4"><Badge variant="night">{authored.badge}</Badge></span>}
+  </a>
+  <div class="flex flex-1 flex-col gap-2 p-5">
+    <h3 class="text-[length:var(--step-1)] leading-snug">
+      <a href={authored.href} class="no-underline hover:underline underline-offset-4">{authored.name}</a>
+    </h3>
+    {authored.tagline && <p class="text-sm leading-relaxed text-[var(--mist,var(--ink))]">{authored.tagline}</p>}
+    {
+      authored.reviews && (
+        <ReviewStars rating={authored.reviews.rating} size="sm">
+          <span class="text-sm text-[var(--mist,var(--ink))]">{authored.reviews.count.toLocaleString('en-US')} reviews</span>
+        </ReviewStars>
+      )
+    }
+    <div class="mt-auto flex items-center justify-between gap-3 pt-3">
+      {priceLabel && <p class="font-semibold text-[var(--ink)]">{priceLabel}</p>}
+      <AmazonCTA product={p} size="sm" position="card" />
+    </div>
+  </div>
+</article>
+) : (
 <article class="flex flex-col rounded-2xl bg-[var(--surface)] border border-black/10 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
   <a href={`/products/${p.asin}/`} class="block">
     {
@@ -43,7 +92,7 @@ const priceLabel =
       children.length > 1 && (
         <ul class="flex flex-wrap gap-2" aria-label="Variants">
           {children.map((c) => {
-            const label = variantLabel(c, children);
+            const label = labels?.get(c.asin) ?? variantLabel(c, children);
             return (
               <li>
                 <a
@@ -59,7 +108,8 @@ const priceLabel =
       )
     }
     <div class="mt-auto pt-2">
-      <AmazonCTA product={p} size="sm" />
+      <AmazonCTA product={p} size="sm" position="card" />
     </div>
   </div>
 </article>
+)}

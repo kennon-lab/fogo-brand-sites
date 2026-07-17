@@ -3,6 +3,8 @@ import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 // Astro config runs before Astro's own .env loading, so pull env explicitly.
 const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
@@ -32,10 +34,21 @@ if (!Array.isArray(rows) || rows.length === 0) {
 }
 const brandDomain = rows[0].domain;
 
+// Authored brands replace per-ASIN PDPs with family-slug pages; the ASIN URLs
+// become noindex redirect stubs and must stay out of the sitemap. Unauthored
+// brands keep ASIN pages as their canonical PDPs.
+const contentDir = join('src', 'content', 'brands', BRAND_SLUG, 'products');
+const isAuthored = existsSync(contentDir) && readdirSync(contentDir).some((f) => /\.ya?ml$/.test(f));
+
 export default defineConfig({
   output: 'static',
   site: `https://${brandDomain}`,
-  integrations: [tailwind({ applyBaseStyles: false }), sitemap()],
+  integrations: [
+    tailwind({ applyBaseStyles: false }),
+    sitemap({
+      filter: (page) => !(isAuthored && /\/products\/B0[A-Z0-9]{8}\/$/.test(page)),
+    }),
+  ],
   image: {
     // Bucket images are downloaded and optimized at build time so the shipped
     // site makes zero runtime requests to *.supabase.co.

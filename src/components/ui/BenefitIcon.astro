@@ -1,0 +1,36 @@
+---
+// Small stroke icons for benefit/why-us items, keyed by the free-form `icon`
+// string in authored content. Unknown names fall back to a neutral mark so
+// bad content never breaks a build. Draws in currentColor.
+const { name = '', size = 26 } = Astro.props;
+
+const glyphs = {
+  adjust: '<path d="M4 9h11M19 9h5M4 19h7M15 19h9" /><circle cx="17" cy="9" r="2.5" /><circle cx="13" cy="19" r="2.5" />',
+  certified: '<path d="M14 3l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" /><path d="M10.5 13.5l2.5 2.5 4.5-5" />',
+  amazon: '<path d="M5 9l9-5 9 5v10l-9 5-9-5V9z" /><path d="M5 9l9 5 9-5M14 14v10" />',
+  washable: '<circle cx="14" cy="14" r="10" /><path d="M8 14c2-2 4 2 6 0s4 2 6 0" />',
+  cooling: '<path d="M14 4v20M14 14l-7-4M14 14l7-4M14 14l-7 4M14 14l7 4M14 4l-2.5 2.5M14 4l2.5 2.5M14 24l-2.5-2.5M14 24l2.5-2.5" />',
+  made: '<path d="M4 24h20M6 24V12l8-6 8 6v12M11 24v-6h6v6" />',
+  support: '<path d="M5 20v-6a9 9 0 0 1 18 0v6" /><rect x="3" y="17" width="6" height="7" rx="2" /><rect x="19" y="17" width="6" height="7" rx="2" />',
+  strap: '<rect x="4" y="10" width="20" height="8" rx="4" /><path d="M9 10V7a5 5 0 0 1 10 0v3" />',
+  portable: '<rect x="6" y="9" width="16" height="13" rx="3" /><path d="M10 9V7a4 4 0 0 1 8 0v2" />',
+  elevation: '<path d="M4 22h20L4 8v14z" /><path d="M17 6l4-4M21 2v4h-4" />',
+  refill: '<path d="M6 12a8 8 0 0 1 14-4l2 2M22 16a8 8 0 0 1-14 4l-2-2" /><path d="M22 4v6h-6M6 24v-6h6" />',
+  side: '<path d="M3 22h22" /><rect x="4" y="15" width="8" height="4.5" rx="2" /><circle cx="8" cy="11.5" r="2.6" /><path d="M10 16l5 2.5 4.5-1 5.5 2" />',
+  back: '<path d="M3 22h22" /><rect x="4" y="16" width="8" height="3.5" rx="1.75" /><circle cx="8" cy="13" r="2.6" /><path d="M10.5 17l7 1.5 7.5.5" />',
+  stomach: '<path d="M3 22h22" /><rect x="4" y="17.5" width="8" height="2.8" rx="1.4" /><circle cx="8" cy="15" r="2.3" /><path d="M10.5 18l14.5 1.2" />',
+};
+---
+
+<svg
+  viewBox="0 0 28 28"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.8"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  set:html={glyphs[name] ?? '<circle cx="14" cy="14" r="9" /><circle cx="14" cy="14" r="1.5" />'}
+/>

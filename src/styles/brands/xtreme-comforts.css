@@ -1,0 +1,99 @@
+/* Xtreme Comforts — "Rested Modern" identity tokens (v2, PR 2).
+   Owns the full token contract from src/styles/tokens.css. When this file
+   exists, Base.astro inlines it instead of injecting DB colors/fonts, so it is
+   the single source of truth for this brand's look.
+
+   Palette story — dusk to first light: deep ink-navy (night), warm linen/oat
+   neutrals (bedding), one honeyed-amber accent (morning light). No terracotta,
+   no acid green, no cyan, no dashboard tokens.
+
+   :root:root (not plain :root): this file is inlined in <head>, but Astro
+   places the bundled stylesheet (tokens.css defaults) AFTER inline styles in
+   built HTML — and Vite injects it after in dev too. The doubled selector
+   out-specifies tokens.css regardless of order. */
+
+:root:root {
+  /* Brand contract */
+  --brand: #d39a3f; /* honeyed amber — CTA fill (6.2:1 vs --brand-2 text) */
+  --brand-2: #1f2434; /* deep night — CTA text, price emphasis */
+
+  /* Neutrals */
+  --ink: #222839; /* ink-navy body text */
+  --bg: #f4f0e7; /* linen */
+  --surface: #fcfaf5; /* warm white */
+  --surface-2: #eae3d3; /* oat — alternating sections, image mats */
+  --line: rgba(34, 40, 57, 0.14);
+
+  /* Accent roles */
+  --accent: #d39a3f; /* graphic amber (stars, marks) — not for small text */
+  --accent-ink: #875e17; /* bronze — accent that passes AA as text on linen */
+  --mist: #5c6474; /* secondary text on light (5.2:1 on linen) */
+
+  /* Night sections */
+  --night: #171c29; /* dark section background */
+  --night-ink: #efe9dc; /* text on night */
+  --night-mist: rgba(239, 233, 220, 0.72); /* secondary text on night */
+  --night-line: rgba(239, 233, 220, 0.16);
+
+  /* Type */
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --track-caps: 0.12em; /* eyebrows, badges, small caps */
+  --step-6: clamp(2.9rem, 2.3rem + 3vw, 4.6rem); /* hero display size */
+
+  /* Elevation — navy-tinted */
+  --shadow-1: 0 1px 2px rgba(23, 28, 41, 0.06);
+  --shadow-2: 0 4px 14px rgba(23, 28, 41, 0.09);
+  --shadow-3: 0 14px 36px rgba(23, 28, 41, 0.14);
+
+  /* Motion */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 180ms;
+  --dur-2: 550ms;
+}
+
+/* Display face carries the personality; keep it to leads and let Figtree work. */
+h1,
+h2,
+h3,
+.font-heading {
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+/* Interactive variant chips: selected state is driven by aria-pressed so the
+   page script only flips the attribute, never class lists. */
+button[data-variant][aria-pressed='true'] {
+  border-color: var(--night);
+  background: var(--night);
+  color: var(--night-ink);
+}
+
+/* Visible keyboard focus, everywhere, in the brand's own voice. */
+:where(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scroll reveal — opt-in per element; PR 4 orchestrates the hero moment.
+   Elements stay visible without JS (class `js-reveal` is added by the
+   observer script only when it runs). */
+.js-reveal .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity var(--dur-2) var(--ease-soft),
+    transform var(--dur-2) var(--ease-soft);
+}
+.js-reveal .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

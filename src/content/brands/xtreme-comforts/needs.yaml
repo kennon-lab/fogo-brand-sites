@@ -1,0 +1,48 @@
+# Controlled "shop by need" taxonomy. Slugs are referenced from products/*.yaml
+# and become /collections/<slug>/ routes in PR 5.
+needs:
+  - slug: neck-support
+    display: Neck & shoulder support
+    short: Pillows that keep the loft you choose, all night.
+    intro: >-
+      Most pillows make you adapt to them. Ours work the other way: adjustable
+      shredded fill you tune to your sleep position, and low-profile designs
+      for people who want less pillow, not more. Every option ships with a
+      decade of Amazon reviews behind it.
+  - slug: all-day-sitting
+    display: All-day sitting
+    short: Memory foam for desks, cars, and wheelchairs.
+    intro: >-
+      Eight hours in a chair is a comfort problem worth solving properly.
+      Certified memory foam cushions that help relieve pressure on your
+      tailbone and lower back — at your desk, in the car, or anywhere you sit
+      longer than you'd like.
+  - slug: elevated-rest
+    display: Elevated rest
+    short: Wedges and body pillows for reading, lounging, and side support.
+    intro: >-
+      Sometimes better rest is about angle, not softness. A 7-inch wedge for
+      reading, lounging, and sleeping slightly elevated, and a full-length
+      body pillow that gives side sleepers something to hold onto.
+
+# Category collection pages (one route per product category).
+categories:
+  - slug: pillows
+    display: Pillows
+    intro: >-
+      Two ways to solve the same problem: the adjustable shredded-foam
+      flagship you tune to your sleep position, and the slim low-profile
+      pillow for people who want less loft, not more. Both are backed by a
+      decade of verified Amazon reviews.
+  - slug: wedge
+    display: Wedges & body pillows
+    intro: >-
+      Angle and alignment, not just softness. A 7-inch, 30-degree wedge for
+      reading and elevated rest, a full-length body pillow for side sleepers,
+      and washable covers to keep both fresh.
+  - slug: seat-lumbar
+    display: Seat & back support
+    intro: >-
+      Certified memory foam for the hours you spend sitting: seat and coccyx
+      cushions that help relieve tailbone pressure, and a strapped lumbar
+      pillow that keeps your lower back supported at desk or behind the wheel.

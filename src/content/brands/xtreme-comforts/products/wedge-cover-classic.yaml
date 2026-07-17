@@ -1,0 +1,27 @@
+# Accessory: standalone classic wedge cover listing (separate Amazon family
+# from the 15-color group).
+family_key: B01MV01E5E
+display_name: Wedge Pillow Cover — Classic
+tagline: The original replacement cover for our 7-inch wedge.
+category: wedge
+needs: []
+nav: false
+accessory_of: wedge-body
+hero_benefit: >-
+  The classic allergy-friendly replacement cover, sized exactly to our
+  27" × 25" × 7" bed wedge.
+description_short: >-
+  Classic replacement cover for the 7-inch bed wedge. Allergy-friendly and
+  easy to clean; cover only.
+description_long: >-
+  The original replacement cover for our bed wedge — allergy-friendly, easy
+  to clean, and cut to fit the 27" × 25" × 7" wedge exactly. Keep a spare so
+  wash day doesn't leave the wedge bare.
+badges: [machine-washable]
+specs:
+  - label: Fits
+    value: Xtreme Comforts 27" × 25" × 7" bed wedge
+  - label: Includes
+    value: Cover only — wedge sold separately
+variants:
+  - { asin: B01MV01E5E, label: Classic }

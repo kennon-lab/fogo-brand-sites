@@ -1,0 +1,41 @@
+---
+// Mobile-only bottom bar that slides in once the primary PDP CTA scrolls out
+// of view (sentinel = the element carrying data-sticky-cta-sentinel; falls
+// back to showing after 600px of scroll if no sentinel exists). The outbound
+// link itself is AmazonCTA — this component only frames it.
+// Props: product (catalog row), priceLabel.
+import AmazonCTA from './AmazonCTA.astro';
+
+const { product, priceLabel = null } = Astro.props;
+---
+
+<div
+  data-sticky-cta
+  class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-[var(--night-line,var(--line))] bg-[var(--night,var(--ink))] text-[var(--night-ink,var(--bg))] transition-transform duration-300 ease-out motion-reduce:transition-none md:hidden"
+  style="padding-bottom: env(safe-area-inset-bottom);"
+>
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+    <div class="min-w-0">
+      <p class="truncate text-sm font-semibold">{product.display_title}</p>
+      {priceLabel && <p class="text-sm text-[var(--night-mist,inherit)]">{priceLabel}</p>}
+    </div>
+    <div class="shrink-0">
+      <AmazonCTA product={product} size="sm" position="sticky" />
+    </div>
+  </div>
+</div>
+
+<script>
+  const bar = document.querySelector('[data-sticky-cta]');
+  if (bar) {
+    const show = (on) => bar.classList.toggle('translate-y-full', !on);
+    const sentinel = document.querySelector('[data-sticky-cta-sentinel]');
+    if (sentinel && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => show(!entry.isIntersecting), { rootMargin: '0px' }).observe(sentinel);
+    } else {
+      const onScroll = () => show(window.scrollY > 600);
+      addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+  }
+</script>

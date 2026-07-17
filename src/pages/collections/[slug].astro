@@ -1,0 +1,95 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import TrustBar from '../../components/TrustBar.astro';
+import { getLocalImagesByAsin } from '../../lib/images.js';
+import {
+  getMergedCatalog,
+  getNeeds,
+  getCategories,
+  getSiteContent,
+  getBrandReviewAggregate,
+} from '../../lib/content.js';
+
+// Collection pages exist only for authored brands: one route per `needs`
+// entry and one per category (scope §9.2). Needs pages are the ads landing
+// destinations — editorial intro + repeated trust strip carry the pre-sell.
+export async function getStaticPaths() {
+  const site = await getSiteContent();
+  if (!site) return [];
+  const [needs, categories, merged] = await Promise.all([getNeeds(), getCategories(), getMergedCatalog()]);
+  const shoppable = merged.filter((g) => g.authored && g.authored.nav !== false);
+
+  const paths = [];
+  for (const need of needs) {
+    paths.push({
+      params: { slug: need.slug },
+      props: {
+        display: need.display,
+        intro: need.intro,
+        familyKeys: shoppable.filter((g) => g.authored.needs.includes(need.slug)).map((g) => g.key),
+      },
+    });
+  }
+  for (const cat of categories) {
+    if (needs.some((n) => n.slug === cat.slug)) continue; // slug collision safety
+    paths.push({
+      params: { slug: cat.slug },
+      props: {
+        display: cat.display,
+        intro: cat.intro,
+        familyKeys: shoppable.filter((g) => g.authored.category === cat.slug).map((g) => g.key),
+      },
+    });
+  }
+  return paths.filter((p) => p.props.familyKeys.length > 0);
+}
+
+const { display, intro, familyKeys } = Astro.props;
+const merged = await getMergedCatalog();
+const site = await getSiteContent();
+const groups = familyKeys.map((key) => merged.find((g) => g.key === key));
+const imagesByAsin = await getLocalImagesByAsin();
+const aggregate = await getBrandReviewAggregate();
+---
+
+<Base title={display} description={intro} pageType="collection">
+  <section class="mx-auto max-w-6xl px-4 pt-10 pb-8">
+    <nav class="text-sm text-[var(--mist)]" aria-label="Breadcrumb">
+      <a href="/" class="no-underline hover:underline underline-offset-4">Home</a>
+      <span aria-hidden="true"> / </span>
+      <span>{display}</span>
+    </nav>
+    <h1 class="mt-4 text-[length:var(--step-5)] leading-tight">{display}</h1>
+    <p class="mt-4 max-w-2xl text-[length:var(--step-0)] leading-relaxed text-[var(--mist)]">{intro}</p>
+  </section>
+
+  <TrustBar stats={aggregate} />
+
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        groups.map((group) => (
+          <ProductCard
+            representative={group.representative}
+            children={group.children}
+            images={imagesByAsin.get(group.representative.asin) ?? []}
+            labels={group.labels}
+            authored={{
+              name: group.authored.display_name,
+              tagline: group.authored.tagline,
+              href: `/products/${group.slug}/`,
+              badge: group.slug === site.flagship ? 'Flagship' : undefined,
+              reviews: group.reviews ?? undefined,
+            }}
+          />
+        ))
+      }
+    </div>
+    <div class="mt-10">
+      <a href="/products/" class="font-semibold text-[var(--accent-ink)] no-underline hover:underline underline-offset-4">
+        ← Everything we make
+      </a>
+    </div>
+  </section>
+</Base>

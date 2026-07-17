@@ -1,0 +1,65 @@
+# Amazon groups the 7-inch bed wedge and the full-length body pillow as one
+# variation family, so they share this PDP. Naming covers both honestly.
+family_key: B0G5ZXWNGH
+display_name: Wedge & Body Pillows
+tagline: Better rest is sometimes about angle, not softness.
+category: wedge
+needs: [elevated-rest]
+hero_benefit: >-
+  A 7-inch, 30-degree wedge for reading, lounging, and sleeping slightly
+  elevated — and a shredded-foam body pillow that gives side sleepers
+  full-length support.
+description_short: >-
+  A 7-inch memory foam bed wedge with a 30-degree incline, and an
+  allergy-friendly shredded memory foam body pillow for side sleepers.
+description_long: >-
+  The wedge holds a 30-degree incline that a stack of pillows can't: upright
+  enough for reading or working in bed, gentle enough to sleep on, and firm
+  enough to double as a headboard cushion or leg elevator. Breathable memory
+  foam keeps the incline comfortable for long stretches.
+
+
+  The body pillow applies the same shredded-foam thinking at full length —
+  something for side sleepers to hold, with fill that redistributes instead
+  of flattening, in an allergy-friendly build.
+badges: [machine-washable, prime]
+benefits:
+  - icon: elevation
+    title: A real 30-degree incline
+    body: >-
+      Stacked pillows collapse into a curve. The wedge holds its angle for
+      reading, lounging, or elevated rest, night after night.
+  - icon: side
+    title: Full-length side support
+    body: >-
+      The body pillow gives side sleepers something to wrap around, keeping
+      shoulders and knees aligned instead of twisted.
+  - icon: washable
+    title: Covers you can wash
+    body: >-
+      Both take washable covers — and the wedge has a full range of colored
+      replacement covers to match your bedding.
+who_its_for:
+  fits:
+    - Readers and lounge-in-bed people whose pillow stacks keep collapsing
+    - Side sleepers who want full-length alignment support
+    - Anyone told to rest slightly elevated who finds propping uncomfortable
+specs:
+  - label: Wedge incline
+    value: 30 degrees, 7-inch rise
+  - label: Wedge dimensions
+    value: 27" × 25" × 7"
+  - label: Body pillow fill
+    value: Shredded memory foam, allergy-friendly
+faq:
+  - q: Can I sleep on the wedge all night?
+    a: >-
+      Yes — the 30-degree incline is gentle enough for sleeping slightly
+      elevated, and firm enough that it will not flatten under you by morning.
+  - q: Do replacement covers exist for the wedge?
+    a: >-
+      Yes, in fifteen colors plus classic options — allergy-friendly and easy
+      to clean. They fit the 27" × 25" × 7" wedge exactly.
+variants:
+  - { asin: B01MG4GZX0, label: 7-inch bed wedge }
+  - { asin: B07MC9W9KS, label: Body pillow }

@@ -3,52 +3,276 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import FeatureTiles from '../components/FeatureTiles.astro';
 import ProductCard from '../components/ProductCard.astro';
-import { getBrand, getProducts } from '../lib/supabase.js';
-import { getLocalImagesByAsin } from '../lib/images.js';
-import { groupByParent } from '../lib/catalog.js';
+import TrustBar from '../components/TrustBar.astro';
+import Button from '../components/ui/Button.astro';
+import Badge from '../components/ui/Badge.astro';
+import ReviewStars from '../components/ui/ReviewStars.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import { getBrand } from '../lib/supabase.js';
+import { getLocalImagesByAsin, localBucketImage } from '../lib/images.js';
+import { getMergedCatalog, getSiteContent, getNeeds, getBrandReviewAggregate } from '../lib/content.js';
 
 const brand = await getBrand();
-const products = await getProducts();
 const imagesByAsin = await getLocalImagesByAsin();
+const merged = await getMergedCatalog();
 
-// Featured: top sort_weight groups first (catalog order), capped for the home page.
-const featured = groupByParent(products).slice(0, 6);
-const ogImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]).find(Boolean) ?? null;
+// site.yaml present → the authored v2 homepage renders. Absent (bean-envy and
+// every other unauthored brand) → the v1 homepage, unchanged.
+const site = await getSiteContent();
+
+// v1 data (also the fallback if a brand authors products but no site.yaml).
+const featured = merged.slice(0, 6);
+const v1OgImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]).find(Boolean) ?? null;
+
+// v2 data
+const needs = site ? await getNeeds() : [];
+const aggregate = site ? await getBrandReviewAggregate() : null;
+const flagship = site ? (merged.find((g) => g.slug === site.flagship) ?? null) : null;
+const flagshipImage = flagship ? (imagesByAsin.get(flagship.representative.asin)?.[0] ?? null) : null;
+const heroImage = site
+  ? (brand.hero_image_path ? await localBucketImage(brand.hero_image_path, 1000) : null)
+  : null;
+const ogImage = site ? (heroImage ?? v1OgImage) : v1OgImage;
+
+const whyIcons = {
+  adjust:
+    '<path d="M4 8h10M18 8h6M4 16h6M14 16h10" /><circle cx="16" cy="8" r="2.5" /><circle cx="12" cy="16" r="2.5" />',
+  certified:
+    '<path d="M14 3l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" /><path d="M10.5 13.5l2.5 2.5 4.5-5" />',
+  amazon:
+    '<path d="M5 9l9-5 9 5v10l-9 5-9-5V9z" /><path d="M5 9l9 5 9-5M14 14v10" />',
+};
 ---
 
-<Base description={brand.tagline ?? undefined} ogImage={ogImage}>
-  <Hero />
+{
+  site ? (
+    <Base description={site.hero.subline} ogImage={ogImage} pageType="home">
+      {/* 1 — Hero: the thesis. Authored headline over the best lifestyle asset. */}
+      <section class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
+        <div>
+          <h1 class="reveal text-[length:var(--step-6)] leading-[1.05]">{site.hero.headline}</h1>
+          <p class="reveal mt-5 max-w-xl text-[length:var(--step-1)] leading-relaxed text-[var(--mist)]" style="transition-delay: 120ms;">
+            {site.hero.subline}
+          </p>
+          <div class="reveal mt-8 flex flex-wrap items-center gap-4" style="transition-delay: 240ms;">
+            <Button href={site.hero.cta_href} size="lg">{site.hero.cta_label}</Button>
+            <Button href="/products/" variant="quiet">Browse everything</Button>
+          </div>
+        </div>
+        {heroImage && (
+          <div class="reveal overflow-hidden rounded-token-lg bg-[var(--surface-2)]" style="transition-delay: 180ms;">
+            <img
+              src={heroImage}
+              alt={`${brand.brand} — ${site.hero.headline}`}
+              width="1000"
+              height="1000"
+              fetchpriority="high"
+              decoding="async"
+              class="aspect-square w-full object-cover"
+            />
+          </div>
+        )}
+      </section>
 
-  <FeatureTiles />
+      {/* Trust strip directly beneath the hero — live data only. */}
+      <TrustBar stats={aggregate} />
 
-  <section class="mx-auto max-w-6xl px-4 py-14">
-    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Featured products</h2>
-    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        featured.map((group) => (
-          <ProductCard
-            representative={group.representative}
-            children={group.children}
-            images={imagesByAsin.get(group.representative.asin) ?? []}
-          />
-        ))
-      }
-    </div>
-    <div class="mt-10 text-center">
-      <a href="/products/" class="font-bold underline underline-offset-4 decoration-[var(--brand)] decoration-2">
-        Browse the full catalog →
-      </a>
-    </div>
-  </section>
-
-  {
-    brand.about_html && (
-      <section class="bg-[var(--surface)] border-y border-black/10">
-        <div class="mx-auto max-w-3xl px-4 py-14 prose-desc">
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4">Our story</h2>
-          <div set:html={brand.about_html} />
+      {/* 2 — Shop by need: the sleeper's problem, not our warehouse layout. */}
+      <section class="mx-auto max-w-6xl px-4 py-14 sm:py-20">
+        <SectionHeader
+          eyebrow="Start with the problem"
+          title="Shop by need"
+          lede="Four ways people arrive here. Pick the one that sounds like your night — or your chair."
+        />
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {needs.map((need, i) => (
+            <a
+              href={`/collections/${need.slug}/`}
+              class="reveal group flex flex-col gap-3 rounded-token-lg border border-[var(--line)] bg-[var(--surface)] p-6 no-underline shadow-token-1 transition-shadow duration-150 hover:shadow-token-2 motion-reduce:transition-none"
+              style={`transition-delay: ${i * 80}ms;`}
+            >
+              <h3 class="text-[length:var(--step-1)] leading-snug">{need.display}</h3>
+              <p class="text-sm leading-relaxed text-[var(--mist)]">{need.short}</p>
+              <span class="mt-auto pt-2 text-sm font-semibold text-[var(--accent-ink)] group-hover:underline underline-offset-4">
+                Shop {need.display.toLowerCase()} →
+              </span>
+            </a>
+          ))}
         </div>
       </section>
-    )
-  }
-</Base>
+
+      {/* 3 — Flagship feature. */}
+      {flagship?.authored && (
+        <section class="bg-[var(--surface-2)]">
+          <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-2">
+            <div class="reveal overflow-hidden rounded-token-lg bg-[var(--surface)]">
+              {flagshipImage ? (
+                <img
+                  src={flagshipImage}
+                  alt={flagship.authored.display_name}
+                  width="800"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                  class="aspect-square w-full object-contain p-8"
+                />
+              ) : (
+                <div class="flex aspect-square w-full items-center justify-center p-8 text-center">
+                  <span class="font-heading text-xl text-[var(--mist)]">{flagship.authored.display_name}</span>
+                </div>
+              )}
+            </div>
+            <div class="reveal" style="transition-delay: 120ms;">
+              <Badge variant="night">Flagship</Badge>
+              <h2 class="mt-4 text-[length:var(--step-4)] leading-tight">{flagship.authored.display_name}</h2>
+              <p class="mt-3 text-[length:var(--step-0)] leading-relaxed text-[var(--mist)]">
+                {flagship.authored.hero_benefit}
+              </p>
+              {flagship.reviews && (
+                <div class="mt-4">
+                  <ReviewStars rating={flagship.reviews.rating} showValue>
+                    <span class="text-sm text-[var(--mist)]">
+                      {flagship.reviews.count.toLocaleString('en-US')} verified Amazon reviews
+                    </span>
+                  </ReviewStars>
+                </div>
+              )}
+              {flagship.authored.benefits && (
+                <ul class="mt-6 flex flex-col gap-3">
+                  {flagship.authored.benefits.map((b) => (
+                    <li class="flex gap-3">
+                      <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent)]" aria-hidden="true" />
+                      <p>
+                        <span class="font-semibold">{b.title}.</span>{' '}
+                        <span class="text-[var(--mist)]">{b.body}</span>
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div class="mt-8">
+                <Button href={`/products/${flagship.slug}/`}>Meet the pillow</Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 4 — Why us: proof points on the deep end of the palette. */}
+      <section class="bg-[var(--night)]">
+        <div class="mx-auto max-w-6xl px-4 py-14 sm:py-20">
+          <SectionHeader on="night" align="center" eyebrow="Why buy from us" title={`Why ${brand.brand}`} />
+          <div class="mt-10 grid gap-8 sm:grid-cols-3">
+            {site.why_us.map((item, i) => (
+              <div class="reveal text-center" style={`transition-delay: ${i * 100}ms;`}>
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--night-line)] text-[var(--accent)]">
+                  <svg
+                    viewBox="0 0 28 28"
+                    width="26"
+                    height="26"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                    set:html={whyIcons[item.icon] ?? '<circle cx="14" cy="14" r="9" />'}
+                  />
+                </span>
+                <h3 class="mt-4 text-[length:var(--step-1)] text-[var(--night-ink)]">{item.title}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-[var(--night-mist)]">{item.body}</p>
+              </div>
+            ))}
+          </div>
+          {site.founder_line && (
+            <p class="mx-auto mt-10 max-w-xl text-center font-heading text-[length:var(--step-1)] italic text-[var(--night-ink)]">
+              {site.founder_line}
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* 5 — Review wall: real verified quotes only; renders nothing until they exist. */}
+      {site.review_wall.length > 0 && (
+        <section class="mx-auto max-w-6xl px-4 py-14 sm:py-20">
+          <SectionHeader eyebrow="From verified Amazon reviews" title="What people say after a few nights" />
+          <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {site.review_wall.map((r) => (
+              <figure class="reveal flex flex-col gap-3 rounded-token-lg border border-[var(--line)] bg-[var(--surface)] p-6">
+                <ReviewStars rating={r.rating} size="sm" />
+                <blockquote class="leading-relaxed">{r.text}</blockquote>
+                <figcaption class="mt-auto pt-2 text-sm text-[var(--mist)]">
+                  {r.name} — {r.product}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 6 — Comparison teaser. */}
+      {site.comparison_teaser && (
+        <section class="mx-auto max-w-6xl px-4 py-14 sm:py-20">
+          <div class="rounded-token-lg border border-[var(--line)] bg-[var(--surface)] px-6 py-10 text-center sm:px-12">
+            <h2 class="text-[length:var(--step-3)] leading-tight">{site.comparison_teaser.headline}</h2>
+            <p class="mx-auto mt-3 max-w-2xl leading-relaxed text-[var(--mist)]">{site.comparison_teaser.body}</p>
+            <div class="mt-6">
+              <Button href={`/products/${site.flagship}/#compare`} variant="secondary">See the comparison</Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Scroll reveals: additive only — without JS everything is visible, and
+          prefers-reduced-motion disables the transitions in CSS. */}
+      <script>
+        document.documentElement.classList.add('js-reveal');
+        const io = new IntersectionObserver(
+          (entries) =>
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-in');
+                io.unobserve(e.target);
+              }
+            }),
+          { threshold: 0.15 }
+        );
+        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      </script>
+    </Base>
+  ) : (
+    <Base description={brand.tagline ?? undefined} ogImage={v1OgImage} pageType="home">
+      <Hero />
+
+      <FeatureTiles />
+
+      <section class="mx-auto max-w-6xl px-4 py-14">
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Featured products</h2>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {featured.map((group) => (
+            <ProductCard
+              representative={group.representative}
+              children={group.children}
+              images={imagesByAsin.get(group.representative.asin) ?? []}
+              labels={group.labels}
+            />
+          ))}
+        </div>
+        <div class="mt-10 text-center">
+          <a href="/products/" class="font-bold underline underline-offset-4 decoration-[var(--brand)] decoration-2">
+            Browse the full catalog →
+          </a>
+        </div>
+      </section>
+
+      {brand.about_html && (
+        <section class="bg-[var(--surface)] border-y border-black/10">
+          <div class="mx-auto max-w-3xl px-4 py-14 prose-desc">
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4">Our story</h2>
+            <div set:html={brand.about_html} />
+          </div>
+        </section>
+      )}
+    </Base>
+  )
+}

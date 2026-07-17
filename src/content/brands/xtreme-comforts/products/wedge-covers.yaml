@@ -1,0 +1,47 @@
+# Accessory family: 15 colored replacement covers for the 7-inch wedge.
+# nav: false — PDP exists, hidden from grids/nav; linked from the wedge PDP.
+family_key: B09Z37J83D
+display_name: Wedge Pillow Covers
+tagline: Fifteen colors for the wedge you already own.
+category: wedge
+needs: []
+nav: false
+accessory_of: wedge-body
+hero_benefit: >-
+  Allergy-friendly, easy-clean replacement covers that fit our 27" × 25" × 7"
+  bed wedge exactly — swap colors or keep a spare for wash day.
+description_short: >-
+  Replacement covers for the 7-inch bed wedge in fifteen colors.
+  Allergy-friendly and easy to clean; cover only, wedge sold separately.
+description_long: >-
+  A wedge lives on top of the bed, so its cover works harder than a normal
+  pillowcase. These replacements fit our 27" × 25" × 7" wedge exactly, in
+  fifteen colors from neutrals to brights — keep one in the wash and one on
+  the wedge, or match the bedroom instead of hiding the wedge behind it.
+badges: [machine-washable]
+specs:
+  - label: Fits
+    value: Xtreme Comforts 27" × 25" × 7" bed wedge
+  - label: Care
+    value: Allergy-friendly, easy to clean
+  - label: Includes
+    value: Cover only — wedge sold separately
+faq:
+  - q: Does this include the wedge?
+    a: No — this is the replacement cover only. The wedge itself is sold on its own page.
+variants:
+  - { asin: B07M5VDYQC, label: Brown }
+  - { asin: B07M5VF59Y, label: Light Grey }
+  - { asin: B07M9LRBVZ, label: Wheat }
+  - { asin: B07M9LRC64, label: Ivory }
+  - { asin: B07MGSC96J, label: Navy }
+  - { asin: B07MNJT9BZ, label: Rose }
+  - { asin: B07MNKFBXX, label: Black }
+  - { asin: B07MNKHHDW, label: Sage }
+  - { asin: B08RJFGFKR, label: Mimosa }
+  - { asin: B08RJT9BQG, label: Sand }
+  - { asin: B08RJTGYY7, label: Green }
+  - { asin: B08RJW99HN, label: Orchid }
+  - { asin: B08RJWB4SQ, label: Tiger Lily }
+  - { asin: B08RJXWSWF, label: Fuchsia }
+  - { asin: B08RJYHSYK, label: Cerulean }

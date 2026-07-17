@@ -1,0 +1,54 @@
+# Site-level copy. Review counts/stars are injected from live data at build —
+# never hardcoded here. review_wall stays EMPTY until Kennon supplies real,
+# verified Amazon quotes (the wall renders nothing until then).
+hero:
+  headline: The pillow you adjust until it's yours.
+  subline: >-
+    Shredded memory foam you can add or remove until the loft matches how you
+    actually sleep. GREENGUARD certified, machine-washable, and backed by a
+    decade of verified Amazon reviews.
+  cta_label: Shop the flagship pillow
+  cta_href: /products/shredded-pillow/
+trust:
+  claims:
+    - GREENGUARD certified foams
+    - Removable, machine-washable covers
+    - Sold and shipped by Amazon
+flagship: shredded-pillow
+why_us:
+  - icon: adjust
+    title: Adjustable by design
+    body: >-
+      Our flagship fill is shredded, not solid, so you set the loft — unzip,
+      add or remove foam, done. No breaking-in period, no committing to a
+      firmness you picked from a photo.
+  - icon: certified
+    title: Certified, not just claimed
+    body: >-
+      GREENGUARD certification on our pillows and CertiPUR-US and OEKO-TEX on
+      our seat cushions — third-party testing for low chemical emissions, on
+      record, not marketing language.
+  - icon: amazon
+    title: Checkout on Amazon
+    body: >-
+      Every purchase completes on Amazon.com — Prime shipping, Amazon returns,
+      and years of public reviews you can read before you buy.
+comparison_teaser:
+  headline: Shredded foam versus everything else
+  body: >-
+    Solid foam holds one shape. Down flattens by morning. Shredded memory foam
+    holds the shape you give it — see how the fills compare before you choose.
+nav:
+  - label: Pillows
+    href: /collections/neck-support/
+  - label: Seating
+    href: /collections/all-day-sitting/
+  - label: Wedges & more
+    href: /collections/elevated-rest/
+  - label: About
+    href: /about/
+footer_disclosure: >-
+  Xtreme Comforts products are sold on Amazon.com. Links on this site go to
+  Amazon, where your purchase — checkout, shipping, and returns — is handled
+  by Amazon. Some links use Amazon Attribution tags so we can measure which
+  pages are useful.

@@ -1,0 +1,27 @@
+# Accessory: the red wedge cover sits in its own Amazon family, separate from
+# the 15-color group.
+family_key: B0BYHSHMJN
+display_name: Wedge Pillow Cover — Red
+tagline: The red one.
+category: wedge
+needs: []
+nav: false
+accessory_of: wedge-body
+hero_benefit: >-
+  The red edition of our allergy-friendly wedge replacement cover, sized to
+  the 27" × 25" × 7" bed wedge.
+description_short: >-
+  Red replacement cover for the 7-inch bed wedge. Allergy-friendly and easy
+  to clean; cover only.
+description_long: >-
+  The same allergy-friendly, easy-clean replacement cover as the rest of the
+  range, in red. Fits the 27" × 25" × 7" wedge exactly; the wedge itself is
+  sold separately.
+badges: [machine-washable]
+specs:
+  - label: Fits
+    value: Xtreme Comforts 27" × 25" × 7" bed wedge
+  - label: Includes
+    value: Cover only — wedge sold separately
+variants:
+  - { asin: B07M5VDXJN, label: Red }

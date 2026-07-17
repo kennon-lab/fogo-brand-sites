@@ -1,0 +1,42 @@
+---
+// Generic action/link button. Purely presentational — it never builds Amazon
+// URLs itself; outbound purchase CTAs remain AmazonCTA.astro's job (which may
+// pass its link through here). All colors come from tokens.
+// Props: href (renders <a>) | type (renders <button>), variant, size.
+const {
+  href = null,
+  type = 'button',
+  variant = 'primary', // primary | secondary | quiet
+  size = 'md', // sm | md | lg
+  ...rest
+} = Astro.props;
+
+const sizeClasses =
+  size === 'lg' ? 'px-8 py-4 text-lg' : size === 'sm' ? 'px-4 py-2 text-sm' : 'px-6 py-3 text-base';
+
+const variantClasses =
+  variant === 'secondary'
+    ? 'border-[1.5px] border-[var(--ink)] text-[var(--ink)] bg-transparent hover:bg-[var(--ink)] hover:text-[var(--bg)]'
+    : variant === 'quiet'
+      ? 'text-[var(--accent-ink,var(--ink))] underline-offset-4 hover:underline px-0 py-0'
+      : 'bg-[var(--brand)] text-[var(--brand-2)] shadow-token-1 hover:-translate-y-px hover:shadow-token-2 active:translate-y-0';
+
+const classes = [
+  'inline-flex items-center justify-center gap-2 rounded-full font-semibold no-underline',
+  'transition-[transform,box-shadow,background-color,color] duration-150 motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+  variant === 'quiet' ? 'text-base' : sizeClasses,
+  variantClasses,
+];
+---
+
+{
+  href ? (
+    <a href={href} class:list={classes} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class:list={classes} {...rest}>
+      <slot />
+    </button>
+  )
+}

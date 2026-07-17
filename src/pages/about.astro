@@ -10,7 +10,7 @@ const categories = [...new Set(products.map((p) => p.category).filter(Boolean))]
 const banner = brand.about_banner_path ? await localBucketImage(brand.about_banner_path, 1200) : null;
 ---
 
-<Base title="About" description={`About ${brand.brand}. ${brand.tagline ?? ''}`.trim()} ogImage={banner}>
+<Base title="About" description={`About ${brand.brand}. ${brand.tagline ?? ''}`.trim()} ogImage={banner} pageType="about">
   {
     banner && (
       <div class="mx-auto max-w-5xl px-4 pt-10">

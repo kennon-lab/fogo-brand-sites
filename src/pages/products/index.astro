@@ -3,30 +3,65 @@ import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
-import { groupByParent } from '../../lib/catalog.js';
+import { getMergedCatalog, getSiteContent } from '../../lib/content.js';
 
 const brand = await getBrand();
 const products = await getProducts();
 const imagesByAsin = await getLocalImagesByAsin();
-const groups = groupByParent(products);
+// Same groups as groupByParent, plus authored labels (empty when unauthored).
+const groups = await getMergedCatalog();
+
+// Authored brands: editorial catalog — one card per shoppable family
+// (accessories hidden), authored names/taglines, family-slug links.
+const site = await getSiteContent();
+const shoppable = site ? groups.filter((g) => g.authored && g.authored.nav !== false) : groups;
 ---
 
-<Base title="Products" description={`The full ${brand.brand} catalog. Every product ships via Amazon.`}>
-  <section class="mx-auto max-w-6xl px-4 py-12">
-    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">All products</h1>
-    <p class="mt-2 text-black/60">
-      {products.length} {products.length === 1 ? 'product' : 'products'} — all available on Amazon.
-    </p>
-    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        groups.map((group) => (
-          <ProductCard
-            representative={group.representative}
-            children={group.children}
-            images={imagesByAsin.get(group.representative.asin) ?? []}
-          />
-        ))
-      }
-    </div>
-  </section>
-</Base>
+{
+  site ? (
+    <Base title="All products" description={`Everything ${brand.brand} makes — checkout happens on Amazon.`} pageType="catalog">
+      <section class="mx-auto max-w-6xl px-4 py-12">
+        <h1 class="text-[length:var(--step-5)] leading-tight">Everything we make</h1>
+        <p class="mt-3 max-w-2xl text-[var(--mist)]">
+          {`${shoppable.length} product lines, one checkout: Amazon. Prime shipping, Amazon returns, and years of public reviews behind each one.`}
+        </p>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {shoppable.map((group) => (
+            <ProductCard
+              representative={group.representative}
+              children={group.children}
+              images={imagesByAsin.get(group.representative.asin) ?? []}
+              labels={group.labels}
+              authored={{
+                name: group.authored.display_name,
+                tagline: group.authored.tagline,
+                href: `/products/${group.slug}/`,
+                badge: group.slug === site.flagship ? 'Flagship' : undefined,
+                reviews: group.reviews ?? undefined,
+              }}
+            />
+          ))}
+        </div>
+      </section>
+    </Base>
+  ) : (
+    <Base title="Products" description={`The full ${brand.brand} catalog. Every product ships via Amazon.`} pageType="catalog">
+      <section class="mx-auto max-w-6xl px-4 py-12">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">All products</h1>
+        <p class="mt-2 text-black/60">
+          {`${products.length} ${products.length === 1 ? 'product' : 'products'} — all available on Amazon.`}
+        </p>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {groups.map((group) => (
+            <ProductCard
+              representative={group.representative}
+              children={group.children}
+              images={imagesByAsin.get(group.representative.asin) ?? []}
+              labels={group.labels}
+            />
+          ))}
+        </div>
+      </section>
+    </Base>
+  )
+}

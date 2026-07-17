@@ -1,0 +1,61 @@
+---
+// The brand's primary trust asset, surfaced as one quiet row: live review
+// aggregate + marketplace assurances. Renders NOTHING without fresh stats —
+// the claim is always driven from data, never hardcoded (status doc §Decisions).
+// Props: stats { rating, count } (from content.js aggregation), variant
+// linen|night, items (optional override: [{ value, label }]).
+import ReviewStars from './ui/ReviewStars.astro';
+
+const { stats = null, variant = 'linen', items = null } = Astro.props;
+
+// 51,492 → "50,000+": floor to 5k keeps the public claim defensible while
+// letting it grow as the live number does.
+const claim = stats?.count != null ? `${(Math.floor(stats.count / 5000) * 5000).toLocaleString('en-US')}+` : null;
+
+const night = variant === 'night';
+const shouldRender = items?.length || (stats && claim);
+---
+
+{
+  shouldRender && (
+    <div
+      class:list={[
+        'border-y',
+        night
+          ? 'bg-[var(--night,var(--ink))] text-[var(--night-ink,var(--bg))] border-[var(--night-line,var(--line))]'
+          : 'bg-[var(--surface)] text-[var(--ink)] border-[var(--line)]',
+      ]}
+    >
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-4 py-5">
+        {items ? (
+          items.map((item) => (
+            <p class="flex items-baseline gap-2">
+              <span class="font-heading text-[length:var(--step-1)]">{item.value}</span>
+              <span class:list={['text-sm', night ? 'text-[var(--night-mist)]' : 'text-[var(--mist,var(--ink))]']}>
+                {item.label}
+              </span>
+            </p>
+          ))
+        ) : (
+          <>
+            <p class="flex items-center gap-2">
+              <ReviewStars rating={stats.rating} size="sm" showValue />
+              <span class:list={['text-sm', night ? 'text-[var(--night-mist)]' : 'text-[var(--mist,var(--ink))]']}>
+                average across our catalog
+              </span>
+            </p>
+            <p class="flex items-baseline gap-2">
+              <span class="font-heading text-[length:var(--step-1)]">{claim}</span>
+              <span class:list={['text-sm', night ? 'text-[var(--night-mist)]' : 'text-[var(--mist,var(--ink))]']}>
+                verified Amazon reviews
+              </span>
+            </p>
+            <p class:list={['text-sm', night ? 'text-[var(--night-mist)]' : 'text-[var(--mist,var(--ink))]']}>
+              Sold and shipped by Amazon
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}

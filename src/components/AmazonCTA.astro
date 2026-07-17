@@ -1,8 +1,10 @@
 ---
 // Every purchase-intent CTA on the site. href is the Attribution-tagged URL
 // when one exists for (brand, asin, channel='brand_site'), else the plain
-// Amazon PDP link. Always opens Amazon in a new tab.
-const { product, size = 'md', label = 'View on Amazon' } = Astro.props;
+// Amazon PDP link. Opens a new tab on desktop; a Base.astro script switches
+// to same-tab on touch devices. `position` feeds the GA4 cta_position
+// dimension (hero | card | pdp-primary | sticky | comparison | footer).
+const { product, size = 'md', label = 'View on Amazon', position = null } = Astro.props;
 
 const href = product.attribution_url || product.plain_amazon_url;
 const sizeClasses =
@@ -19,6 +21,7 @@ const sizeClasses =
   rel="sponsored noopener"
   data-amazon-cta
   data-asin={product.asin}
+  data-cta-position={position}
   class:list={[
     'inline-flex items-center justify-center gap-2 rounded-full font-bold no-underline',
     'bg-[var(--brand)] text-[var(--brand-2)] shadow-sm hover:opacity-90 transition-opacity',

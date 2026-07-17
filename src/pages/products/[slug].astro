@@ -1,0 +1,477 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductGallery from '../../components/ProductGallery.astro';
+import AmazonCTA from '../../components/AmazonCTA.astro';
+import Badge from '../../components/ui/Badge.astro';
+import Button from '../../components/ui/Button.astro';
+import ReviewStars from '../../components/ui/ReviewStars.astro';
+import SectionHeader from '../../components/ui/SectionHeader.astro';
+import BenefitIcon from '../../components/ui/BenefitIcon.astro';
+import VariantSelector from '../../components/VariantSelector.astro';
+import ComparisonTable from '../../components/ComparisonTable.astro';
+import FaqAccordion from '../../components/FaqAccordion.astro';
+import StickyCta from '../../components/StickyCta.astro';
+import { getBrand, getProducts } from '../../lib/supabase.js';
+import { getLocalImagesByAsin } from '../../lib/images.js';
+import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
+import { getMergedCatalog } from '../../lib/content.js';
+
+// Route modes:
+// - Authored families → one page per family slug (the v2 PDP), plus one
+//   redirect stub per child ASIN so every live /products/<ASIN>/ URL still
+//   resolves (301-equivalent meta refresh, noindex, canonical → family).
+// - Unauthored brands → v1 per-ASIN pages, unchanged.
+// - Unauthored families on an authored brand → no page (404) per scope §9.3;
+//   getStaticPaths warns so the gap is visible at build time.
+export async function getStaticPaths() {
+  const merged = await getMergedCatalog();
+  const authoredBrand = merged.some((g) => g.authored);
+
+  if (!authoredBrand) {
+    const products = await getProducts();
+    return products.map((product) => ({ params: { slug: product.asin }, props: { mode: 'v1', product } }));
+  }
+
+  const paths = [];
+  for (const g of merged) {
+    if (!g.authored) {
+      console.warn(
+        `[products/[slug]] family ${g.key} has no authored yaml — its ${g.children.length} ASIN page(s) will 404.`
+      );
+      continue;
+    }
+    paths.push({ params: { slug: g.slug }, props: { mode: 'family', familyKey: g.key } });
+    for (const child of g.children) {
+      paths.push({ params: { slug: child.asin }, props: { mode: 'redirect', to: `/products/${g.slug}/` } });
+    }
+  }
+  return paths;
+}
+
+const { mode } = Astro.props;
+
+// ---- family mode data -------------------------------------------------------
+let g = null;
+let a = null;
+let brand = null;
+let images = [];
+let priceByAsin = new Map();
+let priceLabel = null;
+let variantOptions = [];
+let comparisonProps = null;
+let jsonLd = null;
+let stickyProduct = null;
+
+if (mode === 'family') {
+  brand = await getBrand();
+  const merged = await getMergedCatalog();
+  g = merged.find((x) => x.key === Astro.props.familyKey);
+  a = g.authored;
+  const imagesByAsin = await getLocalImagesByAsin();
+  images = imagesByAsin.get(g.representative.asin) ?? [];
+
+  const childByAsin = new Map(g.children.map((c) => [c.asin, c]));
+  priceByAsin = new Map(g.children.map((c) => [c.asin, c.item_price]));
+  const prices = g.children.map((c) => c.item_price).filter((v) => v != null);
+  const minPrice = prices.length ? Math.min(...prices) : null;
+  const maxPrice = prices.length ? Math.max(...prices) : null;
+  priceLabel =
+    minPrice == null ? null : minPrice === maxPrice ? formatPrice(minPrice) : `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`;
+
+  variantOptions = a.variants
+    .filter((v) => childByAsin.has(v.asin))
+    .map((v, i) => {
+      const child = childByAsin.get(v.asin);
+      return {
+        label: v.label,
+        asin: v.asin,
+        price: child.item_price != null ? formatPrice(child.item_price) : '',
+        amazonUrl: child.attribution_url || child.plain_amazon_url,
+        selected: child.asin === g.representative.asin || (i === 0 && !childByAsin.has(g.representative.asin)),
+      };
+    });
+
+  if (a.comparison) {
+    const asBool = (v) => (/^yes\b/i.test(v) ? true : /^no$/i.test(v) ? false : v);
+    comparisonProps = {
+      caption: `${a.display_name} compared with other fill types`,
+      columns: [{ name: a.display_name, highlight: true }, ...a.comparison.competitor_names.map((name) => ({ name }))],
+      rows: a.comparison.rows.map((r) => ({ label: r.feature, values: [asBool(r.us), ...r.competitors.map(asBool)] })),
+    };
+  }
+
+  jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: a.display_name,
+    description: a.description_short,
+    ...(images.length > 0 && { image: images.map((src) => new URL(src, Astro.site).href) }),
+    brand: { '@type': 'Brand', name: brand.brand },
+    // Family aggregate from live Amazon review data (Keepa view; family MAX,
+    // never the per-ASIN sum). Kennon approved sourcing schema rating from
+    // Amazon reviews 2026-07-17.
+    ...(g.reviews && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: g.reviews.rating,
+        reviewCount: g.reviews.count,
+      },
+    }),
+    offers: {
+      '@type': 'AggregateOffer',
+      url: g.representative.attribution_url || g.representative.plain_amazon_url,
+      priceCurrency: 'USD',
+      ...(minPrice != null && { lowPrice: minPrice.toFixed(2), highPrice: maxPrice.toFixed(2) }),
+      offerCount: g.children.length,
+      availability: 'https://schema.org/InStock',
+    },
+  };
+
+  stickyProduct = { ...g.representative, display_title: a.display_name };
+}
+
+// ---- v1 mode data (unchanged from the original page) ------------------------
+let product = null;
+let v1Images = [];
+let siblings = [];
+let v1Labels = new Map();
+let v1Price = null;
+let v1MetaDescription = '';
+let v1JsonLd = null;
+
+if (mode === 'v1') {
+  product = Astro.props.product;
+  brand = await getBrand();
+  const products = await getProducts();
+  const imagesByAsin = await getLocalImagesByAsin();
+  v1Images = imagesByAsin.get(product.asin) ?? [];
+  siblings = products.filter((p) => groupKey(p) === groupKey(product));
+  const merged = await getMergedCatalog();
+  v1Labels = merged.find((x) => x.key === groupKey(product))?.labels ?? new Map();
+  v1Price = formatPrice(product.item_price);
+  v1MetaDescription = (product.bullets[0] ?? product.display_title ?? '').slice(0, 155);
+  v1JsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.display_title,
+    ...(v1Images.length > 0 && { image: v1Images.map((src) => new URL(src, Astro.site).href) }),
+    ...(product.display_description && { description: product.display_description.replace(/<[^>]+>/g, ' ').trim() }),
+    brand: { '@type': 'Brand', name: brand.brand },
+    sku: product.asin,
+    offers: {
+      '@type': 'Offer',
+      url: product.amazon_url,
+      priceCurrency: 'USD',
+      ...(product.item_price != null && { price: product.item_price.toFixed(2) }),
+      availability: 'https://schema.org/InStock',
+    },
+  };
+}
+---
+
+{
+  mode === 'redirect' ? (
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <title>Redirecting…</title>
+        <meta name="robots" content="noindex" />
+        <link rel="canonical" href={new URL(Astro.props.to, Astro.site)} />
+        <meta http-equiv="refresh" content={`0;url=${Astro.props.to}`} />
+      </head>
+      <body>
+        <p>
+          This product has a new page: <a href={Astro.props.to}>continue here</a>.
+        </p>
+      </body>
+    </html>
+  ) : mode === 'family' ? (
+    <Base title={a.display_name} description={a.description_short} ogImage={images[0] ?? null} jsonLd={jsonLd} pageType="pdp">
+      <nav class="mx-auto max-w-6xl px-4 pt-6 text-sm text-[var(--mist)]" aria-label="Breadcrumb">
+        <a href="/products/" class="no-underline hover:underline underline-offset-4">Products</a>
+        <span aria-hidden="true"> / </span>
+        <span>{a.display_name}</span>
+      </nav>
+
+      {/* 1 — Gallery + buy column */}
+      <section class="mx-auto grid max-w-6xl gap-10 px-4 py-8 lg:grid-cols-2">
+        <div>
+          {images.length > 0 ? (
+            <ProductGallery images={images} title={a.display_name} />
+          ) : (
+            <div class="flex aspect-square items-center justify-center rounded-token-lg bg-[var(--surface-2)] p-12 text-center">
+              <span class="font-heading text-xl text-[var(--mist)]">{a.display_name}</span>
+            </div>
+          )}
+        </div>
+
+        <div class="flex flex-col gap-5">
+          <div class="flex flex-wrap gap-2">
+            {a.badges.map((b) => (
+              <Badge>{b.replace(/-/g, ' ')}</Badge>
+            ))}
+          </div>
+          <div>
+            <h1 class="text-[length:var(--step-4)] leading-tight">{a.display_name}</h1>
+            <p class="mt-2 text-[length:var(--step-0)] text-[var(--mist)]">{a.tagline}</p>
+          </div>
+          {g.reviews && (
+            <ReviewStars rating={g.reviews.rating} showValue>
+              <span class="text-sm text-[var(--mist)]">
+                {g.reviews.count.toLocaleString('en-US')} verified Amazon reviews
+              </span>
+            </ReviewStars>
+          )}
+          {priceLabel && (
+            <p class="text-2xl font-semibold" id="pdp-price">
+              {priceLabel}
+            </p>
+          )}
+          {variantOptions.length > 1 && <VariantSelector label="Options" options={variantOptions} interactive />}
+          <div class="py-2" data-sticky-cta-sentinel>
+            <AmazonCTA product={g.representative} size="lg" position="pdp-primary" />
+            <p class="mt-2 text-xs text-[var(--mist)]">
+              Checkout on Amazon — Prime shipping, Amazon returns, and the reviews to prove it.
+            </p>
+          </div>
+          <p class="leading-relaxed">{a.hero_benefit}</p>
+        </div>
+      </section>
+
+      {/* 2 — Benefit trio */}
+      {a.benefits && (
+        <section class="mx-auto max-w-6xl px-4 py-10">
+          <div class="grid gap-5 sm:grid-cols-3">
+            {a.benefits.map((b) => (
+              <div class="rounded-token-lg border border-[var(--line)] bg-[var(--surface)] p-6">
+                <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--accent-ink)]">
+                  <BenefitIcon name={b.icon} />
+                </span>
+                <h2 class="mt-4 text-[length:var(--step-1)]">{b.title}</h2>
+                <p class="mt-2 text-sm leading-relaxed text-[var(--mist)]">{b.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 3 — Who it's for, with the honest anti-fit line */}
+      {a.who_its_for && (
+        <section class="mx-auto max-w-6xl px-4 py-10">
+          <div class="grid gap-8 rounded-token-lg bg-[var(--surface-2)] p-8 lg:grid-cols-2">
+            <div>
+              <SectionHeader eyebrow="Fit guide" title="Made for" />
+              <ul class="mt-5 flex flex-col gap-3">
+                {a.who_its_for.fits.map((line) => (
+                  <li class="flex gap-3">
+                    <svg
+                      viewBox="0 0 20 20"
+                      class="mt-1 h-4 w-4 shrink-0 text-[var(--accent-ink)]"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M4 10.5 L8.5 15 L16 5.5" />
+                    </svg>
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {a.who_its_for.anti_fit && (
+              <div class="flex flex-col justify-center rounded-token-md border border-[var(--line)] bg-[var(--surface)] p-6">
+                <p class="text-[0.72rem] font-semibold uppercase tracking-[var(--track-caps)] text-[var(--mist)]">
+                  Not for you if
+                </p>
+                <p class="mt-2 leading-relaxed">{a.who_its_for.anti_fit}</p>
+                {a.who_its_for.anti_fit_alternative && (
+                  <div class="mt-4">
+                    <Button href={`/products/${a.who_its_for.anti_fit_alternative}/`} variant="quiet">
+                      See the alternative →
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 4 — Specs: dense, factual, confident */}
+      {a.specs.length > 0 && (
+        <section class="mx-auto max-w-6xl px-4 py-10">
+          <SectionHeader eyebrow="The facts" title="Specs & materials" />
+          <dl class="mt-6 grid gap-x-10 overflow-hidden rounded-token-lg border border-[var(--line)] bg-[var(--surface)] sm:grid-cols-2">
+            {a.specs.map((s) => (
+              <div class="flex gap-4 border-b border-[var(--line)] px-6 py-4 last:border-b-0 sm:[&:nth-last-child(2)]:border-b-0">
+                <dt class="w-36 shrink-0 font-semibold">{s.label}</dt>
+                <dd class="text-[var(--mist)]">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
+      {/* 5 — Comparison (generic fill categories until sourced competitor data exists) */}
+      {comparisonProps && (
+        <section class="mx-auto max-w-6xl px-4 py-10" id="compare">
+          <SectionHeader eyebrow="How it compares" title="Shredded foam versus other fills" />
+          <div class="mt-6">
+            <ComparisonTable {...comparisonProps} />
+          </div>
+        </section>
+      )}
+
+      {/* 6 — Review excerpts: real verified quotes only; nothing until approved */}
+      {a.review_excerpts.length > 0 && (
+        <section class="mx-auto max-w-6xl px-4 py-10">
+          <SectionHeader eyebrow="From verified Amazon reviews" title="After a few nights" />
+          <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {a.review_excerpts.map((r) => (
+              <figure class="flex flex-col gap-3 rounded-token-lg border border-[var(--line)] bg-[var(--surface)] p-6">
+                <ReviewStars rating={r.rating} size="sm" />
+                <blockquote class="leading-relaxed">{r.text}</blockquote>
+                <figcaption class="mt-auto pt-2 text-sm text-[var(--mist)]">{r.name}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 7 — FAQ */}
+      {a.faq.length > 0 && (
+        <section class="mx-auto max-w-3xl px-4 py-10">
+          <SectionHeader eyebrow="Good to know" title="Questions, answered" />
+          <div class="mt-6">
+            <FaqAccordion items={a.faq.map((f) => ({ question: f.q, answer: f.a }))} />
+          </div>
+        </section>
+      )}
+
+      {/* Long description */}
+      <section class="mx-auto max-w-3xl px-4 py-10">
+        <SectionHeader eyebrow="The full story" title={`About the ${a.display_name.replace(/^The /, '').toLowerCase()}`} />
+        <div class="prose-desc mt-4 leading-relaxed">
+          {a.description_long.split('\n\n').map((para) => (
+            <p class="mb-4">{para}</p>
+          ))}
+        </div>
+      </section>
+
+      {/* 8 — Sticky mobile CTA */}
+      <StickyCta product={stickyProduct} priceLabel={priceLabel} />
+
+      {/* Variant switcher: chips swap price + both CTAs. Without JS the page
+          simply keeps the representative variant everywhere. */}
+      <script>
+        const priceEl = document.getElementById('pdp-price');
+        const ctas = document.querySelectorAll('a[data-amazon-cta]');
+        document.querySelectorAll('button[data-variant]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            document
+              .querySelectorAll('button[data-variant]')
+              .forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+            if (priceEl && btn.dataset.price) priceEl.textContent = btn.dataset.price;
+            ctas.forEach((cta) => {
+              cta.href = btn.dataset.amazonUrl;
+              cta.dataset.asin = btn.dataset.asin;
+            });
+          });
+        });
+      </script>
+    </Base>
+  ) : (
+    <Base
+      title={product.display_title}
+      description={v1MetaDescription}
+      ogImage={v1Images[0] ?? null}
+      jsonLd={v1JsonLd}
+      pageType="pdp"
+    >
+      <nav class="mx-auto max-w-6xl px-4 pt-6 text-sm text-black/50" aria-label="Breadcrumb">
+        <a href="/products/" class="hover:underline underline-offset-4">Products</a>
+        <span aria-hidden="true"> / </span>
+        <span class="text-black/70">{product.display_title}</span>
+      </nav>
+
+      <section class="mx-auto max-w-6xl px-4 py-8 grid gap-10 lg:grid-cols-2">
+        <div>
+          {v1Images.length > 0 ? (
+            <ProductGallery images={v1Images} title={product.display_title} />
+          ) : (
+            <div class="rounded-2xl border border-black/10 bg-[var(--surface)] p-12 text-center text-black/50 font-semibold">
+              {brand.brand}
+            </div>
+          )}
+        </div>
+
+        <div class="flex flex-col gap-5">
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">{product.display_title}</h1>
+          {v1Price && (
+            <p class="text-3xl font-extrabold" style="color: var(--brand-2);">
+              {v1Price}
+            </p>
+          )}
+
+          {siblings.length > 1 && (
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wide text-black/50 mb-2">Options</h2>
+              <ul class="flex flex-wrap gap-2">
+                {siblings.map((s) => {
+                  const label = v1Labels.get(s.asin) ?? variantLabel(s, siblings) ?? s.asin;
+                  const isCurrent = s.asin === product.asin;
+                  return (
+                    <li>
+                      {isCurrent ? (
+                        <span
+                          class="inline-block rounded-full bg-[var(--brand)] px-3 py-1 text-xs font-bold"
+                          style="color: var(--brand-2);"
+                          aria-current="true"
+                        >
+                          {label}
+                        </span>
+                      ) : (
+                        <a
+                          href={`/products/${s.asin}/`}
+                          class="inline-block rounded-full border border-black/15 px-3 py-1 text-xs font-semibold hover:border-[var(--brand)] hover:bg-[var(--bg)]"
+                        >
+                          {label}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          <div class="py-2">
+            <AmazonCTA product={product} size="lg" position="pdp-primary" />
+            <p class="mt-2 text-xs text-black/40">Ships and sold via Amazon.com</p>
+          </div>
+
+          {product.bullets.length > 0 && (
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wide text-black/50 mb-2">Highlights</h2>
+              <ul class="list-disc pl-5 space-y-2 text-black/80">
+                {product.bullets.map((b) => (
+                  <li>{b}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {product.display_description && (
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wide text-black/50 mb-2">About this product</h2>
+              <div class="prose-desc text-black/80" set:html={product.display_description} />
+            </div>
+          )}
+        </div>
+      </section>
+    </Base>
+  )
+}

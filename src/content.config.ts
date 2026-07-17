@@ -93,6 +93,17 @@ const needs = defineCollection({
         intro: z.string(), // collection-page editorial intro (2–3 sentences)
       })
     ),
+    // Category collection pages (scope §9.2: one route per category). Slugs
+    // must match the products schema `category` enum values.
+    categories: z
+      .array(
+        z.object({
+          slug: z.enum(['pillows', 'wedge', 'seat-lumbar', 'filler']),
+          display: z.string(),
+          intro: z.string(),
+        })
+      )
+      .default([]),
   }),
 });
 

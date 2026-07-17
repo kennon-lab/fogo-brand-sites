@@ -158,10 +158,34 @@ and needs cards link to /products/shredded-pillow/ and /collections/* — the
 collections routes and family-slug PDPs land in PR 5 (404 on this branch
 until then).
 
+## PR 5 — family PDPs + collections + redirects + sitemap — DONE
+
+Built 2026-07-17.
+
+- products/[slug].astro: authored brands render one v2 PDP per family slug
+  (full §9.1 template: gallery, badges, stars, price range, interactive
+  variant chips [aria-pressed CSS state; script swaps price + both CTAs' href
+  and data-asin — verified live], benefit trio [ui/BenefitIcon glyph map],
+  fit guide + anti-fit cross-sell, specs dl, comparison table, review
+  excerpts [empty until approved], FAQ, long description, StickyCta).
+  Every child ASIN URL → noindex meta-refresh stub with canonical → family
+  page, so live URLs never break. Unauthored brands keep v1 ASIN PDPs.
+- /collections/[slug]: 4 needs + 4 category routes (categories added to
+  needs.yaml + content.config.ts schema; getCategories() in content.js).
+  Editorial intro + repeated TrustBar + authored ProductCards. Needs pages
+  are the future ads landing destinations.
+- products/index.astro: authored branch = editorial catalog (family cards,
+  accessories hidden). Fixed a second adjacent-expression whitespace bug
+  ("15products") in the v1 branch — template literal, same as PR 4.
+- astro.config.mjs sitemap filter: authored brands exclude /products/<ASIN>/
+  stubs (bean-envy sitemap unchanged, 15 ASIN PDPs still listed).
+- JSON-LD on family PDPs: Product + AggregateOffer (low/high/offerCount).
+  **AggregateRating deliberately omitted — pending Kennon's call on sourcing
+  schema rating from Amazon review data.**
+- check-dist: OK across 64 xtreme pages; bean-envy parity: intentional
+  header nav-wrap class + whitespace only.
+
 ## Then
-- **PR 5 — family PDPs + /collections/[slug] + ASIN redirect stubs + sitemap filter**
-  (scope §9; JSON-LD AggregateOffer/AggregateRating — confirm Kennon is comfortable
-  sourcing schema rating from Amazon reviews).
 - **Launch ops (Kennon)**: attribution campaign + `bronze.attribution_links` inserts,
   `brand_sites` row update (colors/fonts/tagline to final tokens), deploy hook,
   Search Console re-submit.

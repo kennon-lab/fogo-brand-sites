@@ -61,6 +61,14 @@ h3,
   letter-spacing: -0.015em;
 }
 
+/* Interactive variant chips: selected state is driven by aria-pressed so the
+   page script only flips the attribute, never class lists. */
+button[data-variant][aria-pressed='true'] {
+  border-color: var(--night);
+  background: var(--night);
+  color: var(--night-ink);
+}
+
 /* Visible keyboard focus, everywhere, in the brand's own voice. */
 :where(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--accent-ink);

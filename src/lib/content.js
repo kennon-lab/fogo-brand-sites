@@ -46,6 +46,15 @@ export function getNeeds() {
   return needsPromise;
 }
 
+let categoriesPromise;
+/** Category collection-page entries: [{ slug, display, intro }]. */
+export function getCategories() {
+  categoriesPromise ??= getCollection('needs').then(
+    (entries) => entries.find((e) => e.id === `${BRAND_SLUG}/needs`)?.data.categories ?? []
+  );
+  return categoriesPromise;
+}
+
 function isStale(asOf) {
   return Date.now() - new Date(asOf).getTime() > REVIEW_MAX_AGE_DAYS * 86400000;
 }

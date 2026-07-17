@@ -31,3 +31,31 @@ needs:
       The same shredded memory foam we fill our pillows with, sold by the
       pound. Restuff a flattened cushion, refill a bean bag, or top up a dog
       bed instead of replacing it.
+
+# Category collection pages (one route per product category).
+categories:
+  - slug: pillows
+    display: Pillows
+    intro: >-
+      Two ways to solve the same problem: the adjustable shredded-foam
+      flagship you tune to your sleep position, and the slim low-profile
+      pillow for people who want less loft, not more. Both are backed by a
+      decade of verified Amazon reviews.
+  - slug: wedge
+    display: Wedges & body pillows
+    intro: >-
+      Angle and alignment, not just softness. A 7-inch, 30-degree wedge for
+      reading and elevated rest, a full-length body pillow for side sleepers,
+      and washable covers to keep both fresh.
+  - slug: seat-lumbar
+    display: Seat & back support
+    intro: >-
+      Certified memory foam for the hours you spend sitting: seat and coccyx
+      cushions that help relieve tailbone pressure, and a strapped lumbar
+      pillow that keeps your lower back supported at desk or behind the wheel.
+  - slug: filler
+    display: Foam filler
+    intro: >-
+      Loose shredded memory foam in 2.5 to 20 pound bags. Restuff cushions,
+      bean bags, and pet beds with the same machine-washable fill we use in
+      our pillows.

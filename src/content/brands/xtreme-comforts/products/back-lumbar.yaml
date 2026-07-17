@@ -42,9 +42,8 @@ who_its_for:
     - Desk workers who catch themselves slouching by mid-morning
     - Drivers whose lower back complains before the trip ends
   anti_fit: >-
-    If the discomfort is under you rather than behind you, start with a seat
-    cushion instead.
-  anti_fit_alternative: seat-cushions
+    If the discomfort is under you rather than behind you, the seat cushion
+    in this set is the piece to start with.
 specs:
   - label: Material
     value: Memory foam

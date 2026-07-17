@@ -2,11 +2,18 @@
 import Base from '../layouts/Base.astro';
 import { getBrand, getProducts } from '../lib/supabase.js';
 import { localBucketImage } from '../lib/images.js';
+import { getSiteContent, getCategories } from '../lib/content.js';
 
 const brand = await getBrand();
 const products = await getProducts();
 
-const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
+// Authored brands name their own categories (needs.yaml); raw catalog
+// `category` is warehouse data (Finale) and can carry junk like
+// "Discontinued" — never render it on an authored brand.
+const site = await getSiteContent();
+const categories = site
+  ? (await getCategories()).map((c) => c.display)
+  : [...new Set(products.map((p) => p.category).filter(Boolean))];
 const banner = brand.about_banner_path ? await localBucketImage(brand.about_banner_path, 1200) : null;
 ---
 

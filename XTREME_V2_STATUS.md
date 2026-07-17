@@ -43,12 +43,12 @@ session (Claude Code desktop or web) can pick up mid-stream.
   Verified: bean-envy + xtreme dists byte-identical to baselines except intended
   deltas; merge smoke-tested end-to-end (51,492 @ 4.3 confirmed in-build).
 
-## PR 2 — design system ("Rested Modern") — BUILT, awaiting palette/type gate
+## PR 2 — design system ("Rested Modern") — DONE, gate passed
 
-Built 2026-07-17 (desktop session, frontend-design skill). **Gate outstanding:
-Kennon approves palette + type before merge** — preview at `/design-preview`
-(temp page, local-only/uncommitted; run `npm run dev` with
-BRAND_SLUG=xtreme-comforts).
+Built 2026-07-17 (desktop session, frontend-design skill). **Gate PASSED:
+Kennon approved palette + type 2026-07-17** ("i like the look and feel").
+Preview at `/design-preview` (temp page, local-only/uncommitted; run
+`npm run dev` with BRAND_SLUG=xtreme-comforts).
 
 Chosen direction ("dusk to first light"): ink-navy #222839 / night #171C29 +
 linen #F4F0E7 / oat #EAE3D3 + ONE accent, honeyed amber #D39A3F (bronze
@@ -105,11 +105,34 @@ Deliverables:
 loads it, a master merge restyles the LIVE xtreme site while it still has v1 layout.
 Keep PR 2–5 on this branch and merge to master as one unit at launch.
 
-## Then
+## PR 3 — content authoring — BUILT, awaiting copy gate
 
-- **PR 3 — content authoring**: 7 family YAMLs + needs.yaml + site.yaml (voice: scope
-  §7 — benefit-led, specific, no exclamation marks, no medical claims, no "Xtreme"
-  wordplay). Gate: Kennon approves all copy.
+Built 2026-07-17. **Gate outstanding: Kennon approves all copy before merge.**
+
+- 9 family YAMLs (not 7 — the real catalog has 9 Amazon families): 6 nav
+  (shredded-pillow, slim-pillow, seat-cushions, back-lumbar, wedge-body,
+  foam-filler) + 3 accessory cover families (nav:false, accessory_of:
+  wedge-body). Plus needs.yaml (4 needs: neck-support, all-day-sitting,
+  elevated-rest, refresh-refill) and site.yaml.
+- All claims sourced from listing data (GREENGUARD/UL, CertiPUR-US, OEKO-TEX,
+  made-in-USA, 30°/7" wedge, machine-washable). Comparison block on the
+  flagship uses generic fill categories, no named competitors.
+  review_excerpts/review_wall are EMPTY by design (real quotes only, Kennon).
+- ⚠ For Kennon: 3 provisional variant labels in seat-cushions.yaml
+  (B09H3JG56W "Everyday" / B01N2VSUAE "Extra-support" / B09KNVQRMK "Premium"
+  — titles identical, differentiators not in our data; correct before launch).
+  Also flagged: Amazon groups the body pillow with the wedge (shared PDP
+  "Wedge & Body Pillows"), and slim Standard/Queen sit inside the flagship
+  family while slim King is standalone.
+- Wiring: authoring flipped check-dist to strict, which caught the 15
+  wedge-cover ASIN chips (identical titles → ASIN fallback). Fixed by
+  preferring authored labels: getMergedCatalog() labels now feed ProductCard
+  chips + PDP option chips (index, products/index, products/[slug]).
+  Unauthored brands pass an empty Map — bean-envy verified unchanged
+  (PDP/about byte-identical mod css hash; home/catalog whitespace-only).
+- check-dist: OK — zero ASINs in rendered text across all 47 xtreme pages.
+
+## Then
 - **PR 4 — homepage rebuild** (section order: scope §8.1).
 - **PR 5 — family PDPs + /collections/[slug] + ASIN redirect stubs + sitemap filter**
   (scope §9; JSON-LD AggregateOffer/AggregateRating — confirm Kennon is comfortable

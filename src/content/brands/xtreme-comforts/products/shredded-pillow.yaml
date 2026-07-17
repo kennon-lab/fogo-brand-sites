@@ -1,0 +1,109 @@
+# Flagship family (11 variants). Note: Amazon groups the Slim Standard/Queen
+# singles and all Slim 2-packs into THIS family; only the Slim King single is
+# a standalone listing (see slim-pillow.yaml).
+family_key: B0G5Q8C8RG
+display_name: The Shredded Memory Foam Pillow
+tagline: Add or remove fill until the loft is exactly yours.
+category: pillows
+needs: [neck-support]
+hero_benefit: >-
+  One pillow, tuned to how you actually sleep — unzip the inner cover, adjust
+  the shredded fill, and the loft you chose is the loft you keep.
+description_short: >-
+  Adjustable shredded memory foam with a removable, machine-washable cover.
+  GREENGUARD certified, with classic and slim profiles in Standard, Queen,
+  and King.
+description_long: >-
+  Solid foam pillows ask you to pick a firmness from a product photo and live
+  with it. This one works the other way. The fill is shredded memory foam
+  behind an inner zipper: add foam for the higher loft side sleepers need,
+  remove it for a flatter profile, and the balanced fill distribution keeps
+  the shape consistent instead of migrating into lumps.
+
+
+  Every pillow is GREENGUARD certified — tested by UL Solutions for low
+  chemical emissions — and the cover comes off for machine washing. The slim
+  versions use the same fill in a lower, cooling profile for people who sleep
+  closest to the mattress. Available in Standard, Queen, and King, single or
+  two-pack.
+badges: [greenguard, machine-washable, prime]
+benefits:
+  - icon: adjust
+    title: You set the loft
+    body: >-
+      Unzip, add or remove shredded fill, re-zip. Side, back, stomach, or all
+      three in one night — the pillow adjusts instead of you.
+  - icon: certified
+    title: GREENGUARD certified
+    body: >-
+      Tested by UL Solutions for low chemical emissions. The certification is
+      on the listing, not just the label.
+  - icon: washable
+    title: Machine-washable cover
+    body: >-
+      The outer cover zips off and goes in the wash, so the pillow stays fresh
+      without special care.
+who_its_for:
+  fits:
+    - Side sleepers who need real loft to keep their neck level
+    - Back sleepers who want support without being propped forward
+    - Combination sleepers who change position through the night
+  anti_fit: >-
+    If you sleep on your stomach and want as little pillow as possible, the
+    slim profile is the better starting point.
+  anti_fit_alternative: slim-pillow
+specs:
+  - label: Fill
+    value: Shredded memory foam, adjustable through the inner zipper
+  - label: Certification
+    value: GREENGUARD (UL Solutions low-emissions testing)
+  - label: Cover
+    value: Removable, machine-washable
+  - label: Sizes
+    value: Standard, Queen, King — classic or slim profile, single or 2-pack
+comparison:
+  claim_note: >-
+    Generic fill-category comparison only — no named competitors, no sourced
+    third-party claims. Rows describe inherent material properties.
+  competitor_names: [Solid memory foam, Down & feather, Polyester fill]
+  rows:
+    - feature: Adjustable loft
+      us: Yes — add or remove fill
+      competitors: ['No', 'Limited — reshuffling only', 'No']
+    - feature: Holds shape overnight
+      us: Yes
+      competitors: ['Yes, one fixed shape', 'Flattens with use', 'Clumps over time']
+    - feature: Machine-washable cover
+      us: 'Yes'
+      competitors: ['Varies', 'Varies', 'Varies']
+faq:
+  - q: How do I adjust the loft?
+    a: >-
+      Unzip the outer cover, then the inner liner, and remove or add shredded
+      fill until the height suits your sleep position. Most people get it
+      right within a night or two of small adjustments.
+  - q: What does GREENGUARD certified mean?
+    a: >-
+      The pillow has been tested by UL Solutions and certified for low
+      chemical emissions. It is a third-party certification, not a
+      self-declared claim.
+  - q: Can I wash it?
+    a: >-
+      The outer cover is machine-washable. Wash the cover regularly and spot
+      clean the fill; a mesh inner liner keeps the foam in place while you do.
+  - q: Where does my order ship from?
+    a: >-
+      Checkout happens on Amazon.com, so shipping, delivery, and returns are
+      handled by Amazon — including Prime where available.
+variants:
+  - { asin: B00V909F1K, label: Standard }
+  - { asin: B00V909F4M, label: Queen }
+  - { asin: B00V909F38, label: King }
+  - { asin: B0DV5SS5FN, label: Standard · 2-pack }
+  - { asin: B0DV5ZKFXL, label: Queen · 2-pack }
+  - { asin: B0DV5PVDYG, label: King · 2-pack }
+  - { asin: B014E9UMH8, label: Slim · Standard }
+  - { asin: B014E9UO12, label: Slim · Queen }
+  - { asin: B0DV5RMDZN, label: Slim · Standard · 2-pack }
+  - { asin: B0DV68NWY2, label: Slim · Queen · 2-pack }
+  - { asin: B0DV5XGH66, label: Slim · King · 2-pack }

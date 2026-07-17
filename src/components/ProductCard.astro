@@ -10,7 +10,10 @@ import { variantLabel, formatPrice } from '../lib/catalog.js';
 // `authored` (v2 brands only): { name, tagline, href, badge?, reviews?:
 // { rating, count } } from the content layer — switches to the editorial
 // card. Without it the card renders exactly as v1.
-const { representative: p, children = [p], images = [], authored = null } = Astro.props;
+// `labels` (optional Map<asin, label> from getMergedCatalog): authored human
+// variant labels, preferred over title-diffing so ASINs never render as chips
+// on authored brands. Unauthored brands pass nothing — output unchanged.
+const { representative: p, children = [p], images = [], authored = null, labels = null } = Astro.props;
 
 const prices = children.map((c) => c.item_price).filter((v) => v != null);
 const minPrice = prices.length ? Math.min(...prices) : null;
@@ -89,7 +92,7 @@ const priceLabel =
       children.length > 1 && (
         <ul class="flex flex-wrap gap-2" aria-label="Variants">
           {children.map((c) => {
-            const label = variantLabel(c, children);
+            const label = labels?.get(c.asin) ?? variantLabel(c, children);
             return (
               <li>
                 <a

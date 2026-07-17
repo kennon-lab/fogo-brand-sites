@@ -3,16 +3,17 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import FeatureTiles from '../components/FeatureTiles.astro';
 import ProductCard from '../components/ProductCard.astro';
-import { getBrand, getProducts } from '../lib/supabase.js';
+import { getBrand } from '../lib/supabase.js';
 import { getLocalImagesByAsin } from '../lib/images.js';
-import { groupByParent } from '../lib/catalog.js';
+import { getMergedCatalog } from '../lib/content.js';
 
 const brand = await getBrand();
-const products = await getProducts();
 const imagesByAsin = await getLocalImagesByAsin();
 
-// Featured: top sort_weight groups first (catalog order), capped for the home page.
-const featured = groupByParent(products).slice(0, 6);
+// Featured: top sort_weight groups first (catalog order), capped for the home
+// page. Merged catalog = same groups plus authored labels (empty when the
+// brand is unauthored — bean-envy output unchanged).
+const featured = (await getMergedCatalog()).slice(0, 6);
 const ogImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]).find(Boolean) ?? null;
 ---
 
@@ -30,6 +31,7 @@ const ogImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]
             representative={group.representative}
             children={group.children}
             images={imagesByAsin.get(group.representative.asin) ?? []}
+            labels={group.labels}
           />
         ))
       }

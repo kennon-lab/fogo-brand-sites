@@ -5,6 +5,7 @@ import AmazonCTA from '../../components/AmazonCTA.astro';
 import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
 import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
+import { getMergedCatalog } from '../../lib/content.js';
 
 // v1 ("legacy") PDPs: one page per child ASIN, slug = the ASIN, so live URLs
 // are unchanged. Authored brands will add family-slug pages and redirect
@@ -21,6 +22,10 @@ const imagesByAsin = await getLocalImagesByAsin();
 
 const images = imagesByAsin.get(product.asin) ?? [];
 const siblings = products.filter((p) => groupKey(p) === groupKey(product));
+// Authored human variant labels (empty Map on unauthored brands) — preferred
+// over title-diffing so ASINs never render as chip text.
+const merged = await getMergedCatalog();
+const labels = merged.find((g) => g.key === groupKey(product))?.labels ?? new Map();
 const price = formatPrice(product.item_price);
 
 const metaDescription = (product.bullets[0] ?? product.display_title ?? '').slice(0, 155);
@@ -73,7 +78,7 @@ const jsonLd = {
             <h2 class="text-sm font-bold uppercase tracking-wide text-black/50 mb-2">Options</h2>
             <ul class="flex flex-wrap gap-2">
               {siblings.map((s) => {
-                const label = variantLabel(s, siblings) ?? s.asin;
+                const label = labels.get(s.asin) ?? variantLabel(s, siblings) ?? s.asin;
                 const isCurrent = s.asin === product.asin;
                 return (
                   <li>

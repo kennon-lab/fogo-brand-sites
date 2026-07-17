@@ -1,0 +1,60 @@
+family_key: B01DR5GCR4
+display_name: Shredded Foam Filler
+tagline: The same foam our pillows use, by the pound.
+category: filler
+needs: [refresh-refill]
+hero_benefit: >-
+  Machine-washable shredded memory foam for restuffing what you already own —
+  flattened cushions, bean bags, dog beds, and craft projects.
+description_short: >-
+  Machine-washable shredded memory foam filler in 2.5, 5, 10, and 20 pound
+  bags. Restuff cushions, bean bags, pet beds, and pillows instead of
+  replacing them.
+description_long: >-
+  Cushions rarely wear out — their fill does. This is the same shredded
+  memory foam we use in our pillows, sold loose: dense enough to bring a
+  flattened couch cushion back to shape, resilient enough for bean bags that
+  get daily abuse, and machine-washable, which polyfill is not.
+
+
+  Pick the bag for the job: 2.5 pounds tops up a pillow, 5 handles a couch
+  cushion, 10 to 20 refills bean bags, dog beds, and bigger projects.
+badges: [machine-washable, prime]
+benefits:
+  - icon: refill
+    title: Repair beats replace
+    body: >-
+      A few pounds of fill brings a sagging cushion or bean bag back to shape
+      for a fraction of the cost of new furniture.
+  - icon: washable
+    title: Machine-washable fill
+    body: >-
+      Unlike polyester stuffing, this foam survives the wash — which matters
+      for dog beds and anything kids sit on.
+  - icon: adjust
+    title: Same foam as our pillows
+    body: >-
+      This is the identical shredded memory foam inside our flagship pillow,
+      so density and resilience are already proven at scale.
+specs:
+  - label: Material
+    value: Shredded memory foam, machine-washable
+  - label: Bag sizes
+    value: 2.5, 5, 10, and 20 pounds
+  - label: Uses
+    value: Cushions, bean bags, pet beds, pillows, stuffed animals, crafts
+faq:
+  - q: How much do I need?
+    a: >-
+      As a rough guide — a standard pillow takes 2 to 3 pounds, a couch
+      cushion about 5, and bean bags 10 to 20 depending on size. Start
+      lighter; adding foam is easier than removing it.
+  - q: Can I wash it?
+    a: >-
+      Yes, the foam itself is machine-washable — wash it inside a zipped
+      liner or pillowcase so the pieces stay together.
+variants:
+  - { asin: B01DR5GDIC, label: 2.5 lb }
+  - { asin: B01DR0YUXC, label: 5 lb }
+  - { asin: B07HB52YZL, label: 10 lb }
+  - { asin: B07WW975P9, label: 20 lb }

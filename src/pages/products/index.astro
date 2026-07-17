@@ -3,12 +3,13 @@ import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
-import { groupByParent } from '../../lib/catalog.js';
+import { getMergedCatalog } from '../../lib/content.js';
 
 const brand = await getBrand();
 const products = await getProducts();
 const imagesByAsin = await getLocalImagesByAsin();
-const groups = groupByParent(products);
+// Same groups as groupByParent, plus authored labels (empty when unauthored).
+const groups = await getMergedCatalog();
 ---
 
 <Base title="Products" description={`The full ${brand.brand} catalog. Every product ships via Amazon.`} pageType="catalog">
@@ -24,6 +25,7 @@ const groups = groupByParent(products);
             representative={group.representative}
             children={group.children}
             images={imagesByAsin.get(group.representative.asin) ?? []}
+            labels={group.labels}
           />
         ))
       }

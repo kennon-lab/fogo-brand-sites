@@ -33,6 +33,7 @@ const num = (v) => (v === null || v === undefined || v === '' ? null : parseFloa
 let brandPromise;
 let productsPromise;
 let imagesPromise;
+let reviewStatsPromise;
 
 /** The brand row for BRAND_SLUG. Build fails loudly if it doesn't exist. */
 export function getBrand() {
@@ -52,16 +53,25 @@ export function getBrand() {
 export function getProducts() {
   productsPromise ??= rest(
     `brand_site_products?brand_slug=eq.${encodeURIComponent(BRAND_SLUG)}&order=sort_weight.desc,asin.asc`
-  ).then((rows) =>
-    rows.map((p) => ({
+  ).then((rows) => {
+    const products = rows.map((p) => ({
       ...p,
       item_price: num(p.item_price),
       bullets: Array.isArray(p.bullets_json)
         ? p.bullets_json.map((b) => (typeof b === 'string' ? b : b?.value)).filter(Boolean)
         : [],
       amazon_url: p.attribution_url || p.plain_amazon_url,
-    }))
-  );
+    }));
+    // Attribution-miss report: these CTAs earn no Brand Referral Bonus until
+    // bronze.attribution_links rows exist for (brand, asin, 'brand_site').
+    const missing = products.filter((p) => !p.attribution_url);
+    if (missing.length > 0) {
+      console.warn(
+        `[supabase.js] ${missing.length}/${products.length} ASINs have no attribution link (plain Amazon fallback): ${missing.map((p) => p.asin).join(', ')}`
+      );
+    }
+    return products;
+  });
   return productsPromise;
 }
 
@@ -70,6 +80,35 @@ export function getProducts() {
  * Only the brand-site-images bucket ever appears here (mirror script output).
  * ASINs with no mirrored images are simply absent — callers render text-only.
  */
+/**
+ * Latest Keepa review stats for this brand's ASINs:
+ * Map<asin, { rating, review_count, as_of }>. Fails soft (empty Map + warning)
+ * so a broken stats view degrades to "no review UI", never a failed build.
+ * Aggregation semantics live in src/lib/content.js — family figures are the
+ * MAX across children (Amazon pools reviews per listing), never the sum.
+ */
+export function getReviewStats() {
+  reviewStatsPromise ??= getProducts().then(async (products) => {
+    const map = new Map();
+    if (products.length === 0) return map;
+    try {
+      const asins = products.map((p) => p.asin).join(',');
+      const rows = await rest(`brand_site_review_stats?asin=in.(${asins})`);
+      for (const r of rows) {
+        map.set(r.asin, {
+          rating: num(r.rating),
+          review_count: r.review_count == null ? null : Number(r.review_count),
+          as_of: r.as_of,
+        });
+      }
+    } catch (err) {
+      console.warn(`[supabase.js] review stats unavailable (${err.message}) — review UI will be omitted.`);
+    }
+    return map;
+  });
+  return reviewStatsPromise;
+}
+
 export function getImagesByAsin() {
   imagesPromise ??= Promise.all([getProducts(), rest('brand_site_images?order=asin.asc,position.asc')]).then(
     ([products, rows]) => {

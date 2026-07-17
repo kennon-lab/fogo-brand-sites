@@ -6,7 +6,7 @@
   "description": "Per-brand static marketing sites for the FOGO Brands portfolio. One repo, one template, N builds selected via BRAND_SLUG.",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/check-dist.mjs",
     "preview": "astro preview",
     "mirror-images": "node scripts/mirror-images.mjs"
   },

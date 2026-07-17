@@ -11,7 +11,7 @@ const imagesByAsin = await getLocalImagesByAsin();
 const groups = groupByParent(products);
 ---
 
-<Base title="Products" description={`The full ${brand.brand} catalog. Every product ships via Amazon.`}>
+<Base title="Products" description={`The full ${brand.brand} catalog. Every product ships via Amazon.`} pageType="catalog">
   <section class="mx-auto max-w-6xl px-4 py-12">
     <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">All products</h1>
     <p class="mt-2 text-black/60">

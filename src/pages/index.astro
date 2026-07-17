@@ -16,7 +16,7 @@ const featured = groupByParent(products).slice(0, 6);
 const ogImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]).find(Boolean) ?? null;
 ---
 
-<Base description={brand.tagline ?? undefined} ogImage={ogImage}>
+<Base description={brand.tagline ?? undefined} ogImage={ogImage} pageType="home">
   <Hero />
 
   <FeatureTiles />

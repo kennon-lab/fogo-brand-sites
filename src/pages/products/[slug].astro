@@ -6,9 +6,12 @@ import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
 import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
 
+// v1 ("legacy") PDPs: one page per child ASIN, slug = the ASIN, so live URLs
+// are unchanged. Authored brands will add family-slug pages and redirect
+// stubs here in a later phase (see the v2 plan §D2).
 export async function getStaticPaths() {
   const products = await getProducts();
-  return products.map((product) => ({ params: { asin: product.asin }, props: { product } }));
+  return products.map((product) => ({ params: { slug: product.asin }, props: { product } }));
 }
 
 const { product } = Astro.props;
@@ -40,7 +43,7 @@ const jsonLd = {
 };
 ---
 
-<Base title={product.display_title} description={metaDescription} ogImage={images[0] ?? null} jsonLd={jsonLd}>
+<Base title={product.display_title} description={metaDescription} ogImage={images[0] ?? null} jsonLd={jsonLd} pageType="pdp">
   <nav class="mx-auto max-w-6xl px-4 pt-6 text-sm text-black/50" aria-label="Breadcrumb">
     <a href="/products/" class="hover:underline underline-offset-4">Products</a>
     <span aria-hidden="true"> / </span>
@@ -95,7 +98,7 @@ const jsonLd = {
       }
 
       <div class="py-2">
-        <AmazonCTA product={product} size="lg" />
+        <AmazonCTA product={product} size="lg" position="pdp-primary" />
         <p class="mt-2 text-xs text-black/40">Ships and sold via Amazon.com</p>
       </div>
 

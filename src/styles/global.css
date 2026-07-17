@@ -2,15 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand tokens (--brand, --brand-2) are injected per-build by Base.astro from
+/* Theme values live in src/styles/tokens.css (imported by Base.astro before
+   this file). --brand / --brand-2 are injected per-build by Base.astro from
    the brand row's primary_color / secondary_color — same CSS-variable pattern
-   as the FOGO dashboard's Sharpened Burnished theme. Neutrals are defaults
-   that individual brands inherit. */
-:root {
-  --ink: #171310;
-  --bg: #faf8f5;
-  --surface: #ffffff;
-}
+   as the FOGO dashboard's Sharpened Burnished theme. */
 
 html {
   scroll-behavior: smooth;

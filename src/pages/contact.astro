@@ -5,7 +5,7 @@ import { getBrand } from '../lib/supabase.js';
 const brand = await getBrand();
 ---
 
-<Base title="Contact" description={`Get in touch with ${brand.brand}.`}>
+<Base title="Contact" description={`Get in touch with ${brand.brand}.`} pageType="contact">
   <section class="mx-auto max-w-3xl px-4 py-14">
     <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Contact us</h1>
     <div class="mt-6 space-y-4 text-lg text-black/80">

@@ -24,8 +24,14 @@ import '@fontsource/figtree/700.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getBrand } from '../lib/supabase.js';
+import { localBucketImage } from '../lib/images.js';
 
 const brand = await getBrand();
+
+// Per-brand favicon (bucket-relative path, localized at build like all other
+// bucket images). Brands without favicon_path emit no icon links — unchanged.
+const favicon = brand.favicon_path ? await localBucketImage(brand.favicon_path, 64, 'png') : null;
+const appleTouchIcon = brand.favicon_path ? await localBucketImage(brand.favicon_path, 180, 'png') : null;
 
 const {
   title,
@@ -71,6 +77,8 @@ const gaId = brand.google_analytics_id;
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {favicon && <link rel="icon" type="image/png" href={favicon} />}
+    {appleTouchIcon && <link rel="apple-touch-icon" href={appleTouchIcon} />}
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={brand.brand} />

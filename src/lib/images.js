@@ -15,17 +15,19 @@ export function bucketUrl(path) {
 }
 
 /** Local optimized path for a bucket-relative path (logo, hero, tiles). */
-export function localBucketImage(path, width = 800) {
-  return localImage(bucketUrl(path), width);
+export function localBucketImage(path, width = 800, format = 'webp') {
+  return localImage(bucketUrl(path), width, format);
 }
 
-/** Local optimized path for one bucket URL (e.g. the brand logo). */
-export async function localImage(remoteUrl, width = 800) {
-  const key = `${remoteUrl}#${width}`;
+/** Local optimized path for one bucket URL (e.g. the brand logo).
+    `format` stays webp for page imagery; favicons/touch icons pass 'png'
+    (Safari/iOS don't reliably accept webp icons). */
+export async function localImage(remoteUrl, width = 800, format = 'webp') {
+  const key = `${remoteUrl}#${width}#${format}`;
   if (!singleCache.has(key)) {
     singleCache.set(
       key,
-      getImage({ src: remoteUrl, inferSize: true, width, format: 'webp' }).then((img) => img.src)
+      getImage({ src: remoteUrl, inferSize: true, width, format }).then((img) => img.src)
     );
   }
   return singleCache.get(key);

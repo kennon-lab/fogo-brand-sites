@@ -1,22 +1,63 @@
 ---
 import { getBrand } from '../lib/supabase.js';
+import { getSiteContent } from '../lib/content.js';
 
 const brand = await getBrand();
+// Authored brands get the v2 brand footer (night palette, authored nav +
+// disclosure-as-logistics). Unauthored brands render the v1 footer unchanged.
+const site = await getSiteContent();
 const year = new Date().getFullYear();
 ---
 
-<footer class="mt-16 border-t border-black/10 bg-[var(--surface)]">
-  <div class="mx-auto max-w-6xl px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-black/60">
-    <p>&copy; {year} {brand.brand}. All rights reserved.</p>
-    <nav aria-label="Footer">
-      <ul class="flex items-center gap-5">
-        <li><a href="/about/" class="hover:underline underline-offset-4">About</a></li>
-        <li><a href="/contact/" class="hover:underline underline-offset-4">Contact</a></li>
-        <li><a href="/privacy/" class="hover:underline underline-offset-4">Privacy</a></li>
-      </ul>
-    </nav>
-  </div>
-  <div class="mx-auto max-w-6xl px-4 pb-6 text-xs text-black/40">
-    <p>As an Amazon seller, purchases made through links on this site are completed on Amazon.com.</p>
-  </div>
-</footer>
+{
+  site ? (
+    <footer class="mt-16 bg-[var(--night)] text-[var(--night-ink)]">
+      <div class="mx-auto max-w-6xl px-4 py-12">
+        <div class="flex flex-col justify-between gap-8 sm:flex-row sm:items-start">
+          <div class="max-w-sm">
+            <p class="font-heading text-[length:var(--step-1)]">{brand.brand}</p>
+            {brand.tagline && <p class="mt-2 text-sm leading-relaxed text-[var(--night-mist)]">{brand.tagline}</p>}
+            <p class="mt-4 text-sm text-[var(--night-mist)]">{site.trust.claims.join(' · ')}</p>
+          </div>
+          <nav aria-label="Footer">
+            <ul class="flex flex-col gap-2 text-sm font-semibold sm:text-right">
+              {site.nav.map((item) => (
+                <li>
+                  <a href={item.href} class="no-underline hover:underline underline-offset-4">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a href="/contact/" class="no-underline hover:underline underline-offset-4">Contact</a>
+              </li>
+              <li>
+                <a href="/privacy/" class="no-underline hover:underline underline-offset-4">Privacy</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="mt-10 border-t border-[var(--night-line)] pt-6 text-xs text-[var(--night-mist)]">
+          <p>{`© ${year} ${brand.brand}. All rights reserved.`}</p>
+          <p class="mt-2 max-w-2xl">{site.footer_disclosure}</p>
+        </div>
+      </div>
+    </footer>
+  ) : (
+    <footer class="mt-16 border-t border-black/10 bg-[var(--surface)]">
+      <div class="mx-auto max-w-6xl px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-black/60">
+        <p>{`© ${year} ${brand.brand}. All rights reserved.`}</p>
+        <nav aria-label="Footer">
+          <ul class="flex items-center gap-5">
+            <li><a href="/about/" class="hover:underline underline-offset-4">About</a></li>
+            <li><a href="/contact/" class="hover:underline underline-offset-4">Contact</a></li>
+            <li><a href="/privacy/" class="hover:underline underline-offset-4">Privacy</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="mx-auto max-w-6xl px-4 pb-6 text-xs text-black/40">
+        <p>As an Amazon seller, purchases made through links on this site are completed on Amazon.com.</p>
+      </div>
+    </footer>
+  )
+}

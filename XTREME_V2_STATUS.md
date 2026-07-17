@@ -132,8 +132,33 @@ Built 2026-07-17. **Gate outstanding: Kennon approves all copy before merge.**
   (PDP/about byte-identical mod css hash; home/catalog whitespace-only).
 - check-dist: OK — zero ASINs in rendered text across all 47 xtreme pages.
 
+## PR 4 — homepage rebuild — DONE
+
+Built 2026-07-17. index.astro branches on getSiteContent(): site.yaml present →
+v2 homepage (scope §8.1 order: hero + TrustBar, shop-by-need, flagship
+feature, why-us on night, review wall [renders nothing until real quotes],
+comparison teaser); absent → v1 exactly (bean-envy verified clean, including
+the restored brand.about_html "Our story" section). Header nav + Footer are
+authored-gated the same way (v2 footer: night palette, trust claims line,
+disclosure-as-logistics). Scroll reveals are additive (js-reveal class via
+script; no-JS and reduced-motion safe). Header nav wraps at 360px.
+
+Gotchas discovered:
+- Inside a JSX-ternary branch Astro TRIMS whitespace-only text between
+  adjacent expressions: `{year} {brand.brand}` renders "2026Brand". Use a
+  template literal for any such line in component branches.
+- Headless Chrome CLI screenshots clamp to ~500px min window width — mobile
+  captures below that are cropped, not reflowed. Verify 360-375px with DOM
+  measurements (documentElement.scrollWidth) instead.
+
+Launch checklist additions: run Lighthouse (target ≥95 perf mobile) on home +
+flagship PDP before flipping DNS; hero uses fetchpriority="high" (no
+<link rel=preload> — revisit only if Lighthouse complains). Home flagship CTA
+and needs cards link to /products/shredded-pillow/ and /collections/* — the
+collections routes and family-slug PDPs land in PR 5 (404 on this branch
+until then).
+
 ## Then
-- **PR 4 — homepage rebuild** (section order: scope §8.1).
 - **PR 5 — family PDPs + /collections/[slug] + ASIN redirect stubs + sitemap filter**
   (scope §9; JSON-LD AggregateOffer/AggregateRating — confirm Kennon is comfortable
   sourcing schema rating from Amazon reviews).

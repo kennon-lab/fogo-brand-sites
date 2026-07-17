@@ -207,6 +207,15 @@ Built 2026-07-17.
   differentiators, real review quotes (site renders nothing until then),
   attribution links + campaign, Lighthouse pass, Search Console re-submit.
 
+## Post-launch: back & lumbar removed for now too (Kennon, 2026-07-17)
+
+Back & Lumbar Support (B0G2FGG7G7: B01IM5CFZM, B01K0C90AS) pulled the same
+way — hide_from_site=true + back-lumbar.yaml deleted (in git history). With
+the whole sitting side gone: all-day-sitting need, seat-lumbar category, and
+the "Seating" nav item removed; homepage needs grid is 2 cards. Restore =
+flip the 2 override rows false + restore the yaml + re-add need/category/nav
+entries.
+
 ## Post-launch: seat cushions removed for now (Kennon, 2026-07-17)
 
 Seat & Coccyx Cushions family (B0G2DZQGN7) pulled from the site until the

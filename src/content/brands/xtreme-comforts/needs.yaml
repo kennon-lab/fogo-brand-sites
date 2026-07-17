@@ -9,13 +9,6 @@ needs:
       shredded fill you tune to your sleep position, and low-profile designs
       for people who want less pillow, not more. Every option ships with a
       decade of Amazon reviews behind it.
-  - slug: all-day-sitting
-    display: All-day sitting
-    short: Lumbar and seat support for desks and cars.
-    intro: >-
-      Eight hours in a chair is a comfort problem worth solving properly.
-      Memory foam support for your lower back and seat — strapped in place at
-      your desk, in the car, or anywhere you sit longer than you'd like.
   - slug: elevated-rest
     display: Elevated rest
     short: Wedges and body pillows for reading, lounging, and side support.
@@ -39,9 +32,3 @@ categories:
       Angle and alignment, not just softness. A 7-inch, 30-degree wedge for
       reading and elevated rest, a full-length body pillow for side sleepers,
       and washable covers to keep both fresh.
-  - slug: seat-lumbar
-    display: Seat & back support
-    intro: >-
-      Memory foam for the hours you spend sitting: a strapped lumbar pillow
-      that keeps your lower back supported, and a matching seat cushion for
-      under you — at the desk or behind the wheel.

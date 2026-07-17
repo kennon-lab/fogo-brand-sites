@@ -186,6 +186,10 @@ Built 2026-07-17.
   header nav-wrap class + whitespace only.
 
 ## Then
+- **Review quotes (Kennon)**: `REVIEW_EXCERPT_CANDIDATES.md` (repo root, on
+  this branch) holds draft theme targets + search terms + paste-ready YAML
+  shapes. Replace each with a verbatim verified Amazon quote; never publish
+  the drafts; delete the file at launch.
 - **Launch ops (Kennon)**: attribution campaign + `bronze.attribution_links` inserts,
   `brand_sites` row update (colors/fonts/tagline to final tokens), deploy hook,
   Search Console re-submit.

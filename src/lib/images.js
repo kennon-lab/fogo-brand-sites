@@ -9,6 +9,22 @@ import { getImagesByAsin } from './supabase.js';
 
 const singleCache = new Map();
 
+// Storage/Cloudflare occasionally drops one of the build's many concurrent
+// dimension probes (FailedToFetchRemoteImageDimensions), failing an otherwise
+// healthy build. Retry before giving up.
+async function getImageWithRetry(options, attempts = 3) {
+  let lastErr;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await getImage(options);
+    } catch (err) {
+      lastErr = err;
+      if (attempt < attempts) await new Promise((r) => setTimeout(r, 500 * attempt));
+    }
+  }
+  throw lastErr;
+}
+
 /** Full public URL for a path inside the brand-site-images bucket. */
 export function bucketUrl(path) {
   return `${import.meta.env.SUPABASE_URL}/storage/v1/object/public/brand-site-images/${path}`;
@@ -27,7 +43,7 @@ export async function localImage(remoteUrl, width = 800, format = 'webp') {
   if (!singleCache.has(key)) {
     singleCache.set(
       key,
-      getImage({ src: remoteUrl, inferSize: true, width, format }).then((img) => img.src)
+      getImageWithRetry({ src: remoteUrl, inferSize: true, width, format }).then((img) => img.src)
     );
   }
   return singleCache.get(key);

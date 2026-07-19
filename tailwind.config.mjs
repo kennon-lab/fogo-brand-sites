@@ -19,6 +19,9 @@ export default {
       fontFamily: {
         sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
         heading: ['var(--font-heading)', 'system-ui', 'sans-serif'],
+        // Spec-data face (--font-mono is set by brand stylesheets that use it,
+        // e.g. tape-king; the fallback keeps other brands on the UA mono stack).
+        mono: ['var(--font-mono, ui-monospace)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       borderRadius: {
         'token-sm': 'var(--radius-sm)',

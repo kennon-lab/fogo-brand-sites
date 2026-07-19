@@ -13,6 +13,13 @@ import { getLocalImagesByAsin, localBucketImage } from '../lib/images.js';
 import { getMergedCatalog, getSiteContent, getNeeds, getBrandReviewAggregate } from '../lib/content.js';
 
 const brand = await getBrand();
+
+// Fully bespoke brands (currently tape-king) ship their own homepage:
+// src/components/brands/<slug>/Home.astro renders the whole page (including
+// Base) and both template branches below are skipped. Other brands untouched.
+const homeOverrides = import.meta.glob('../components/brands/*/Home.astro', { eager: true });
+const BrandHome = homeOverrides[`../components/brands/${brand.slug}/Home.astro`]?.default ?? null;
+
 const imagesByAsin = await getLocalImagesByAsin();
 const merged = await getMergedCatalog();
 
@@ -45,7 +52,9 @@ const whyIcons = {
 ---
 
 {
-  site ? (
+  BrandHome ? (
+    <BrandHome />
+  ) : site ? (
     <Base description={site.hero.subline} ogImage={ogImage} pageType="home">
       {/* 1 — Hero: the thesis. Authored headline over the best lifestyle asset. */}
       <section class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr]">

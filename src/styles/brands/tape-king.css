@@ -1,0 +1,105 @@
+/* Tape King — "industrial supply, executed like a brand that cares."
+   Token values are locked by TAPEKING_SITE_SCOPE.md §2 and the approved
+   tapeking_mockup.html — do not tweak colors here without a scope change.
+
+   Owns the full token contract from src/styles/tokens.css: when this file
+   exists Base.astro inlines it instead of injecting DB colors/fonts, so it is
+   the single source of truth for this brand's look. Tape-King-only tokens
+   (--paper/--steel/--amber/--navy aliases, --font-mono) sit alongside the
+   shared contract because v1 pages (per-ASIN PDPs, /products/, about/contact)
+   still render shared components until P2 replaces them.
+
+   :root:root out-specifies the bundled tokens.css defaults regardless of
+   stylesheet order (same trick as xtreme-comforts.css). */
+
+:root:root {
+  /* Scope §2 palette (locked) */
+  --paper: #fafaf8; /* page ground — cool white, NOT warm cream */
+  --steel: #5b6470; /* secondary text */
+  --amber: #b47416; /* single accent — kraft-tape amber */
+  --amber-dk: #8f5a0e; /* amber hover */
+  --navy: #1d2733; /* dark bands, footer, job cards */
+  --card: #ffffff;
+
+  /* Shared contract mapping (v1 surfaces still consume these) */
+  --brand: var(--amber); /* v1 CTA fill */
+  --brand-2: var(--navy); /* v1 CTA text / price emphasis */
+  --ink: #171a1e;
+  --bg: var(--paper);
+  --surface: var(--card);
+  --surface-2: #fcfcfa;
+  --line: #e4e5e1;
+  --accent: var(--amber); /* graphic amber (ticks, stars) — not small text */
+  --accent-ink: var(--amber-dk); /* amber that passes AA as text on paper */
+  --mist: var(--steel);
+
+  /* Dark bands (shared footer tokens double as TK navy bands) */
+  --night: var(--navy);
+  --night-ink: #e9edf2;
+  --night-mist: #aeb8c4;
+  --night-line: #2c3947;
+
+  /* Type: Archivo display · Inter body · IBM Plex Mono for ALL spec data */
+  --font-heading: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --track-caps: 0.12em;
+  --step-6: clamp(2.375rem, 1.55rem + 3.4vw, 3.625rem); /* hero 38→58px */
+
+  /* Elevation — near-flat; hairlines do the separating in this identity */
+  --shadow-1: 0 1px 2px rgba(23, 26, 30, 0.05);
+  --shadow-2: 0 3px 10px rgba(23, 26, 30, 0.07);
+  --shadow-3: 0 10px 28px rgba(23, 26, 30, 0.1);
+}
+
+/* Display face: Archivo 800, tight tracking (scope §2 type spec). */
+h1,
+h2,
+h3,
+.font-heading {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Signature element 1 — yardage tick strip (values from the approved mockup;
+   keep exactly). Minor ticks every 12px, major every 60px, bottom-aligned. */
+.ticks {
+  height: 14px;
+  background:
+    repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(90deg, #c8c9c4 0 1px, transparent 1px 60px);
+  background-size:
+    100% 7px,
+    100% 14px;
+  background-repeat: repeat-x;
+  background-position: bottom, bottom;
+  border-bottom: 1px solid var(--line);
+}
+.ticks--amber {
+  background:
+    repeating-linear-gradient(90deg, #e4c795 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(90deg, var(--amber) 0 1px, transparent 1px 60px);
+  background-size:
+    100% 7px,
+    100% 14px;
+  background-repeat: repeat-x;
+  background-position: bottom, bottom;
+  border-bottom: 1px solid var(--amber);
+}
+
+/* Visible keyboard focus everywhere, in the brand accent (mockup parity). */
+:where(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

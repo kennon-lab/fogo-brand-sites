@@ -4,14 +4,22 @@ import { localImage } from '../lib/images.js';
 import { getSiteContent } from '../lib/content.js';
 
 const brand = await getBrand();
+
+// Fully bespoke brands (currently tape-king) own their chrome outright: when
+// src/components/brands/<slug>/Header.astro exists it replaces this component
+// wholesale. Brands without one are untouched.
+const headerOverrides = import.meta.glob('./brands/*/Header.astro', { eager: true });
+const BrandHeader = headerOverrides[`./brands/${brand.slug}/Header.astro`]?.default ?? null;
+
 // 480px for a ~200 CSS-px display = ~2.4x density, so the logo stays crisp
 // on retina screens (240 was ~1.2x and visibly soft).
-const logoUrl = brand.logo_path
-  ? await localImage(
-      `${import.meta.env.SUPABASE_URL}/storage/v1/object/public/brand-site-images/${brand.logo_path}`,
-      480
-    )
-  : null;
+const logoUrl =
+  !BrandHeader && brand.logo_path
+    ? await localImage(
+        `${import.meta.env.SUPABASE_URL}/storage/v1/object/public/brand-site-images/${brand.logo_path}`,
+        480
+      )
+    : null;
 
 // Authored brands (site.yaml) own their nav; unauthored brands keep the v1
 // default so bean-envy renders unchanged.
@@ -27,39 +35,41 @@ const nav = site
 const current = Astro.url.pathname;
 ---
 
-<header class="border-b border-black/10 bg-[var(--surface)]">
-  <div class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-6">
-    <a href="/" class="flex items-center gap-3 shrink-0" aria-label={`${brand.brand} home`}>
-      {
-        logoUrl ? (
-          <img src={logoUrl} alt={`${brand.brand} logo`} class="h-10 w-auto" width="120" height="40" />
-        ) : (
-          <span class="text-2xl font-extrabold tracking-tight" style="color: var(--brand-2);">
-            {brand.brand}
-          </span>
-        )
-      }
-    </a>
-    <nav aria-label="Main">
-      <ul class="flex flex-wrap items-center justify-end gap-x-5 gap-y-1 text-sm font-semibold">
-        {
-          nav.map((item) => (
-            <li>
-              <a
-                href={item.href}
-                class:list={[
-                  'hover:underline underline-offset-4',
-                  current === item.href || (item.href !== '/' && current.startsWith(item.href))
-                    ? 'underline decoration-[var(--brand)] decoration-2'
-                    : '',
-                ]}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-  </div>
-</header>
+{
+  BrandHeader ? (
+    <BrandHeader />
+  ) : (
+    <header class="border-b border-black/10 bg-[var(--surface)]">
+      <div class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-6">
+        <a href="/" class="flex items-center gap-3 shrink-0" aria-label={`${brand.brand} home`}>
+          {logoUrl ? (
+            <img src={logoUrl} alt={`${brand.brand} logo`} class="h-10 w-auto" width="120" height="40" />
+          ) : (
+            <span class="text-2xl font-extrabold tracking-tight" style="color: var(--brand-2);">
+              {brand.brand}
+            </span>
+          )}
+        </a>
+        <nav aria-label="Main">
+          <ul class="flex flex-wrap items-center justify-end gap-x-5 gap-y-1 text-sm font-semibold">
+            {nav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={[
+                    'hover:underline underline-offset-4',
+                    current === item.href || (item.href !== '/' && current.startsWith(item.href))
+                      ? 'underline decoration-[var(--brand)] decoration-2'
+                      : '',
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </header>
+  )
+}

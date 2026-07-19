@@ -1,0 +1,287 @@
+# Tape King curated catalog (TAPEKING_SITE_SCOPE.md §4 + §6, verified against
+# bronze.products 2026-07-18; pack counts parsed from Amazon titles).
+#
+# NO prices and NO attribution URLs in this file — both sync from bronze via
+# public.brand_site_products at build time, and per-roll / per-yard math is
+# derived in src/lib/tapeking.js. Amazon SEO titles never render on-site (they
+# stay in the DB as display_title for reference).
+#
+# `hidden` is the site-level kill switch (§6): all rungs display at launch, so
+# every SKU here is hidden: false. Separately, five ASINs are currently hidden
+# UPSTREAM via bronze.brand_site_product_overrides.hide_from_site (Quiet
+# B07R188Y7Y, Duct B078X3F29Q/B07B9FQQNT, dispenser B01LWZ9EDP) — those rows
+# never reach the build, and tapeking.js warns until the overrides are lifted.
+
+lines:
+  - slug: standard-clear
+    name: Standard Clear
+    blurb: The everyday workhorse
+    family_keys: [B0B782VXFQ]
+    representative_asin: B01K0Z9QYK
+
+  - slug: ultra-thick
+    name: Ultra Thick
+    blurb: For heavy or high-value cartons
+    family_keys: [B07CKPDC14]
+    representative_asin: B072LGT8CX
+
+  - slug: gaffers
+    name: Gaffers
+    blurb: Holds hard, removes clean
+    family_keys: [B0DWLKTX1G]
+    representative_asin: B01N48VBS7
+    spec_override: CLOTH MATTE · 2" × 30 YD
+    film_label: CLOTH
+
+  - slug: duct-tape
+    name: Duct Tape
+    blurb: Tears by hand, sticks to rough surfaces
+    family_keys: [B0DG2X4LHF]
+    representative_asin: B078X3F29Q
+
+  - slug: dispenser-guns
+    name: Dispenser Guns
+    blurb: Load once, seal all day
+    family_keys: [B09KK6L3ZK]
+    representative_asin: B077GCV6PH
+    # Line-level truth only: the line spans 2" and 3" guns. Per-ASIN widths in
+    # bronze titles are unreliable (scope §5.2) — confirm with Kennon before
+    # the Dispensers PDP ships.
+    spec_override: 2" & 3" · TAPE INCLUDED
+    consumable: false
+
+  - slug: utility-knives
+    name: Utility Knives
+    blurb: Retractable blades for the packing bench
+    family_keys: [B0751PNK7W]
+    representative_asin: B0751PNK7W
+    spec_override: RETRACTABLE · MULTI-PACK
+    consumable: false
+
+skus:
+  # ---- Standard Clear — parent B0B782VXFQ (2.7 mil acrylic) ----
+  - asin: B01K0Z9QYK
+    line: standard-clear
+    format_key: std
+    format_label: 2" × 60 YD
+    display_name: Standard Clear Packing Tape
+    pack_count: 6
+    roll_yards: 60
+    mil: 2.7
+    width_in: 2
+
+  - asin: B01KGTT7GC
+    line: standard-clear
+    format_key: std
+    format_label: 2" × 60 YD
+    display_name: Standard Clear Packing Tape
+    pack_count: 12
+    roll_yards: 60
+    mil: 2.7
+    width_in: 2
+
+  - asin: B01K86O8MQ
+    line: standard-clear
+    format_key: std
+    format_label: 2" × 60 YD
+    display_name: Standard Clear Packing Tape
+    pack_count: 36
+    roll_yards: 60
+    mil: 2.7
+    width_in: 2
+
+  - asin: B01K82EQ54
+    line: standard-clear
+    format_key: xl
+    format_label: XL · 110 YD
+    display_name: Standard Clear Packing Tape — XL Rolls
+    pack_count: 6
+    roll_yards: 110
+    mil: 2.7
+    width_in: 1.88
+
+  - asin: B06XPQL8D5
+    line: standard-clear
+    format_key: xl
+    format_label: XL · 110 YD
+    display_name: Standard Clear Packing Tape — XL Rolls
+    pack_count: 36
+    roll_yards: 110
+    mil: 2.7
+    width_in: 1.88
+
+  - asin: B071P27YFX
+    line: standard-clear
+    format_key: wide
+    format_label: 3" WIDE
+    display_name: Standard Clear Packing Tape — 3" Wide
+    pack_count: 6
+    roll_yards: 60
+    mil: 2.7
+    width_in: 3
+
+  - asin: B074TYN7MD
+    line: standard-clear
+    format_key: wide
+    format_label: 3" WIDE
+    display_name: Standard Clear Packing Tape — 3" Wide
+    pack_count: 24
+    roll_yards: 60
+    mil: 2.7
+    width_in: 3
+
+  - asin: B07R188Y7Y
+    line: standard-clear
+    format_key: quiet
+    format_label: QUIET
+    display_name: Quiet Clear Packing Tape
+    pack_count: 6
+    roll_yards: 60
+    mil: 2.6
+    width_in: 2
+    notes: DB-hidden via hide_from_site; price under review upstream (scope §5.3). Unhide for P2.
+
+  # ---- Ultra Thick — parent B07CKPDC14 (3.2 mil) ----
+  - asin: B072LGT8CX
+    line: ultra-thick
+    format_key: std
+    format_label: 2" × 60 YD
+    display_name: Ultra Thick Packing Tape
+    pack_count: 6
+    roll_yards: 60
+    mil: 3.2
+    width_in: 2
+
+  - asin: B074FFFVCZ
+    line: ultra-thick
+    format_key: std
+    format_label: 2" × 60 YD
+    display_name: Ultra Thick Packing Tape
+    pack_count: 12
+    roll_yards: 60
+    mil: 3.2
+    width_in: 2
+    notes: Per-roll currently above the 6-pack; being repriced on Amazon (scope §5.1). Display as-is.
+
+  - asin: B01LR0L4T2
+    line: ultra-thick
+    format_key: std
+    format_label: 2" × 60 YD
+    display_name: Ultra Thick Packing Tape
+    pack_count: 36
+    roll_yards: 60
+    mil: 3.2
+    width_in: 2
+
+  # ---- Gaffers — parent B0DWLKTX1G (cloth matte, 2" × 30 yd, 2-packs) ----
+  - asin: B01N48VBS7
+    line: gaffers
+    format_key: black
+    format_label: BLACK
+    display_name: Gaffers Tape — Black
+    pack_count: 2
+    roll_yards: 30
+    mil: null
+    width_in: 2
+
+  - asin: B01M3PJB87
+    line: gaffers
+    format_key: black-white
+    format_label: BLACK & WHITE
+    display_name: Gaffers Tape — Black & White
+    pack_count: 2
+    roll_yards: 30
+    mil: null
+    width_in: 2
+
+  # ---- Duct — parent B0DG2X4LHF (11 mil, 1.88" × 35 yd) ----
+  - asin: B078X3F29Q
+    line: duct-tape
+    format_key: std
+    format_label: 1.88" × 35 YD
+    display_name: Silver Duct Tape
+    pack_count: 3
+    roll_yards: 35
+    mil: 11
+    width_in: 1.88
+    notes: DB-hidden via hide_from_site pending photography (scope §4). Unhide for P2.
+
+  - asin: B07B9FQQNT
+    line: duct-tape
+    format_key: std
+    format_label: 1.88" × 35 YD
+    display_name: Silver Duct Tape
+    pack_count: 36
+    roll_yards: 35
+    mil: 11
+    width_in: 1.88
+    notes: DB-hidden via hide_from_site pending photography (scope §4). Unhide for P2.
+
+  # ---- Dispensers — parent B09KK6L3ZK + standalones. width_in stays null on
+  # every dispenser until Kennon confirms actual width per ASIN (scope §5.2 —
+  # bronze titles contradict what Kennon says ships). ----
+  - asin: B01LWZ9EDP
+    line: dispenser-guns
+    format_key: single
+    format_label: SINGLE
+    display_name: Packing Tape Dispenser Gun
+    pack_count: 1
+    roll_yards: null
+    mil: null
+    width_in: null
+    notes: DB-hidden via hide_from_site. Width per §5.2 pending Kennon.
+
+  - asin: B01MAT3DPM
+    line: dispenser-guns
+    format_key: two-pack
+    format_label: 2-PACK
+    display_name: Packing Tape Dispenser Gun — 2-Pack
+    pack_count: 2
+    roll_yards: null
+    mil: null
+    width_in: null
+    notes: Width per §5.2 pending Kennon (Kennon says 2", some titles imply otherwise).
+
+  - asin: B077GCV6PH
+    line: dispenser-guns
+    format_key: single
+    format_label: SINGLE
+    display_name: Packing Tape Dispenser Gun
+    pack_count: 1
+    roll_yards: null
+    mil: null
+    width_in: null
+    notes: Width per §5.2 pending Kennon (Kennon says 3", some titles imply otherwise).
+
+  - asin: B0H4HTYHR2
+    line: dispenser-guns
+    format_key: single
+    format_label: SINGLE
+    display_name: Packing Tape Dispenser Gun
+    pack_count: 1
+    roll_yards: null
+    mil: null
+    width_in: null
+    notes: Standalone (no parent). Width per §5.2 pending Kennon.
+
+  - asin: B0H4HVN1KY
+    line: dispenser-guns
+    format_key: two-pack
+    format_label: 2-PACK
+    display_name: Packing Tape Dispenser Gun — 2-Pack
+    pack_count: 2
+    roll_yards: null
+    mil: null
+    width_in: null
+    notes: Standalone (no parent). Width per §5.2 pending Kennon.
+
+  # ---- Utility Knives ----
+  - asin: B0751PNK7W
+    line: utility-knives
+    format_key: knife-18mm
+    format_label: 18 MM · 12-PACK
+    display_name: Utility Knife Set — 18 mm
+    pack_count: 12
+    roll_yards: null
+    mil: null
+    width_in: null

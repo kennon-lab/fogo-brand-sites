@@ -1,0 +1,7 @@
+---
+// Signature yardage tick strip (scope §2) — ruler motif under the header and
+// between sections. Pure CSS; classes live in src/styles/brands/tape-king.css.
+const { amber = false } = Astro.props;
+---
+
+<div class:list={['ticks', amber && 'ticks--amber']} aria-hidden="true"></div>

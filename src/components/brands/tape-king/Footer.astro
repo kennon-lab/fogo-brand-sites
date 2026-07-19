@@ -1,0 +1,62 @@
+---
+// Tape King footer (mockup parity): navy band, wordmark, mono column heads,
+// Amazon-completion disclosure in the legal line (scope §7).
+import Wordmark from './Wordmark.astro';
+import { getTapeCatalog } from '../../../lib/tapeking.js';
+
+const { lines } = await getTapeCatalog();
+const bySlug = new Map(lines.map((l) => [l.slug, l]));
+
+// Interim v1 per-ASIN targets until the P2 line pages exist.
+const shop = [
+  { label: 'Packing tape', slug: 'standard-clear' },
+  { label: 'Gaffers tape', slug: 'gaffers' },
+  { label: 'Dispensers', slug: 'dispenser-guns' },
+  { label: 'Utility knives', slug: 'utility-knives' },
+].map(({ label, slug }) => ({ label, href: `/products/${bySlug.get(slug).representative_asin}/` }));
+
+const company = [
+  { label: 'About', href: '/about/' },
+  { label: 'Contact', href: '/contact/' },
+  { label: 'Privacy', href: '/privacy/' },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-10 bg-[var(--navy)] text-[var(--night-mist)]">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="grid gap-8 py-11 sm:grid-cols-[2fr_1fr_1fr]">
+      <div>
+        <Wordmark class="text-[22px] text-white" />
+        <p class="mt-3 max-w-[38ch] text-[13px] leading-relaxed">
+          Professional-grade tape, dispensers, and cutting tools. Sold and fulfilled on Amazon; engineered to be the
+          last brand you compare.
+        </p>
+      </div>
+      <nav aria-label="Shop">
+        <h2 class="mb-3.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#7A8694]">Shop</h2>
+        {
+          shop.map((item) => (
+            <a href={item.href} class="mb-2 block text-sm text-[#C5CDD6] no-underline hover:text-white">
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+      <nav aria-label="Company">
+        <h2 class="mb-3.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#7A8694]">Company</h2>
+        {
+          company.map((item) => (
+            <a href={item.href} class="mb-2 block text-sm text-[#C5CDD6] no-underline hover:text-white">
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+    <div class="border-t border-[var(--night-line)] py-4 text-[12.5px] text-[#7A8694]">
+      <p>© {year} Tape King. Purchases made through links on this site are completed on Amazon.com.</p>
+    </div>
+  </div>
+</footer>

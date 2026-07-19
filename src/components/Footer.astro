@@ -3,6 +3,11 @@ import { getBrand } from '../lib/supabase.js';
 import { getSiteContent } from '../lib/content.js';
 
 const brand = await getBrand();
+
+// Bespoke-brand override, same mechanism as Header.astro.
+const footerOverrides = import.meta.glob('./brands/*/Footer.astro', { eager: true });
+const BrandFooter = footerOverrides[`./brands/${brand.slug}/Footer.astro`]?.default ?? null;
+
 // Authored brands get the v2 brand footer (night palette, authored nav +
 // disclosure-as-logistics). Unauthored brands render the v1 footer unchanged.
 const site = await getSiteContent();
@@ -10,7 +15,9 @@ const year = new Date().getFullYear();
 ---
 
 {
-  site ? (
+  BrandFooter ? (
+    <BrandFooter />
+  ) : site ? (
     <footer class="mt-16 bg-[var(--night)] text-[var(--night-ink)]">
       <div class="mx-auto max-w-6xl px-4 py-12">
         <div class="flex flex-col justify-between gap-8 sm:flex-row sm:items-start">

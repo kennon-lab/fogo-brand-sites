@@ -1,0 +1,339 @@
+---
+// Tape King homepage (P1, TAPEKING_SITE_SCOPE.md §3 + approved mockup).
+// Section order is locked: hero → six-line grid → "Which tape do I need?"
+// comparison → shop by job → "Built for the reorder" trust band. Footer/header
+// come from Base via the brand override in Header/Footer.astro.
+//
+// Every figure on this page is data-derived: review rating/count from the
+// live Keepa aggregate (mockup's "4.6 / 38,000+" was placeholder), mil/width/
+// yardage from catalog.yaml SKU fields. Nothing priced renders here (pack
+// ladders are P2). The store-tape mil comparison is softened to "typical
+// store tape" per scope §7 until the competitor figure is sourced.
+import Base from '../../../layouts/Base.astro';
+import Ticks from './Ticks.astro';
+import { getTapeCatalog, specLine, formatInches } from '../../../lib/tapeking.js';
+import { getBrandReviewAggregate } from '../../../lib/content.js';
+import { getLocalImagesByAsin } from '../../../lib/images.js';
+
+const { lines } = await getTapeCatalog();
+const bySlug = new Map(lines.map((l) => [l.slug, l]));
+const imagesByAsin = await getLocalImagesByAsin();
+const aggregate = await getBrandReviewAggregate();
+
+const repOf = (line) => line.skus.find((s) => s.asin === line.representative_asin);
+// Interim P1 link targets: v1 per-ASIN PDP when the ASIN is live on the site,
+// else straight to Amazon (duct is DB-hidden until its photography lands).
+const linkOf = (line) => {
+  const rep = repOf(line);
+  return rep.live
+    ? { href: `/products/${rep.asin}/`, external: false, asin: rep.asin }
+    : { href: rep.amazon_url, external: true, asin: rep.asin };
+};
+
+const std = bySlug.get('standard-clear');
+const ultra = bySlug.get('ultra-thick');
+const stdRep = repOf(std);
+const ultraRep = repOf(ultra);
+
+// Film-thickness proof range spans the two packing-tape lines the claim is
+// about (standard + ultra) — gaffers (cloth) and duct (11 mil) don't belong
+// in a "vs. store packing tape" comparison.
+const milLow = Math.min(stdRep.mil, ultraRep.mil);
+const milHigh = Math.max(stdRep.mil, ultraRep.mil);
+
+const reviewCountLabel =
+  aggregate == null
+    ? null
+    : aggregate.count >= 1000
+      ? `${Math.floor(aggregate.count / 1000).toLocaleString('en-US')},000+`
+      : String(aggregate.count);
+
+const heroImage = imagesByAsin.get(std.representative_asin)?.[0] ?? null;
+const heroChip = `STANDARD · ${specLine(stdRep)}`;
+const shopStd = linkOf(std);
+
+// Case-quantity target for the warehouse job card: the biggest live pack in
+// the standard 2" ladder.
+const caseSku = std.visibleSkus
+  .filter((s) => s.format_key === 'std')
+  .reduce((best, s) => (best == null || s.pack_count > best.pack_count ? s : best), null);
+
+const lede =
+  'Thicker film, stronger adhesive, honest yardage. Trusted by shippers, movers, and crews who measured the difference and stopped shopping around.';
+
+// "Which tape do I need?" rows (scope §3: Standard / Ultra / Gaffers / Duct).
+const bestFor = {
+  'standard-clear': 'Daily shipping, storage, office. Seals up to ~40 lb cartons in one pass.',
+  'ultra-thick': 'Heavy boxes, long transit, freight. Resists splitting on edges and corners.',
+  gaffers: 'Cables, staging, events, floors. Matte finish, no residue on removal.',
+  'duct-tape': 'Repairs, bundling, rough surfaces indoors and out. Tears by hand.',
+};
+const cmpLines = ['standard-clear', 'ultra-thick', 'gaffers', 'duct-tape'].map((slug) => bySlug.get(slug));
+
+const jobs = [
+  {
+    title: 'Shipping & ecommerce',
+    body: 'High-volume sealing, day in and day out.',
+    go: 'STANDARD + DISPENSER →',
+    ...linkOf(std),
+  },
+  {
+    title: 'Moving & storage',
+    body: 'One weekend, zero re-taped boxes.',
+    go: 'ULTRA THICK →',
+    ...linkOf(ultra),
+  },
+  {
+    title: 'Events & AV',
+    body: 'Cables down, floors clean afterward.',
+    go: 'GAFFERS →',
+    ...linkOf(bySlug.get('gaffers')),
+  },
+  {
+    title: 'Warehouse & freight',
+    body: 'Case quantities at case pricing.',
+    go: `${caseSku.pack_count}-ROLL CASES →`,
+    href: `/products/${caseSku.asin}/`,
+    external: false,
+    asin: caseSku.asin,
+  },
+];
+
+const repeatBullets = [
+  {
+    label: 'FILM',
+    body: `${milLow}–${milHigh} mil film vs. typical store-brand tape — fewer passes per seam, fewer split cartons.`,
+  },
+  {
+    label: 'YARDAGE',
+    body: `Full ${stdRep.roll_yards}-yard rolls. No shrinking roll lengths at the same price point.`,
+  },
+  {
+    label: 'CASE MATH',
+    body: 'Per-roll price drops as your pack size grows. Buy the case, skip two reorders.',
+  },
+  {
+    label: 'S&S',
+    body: 'Subscribe & Save on Amazon stacks with our case pricing — set the cadence once.',
+  },
+];
+---
+
+<Base description={lede} ogImage={heroImage} pageType="home">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <!-- 1 — Hero -->
+    <section class="grid items-center gap-8 py-10 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+      <div>
+        {/* Founding year sourced from the brand's first Amazon listings (2016) — flagged for Kennon to confirm (scope §7). */}
+        <p class="mb-4 font-mono text-[12.5px] font-semibold uppercase tracking-[0.12em] text-[var(--amber)]">
+          Professional-grade tape since 2016
+        </p>
+        <h1 class="text-[length:var(--step-6)] leading-[1.04]">
+          The tape you buy once, then buy <span class="text-[var(--amber)]">every time.</span>
+        </h1>
+        <p class="mb-7 mt-5 max-w-[46ch] text-[17.5px] leading-relaxed text-[var(--steel)]">{lede}</p>
+        <div class="flex flex-wrap gap-3">
+          <a
+            href={shopStd.href}
+            class="rounded-[6px] bg-[var(--ink)] px-5 py-3 text-[15px] font-semibold text-white no-underline hover:bg-black"
+          >
+            Shop packing tape
+          </a>
+          <a
+            href="/#cmp"
+            class="rounded-[6px] border border-[var(--line)] bg-[var(--card)] px-5 py-3 text-[15px] font-semibold no-underline hover:border-[var(--ink)]"
+          >
+            Compare every tape
+          </a>
+        </div>
+        <div class="mt-8 flex flex-wrap gap-7 border-t border-[var(--line)] pt-5">
+          {
+            aggregate && (
+              <div>
+                <b class="block font-mono text-[19px] font-semibold">★ {aggregate.rating}</b>
+                <span class="text-[12.5px] text-[var(--steel)]">{reviewCountLabel} verified Amazon reviews</span>
+              </div>
+            )
+          }
+          <div>
+            <b class="block font-mono text-[19px] font-semibold">{milLow}–{milHigh} mil</b>
+            <span class="text-[12.5px] text-[var(--steel)]">vs. typical store tape</span>
+          </div>
+          <div>
+            <b class="block font-mono text-[19px] font-semibold">{stdRep.roll_yards} yd</b>
+            <span class="text-[12.5px] text-[var(--steel)]">full-length rolls, every roll</span>
+          </div>
+        </div>
+      </div>
+      {
+        heroImage && (
+          <div class="relative rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-7">
+            <span class="absolute left-5 top-5 rounded-[4px] border border-[var(--amber)] bg-[var(--paper)] px-2 py-1 font-mono text-[11.5px] font-semibold tracking-[0.04em] text-[var(--amber)]">
+              {heroChip}
+            </span>
+            <img
+              src={heroImage}
+              alt={`${stdRep.display_name}, ${stdRep.pack_count}-roll pack`}
+              width="800"
+              height="800"
+              fetchpriority="high"
+              decoding="async"
+              class="mx-auto max-h-[420px] w-auto object-contain"
+            />
+          </div>
+        )
+      }
+    </section>
+  </div>
+
+  <Ticks amber />
+
+  <!-- 2 — Six-line grid -->
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
+    <div class="mb-6 flex flex-wrap items-baseline justify-between gap-4">
+      <h2 class="text-[27px]">Six lines. No filler.</h2>
+      <a href="/products/" class="font-mono text-[13px] font-semibold text-[var(--amber)] no-underline hover:text-[var(--amber-dk)]"
+        >FULL CATALOG →</a
+      >
+    </div>
+    <div class="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+      {
+        lines.map((line) => {
+          const link = linkOf(line);
+          const img = imagesByAsin.get(line.representative_asin)?.[0] ?? null;
+          return (
+            <a
+              href={link.href}
+              class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-4 no-underline transition-colors duration-150 hover:border-[var(--ink)] motion-reduce:transition-none"
+              {...(link.external
+                ? { target: '_blank', rel: 'sponsored noopener', 'data-amazon-cta': true, 'data-asin': link.asin, 'data-cta-position': 'card' }
+                : {})}
+            >
+              {img ? (
+                <img
+                  src={img}
+                  alt=""
+                  width="400"
+                  height="400"
+                  loading="lazy"
+                  decoding="async"
+                  class="mx-auto mb-3 mt-1.5 h-[120px] w-auto object-contain"
+                />
+              ) : (
+                <div class="mb-3 mt-1.5 flex h-[120px] items-center justify-center rounded-[6px] bg-[repeating-linear-gradient(45deg,#F1F1ED_0_10px,#FAFAF8_10px_20px)] font-mono text-[11px] text-[var(--steel)]">
+                  PHOTO
+                </div>
+              )}
+              <h3 class="text-[15.5px] font-bold">{line.name}</h3>
+              <div class="mt-1 font-mono text-[11.5px] tracking-[0.02em] text-[var(--steel)]">{line.spec}</div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <!-- 3 — Which tape do I need? -->
+  <section id="cmp" class="mx-auto max-w-6xl scroll-mt-24 px-4 pb-12 sm:px-6 sm:pb-14">
+    <h2 class="mb-6 text-[27px]">Which tape do I need?</h2>
+    <div class="overflow-x-auto rounded-[10px] border border-[var(--line)] bg-[var(--card)]">
+      <table class="w-full min-w-[640px] border-collapse">
+        <thead>
+          <tr>
+            {
+              ['Tape', 'Film', 'Size', 'Best for', ''].map((h) => (
+                <th
+                  scope="col"
+                  class="border-b border-[var(--line)] bg-[var(--surface-2)] px-4 py-3.5 text-left font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--steel)]"
+                >
+                  {h}
+                </th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            cmpLines.map((line, i) => {
+              const rep = repOf(line);
+              const link = linkOf(line);
+              const last = i === cmpLines.length - 1;
+              const cell = `border-[var(--line)] px-4 py-4 align-top ${last ? '' : 'border-b'}`;
+              return (
+                <tr>
+                  <td class={cell}>
+                    <span class="text-[14.5px] font-semibold">{line.name}</span>
+                    <div class="font-mono text-[13px] text-[var(--steel)]">{line.blurb}</div>
+                  </td>
+                  <td class={`${cell} font-mono text-[13px]`}>{line.film_label ?? `${rep.mil} MIL`}</td>
+                  <td class={`${cell} whitespace-nowrap font-mono text-[13px]`}>
+                    {formatInches(rep.width_in)} × {rep.roll_yards} YD
+                  </td>
+                  <td class={`${cell} text-[14.5px]`}>{bestFor[line.slug]}</td>
+                  <td class={cell}>
+                    <a
+                      href={link.href}
+                      class="font-mono text-[12.5px] font-semibold text-[var(--amber)] no-underline hover:text-[var(--amber-dk)]"
+                      {...(link.external
+                        ? { target: '_blank', rel: 'sponsored noopener', 'data-amazon-cta': true, 'data-asin': link.asin, 'data-cta-position': 'comparison' }
+                        : {})}
+                    >
+                      SHOP →
+                    </a>
+                  </td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4 — Shop by job -->
+  <section class="mx-auto max-w-6xl px-4 pb-12 sm:px-6 sm:pb-14">
+    <h2 class="mb-6 text-[27px]">Shop by job</h2>
+    <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        jobs.map((job) => (
+          <a
+            href={job.href}
+            class="flex min-h-[150px] flex-col justify-between rounded-[10px] bg-[var(--navy)] p-5 text-white no-underline hover:bg-[#253241]"
+            {...(job.external
+              ? { target: '_blank', rel: 'sponsored noopener', 'data-amazon-cta': true, 'data-asin': job.asin, 'data-cta-position': 'card' }
+              : {})}
+          >
+            <div>
+              <h3 class="text-[17px] font-bold">{job.title}</h3>
+              <p class="mt-1.5 text-[13px] text-[var(--night-mist)]">{job.body}</p>
+            </div>
+            <span class="mt-4 font-mono text-[12.5px] font-semibold text-[var(--amber)]">{job.go}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 5 — Built for the reorder -->
+  <section class="mx-auto max-w-6xl px-4 pb-14 sm:px-6 sm:pb-16">
+    <div class="grid items-center gap-9 rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-7 sm:p-9 lg:grid-cols-[1.2fr_1fr]">
+      <div>
+        <h2 class="text-[25px]">Built for the reorder.</h2>
+        <p class="mt-3 text-[15.5px] leading-relaxed text-[var(--steel)]">
+          Tape is a product you only think about when it fails. Ours doesn't — so most of our customers stopped
+          comparing years ago. Here's what they're actually getting:
+        </p>
+      </div>
+      <ul class="grid gap-3">
+        {
+          repeatBullets.map((item) => (
+            <li class="flex items-start gap-2.5 text-[14.5px]">
+              <b class="whitespace-nowrap pt-px font-mono text-[13px] font-semibold text-[var(--amber)]">{item.label}</b>
+              <span>{item.body}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,9 @@
+---
+// Type-set wordmark (scope §2): Archivo 800, "KING" in amber — replaces the
+// image logo everywhere on this brand.
+const { class: className = '' } = Astro.props;
+---
+
+<span class:list={['font-heading font-extrabold tracking-[-0.02em]', className]}>
+  TAPE <em class="not-italic text-[var(--amber)]">KING</em>
+</span>

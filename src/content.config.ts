@@ -134,4 +134,48 @@ const site = defineCollection({
     }),
 });
 
-export const collections = { products, needs, site };
+// Spec-forward line catalog (Tape King rebuild, TAPEKING_SITE_SCOPE.md §6):
+// one file per brand describing product LINES (nav + homepage grid + future
+// line PDPs) and every sellable SKU keyed by ASIN. Price and attribution_url
+// are deliberately absent — they sync from bronze via brand_site_products at
+// build; per-roll / per-yard math is derived in src/lib/tapeking.js, never
+// stored. Amazon SEO titles never render; display copy lives here.
+const catalog = defineCollection({
+  loader: glob({ pattern: '*/catalog.yaml', base: './src/content/brands' }),
+  schema: z.object({
+    lines: z.array(
+      z.object({
+        slug: z.string(), // future line-PDP route + anchor id
+        name: z.string(), // display name, e.g. "Standard Clear"
+        blurb: z.string(), // one-liner under the name (cards, compare table)
+        // Parent ASIN(s) the line spans — informational, used for review
+        // aggregation; grouping itself is by the per-SKU `line` field.
+        family_keys: z.array(z.string().regex(/^B0[A-Z0-9]{8}$/)).default([]),
+        representative_asin: z.string().regex(/^B0[A-Z0-9]{8}$/), // card image + interim link target
+        // Mono spec chip on cards, e.g. `2.7 MIL · 2" × 60 YD`. Omit to derive
+        // from the representative SKU's mil/width/yards; non-tape lines
+        // (dispensers, knives) must set it explicitly.
+        spec_override: z.string().optional(),
+        film_label: z.string().optional(), // compare-table "Film" cell when mil alone is wrong (e.g. CLOTH)
+        consumable: z.boolean().default(true), // false = no S&S callout (knives/dispensers)
+      })
+    ),
+    skus: z.array(
+      z.object({
+        asin: z.string().regex(/^B0[A-Z0-9]{8}$/),
+        line: z.string(), // must match a lines[].slug — validated in tapeking.js
+        format_key: z.string(), // PDP format-tab bucket, e.g. std | xl | wide | quiet
+        format_label: z.string(), // human tab label, e.g. `2" × 60 YD`
+        display_name: z.string(), // human name — Amazon SEO title never renders
+        pack_count: z.number().int().positive(),
+        roll_yards: z.number().positive().nullable(), // null = not a tape (dispenser/knife)
+        mil: z.number().positive().nullable(),
+        width_in: z.number().positive().nullable(), // null = unverified (dispensers, scope §5.2)
+        hidden: z.boolean().default(false), // future use — all rungs display at launch
+        notes: z.string().optional(), // internal only, never rendered
+      })
+    ),
+  }),
+});
+
+export const collections = { products, needs, site, catalog };

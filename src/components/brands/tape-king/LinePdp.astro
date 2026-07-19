@@ -362,16 +362,26 @@ const jsonLd = {
     btn.addEventListener('click', () => selectRung(btn));
   });
 
-  root.querySelectorAll('[data-fmt-tab]').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      root.querySelectorAll('[data-fmt-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-      root.querySelectorAll('[data-fmt-panel]').forEach((p) => {
-        p.hidden = p.dataset.fmtPanel !== tab.dataset.fmtTab;
-      });
-      const active = root.querySelector(`[data-fmt-panel="${tab.dataset.fmtTab}"] [data-rung][aria-checked='true']`);
-      if (active) selectRung(active);
+  function activateTab(tab) {
+    root.querySelectorAll('[data-fmt-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    root.querySelectorAll('[data-fmt-panel]').forEach((p) => {
+      p.hidden = p.dataset.fmtPanel !== tab.dataset.fmtTab;
     });
+    const active = root.querySelector(`[data-fmt-panel="${tab.dataset.fmtTab}"] [data-rung][aria-checked='true']`);
+    if (active) selectRung(active);
+  }
+
+  root.querySelectorAll('[data-fmt-tab]').forEach((tab) => {
+    tab.addEventListener('click', () => activateTab(tab));
   });
+
+  // Deep link: /products/<line>/#fmt-<key> opens that format tab (used by the
+  // which-tape picker, e.g. Quiet). No-op when the hash doesn't match a tab.
+  const wanted = location.hash.match(/^#fmt-([a-z0-9-]+)$/)?.[1];
+  if (wanted) {
+    const tab = root.querySelector(`[data-fmt-tab="${wanted}"]`);
+    if (tab) activateTab(tab);
+  }
 
   const main = document.getElementById('tk-g-main');
   root.querySelectorAll('[data-thumb]').forEach((btn) => {

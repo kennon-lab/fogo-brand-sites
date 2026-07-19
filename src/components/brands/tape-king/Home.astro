@@ -11,6 +11,7 @@
 // store tape" per scope §7 until the competitor figure is sourced.
 import Base from '../../../layouts/Base.astro';
 import Ticks from './Ticks.astro';
+import WhichTapePicker from './WhichTapePicker.astro';
 import { getTapeCatalog, lineHref, specLine, formatInches } from '../../../lib/tapeking.js';
 import { getBrandReviewAggregate } from '../../../lib/content.js';
 import { getLocalImagesByAsin } from '../../../lib/images.js';
@@ -233,6 +234,13 @@ const repeatBullets = [
   <!-- 3 — Which tape do I need? -->
   <section id="cmp" class="mx-auto max-w-6xl scroll-mt-24 px-4 pb-12 sm:px-6 sm:pb-14">
     <h2 class="mb-6 text-[27px]">Which tape do I need?</h2>
+
+    {/* Interactive picker (P3) — hidden without JS; the table below is the no-JS answer. */}
+    <WhichTapePicker />
+
+    <p class="mb-3 mt-8 font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--steel)]">
+      OR COMPARE THE SPECS
+    </p>
     <div class="overflow-x-auto rounded-[10px] border border-[var(--line)] bg-[var(--card)]">
       <table class="w-full min-w-[640px] border-collapse">
         <thead>

@@ -1,0 +1,238 @@
+---
+// "Which tape do I need?" interactive picker (P3, TAPEKING_SITE_SCOPE.md §10).
+//
+// Two questions — the job, then throughput — answered with a line
+// recommendation and a suggested pack rung. Every figure in the payload is
+// derived at build in src/lib/tapeking.js from live bronze prices; this
+// component only formats and serializes. Progressive enhancement: the whole
+// widget stays hidden without JS and the comparison table below it remains
+// the no-JS answer.
+//
+// Job → line mapping mirrors the approved homepage "Shop by job" band; Quiet
+// deep-links the Standard Clear PDP's QUIET tab (#fmt-quiet).
+import { getTapeCatalog, lineHref, formatMoney, formatPerYard } from '../../../lib/tapeking.js';
+
+const { lines } = await getTapeCatalog();
+const bySlug = new Map(lines.map((l) => [l.slug, l]));
+
+// Suggested rung per throughput tier: smallest pack / middle / biggest.
+function rungFor(format, tier) {
+  const rungs = format.rungs;
+  const idx = tier === 'low' ? 0 : tier === 'high' ? rungs.length - 1 : Math.floor((rungs.length - 1) / 2);
+  const r = rungs[idx];
+  return {
+    pack_label: r.pack_label,
+    price: formatMoney(r.price),
+    per_roll: r.per_roll != null ? formatMoney(r.per_roll) : null,
+    per_yard: formatPerYard(r.per_yard),
+    asin: r.asin,
+    url: r.attribution_url ?? r.amazon_url,
+  };
+}
+
+function target({ id, chip, lineSlug, formatKey, why }) {
+  const line = bySlug.get(lineSlug);
+  const format = line.formats.find((f) => f.key === formatKey) ?? line.formats[0];
+  const otherFormats = line.formats.filter((f) => f !== format).map((f) => f.label);
+  const href = format.key !== line.formats[0].key ? `${lineHref(line)}#fmt-${format.key}` : lineHref(line);
+  return {
+    id,
+    chip,
+    name: line.name,
+    spec: line.spec,
+    why,
+    href,
+    otherFormats,
+    multiRung: format.rungs.length > 1,
+    rungs: {
+      low: rungFor(format, 'low'),
+      mid: rungFor(format, 'mid'),
+      high: rungFor(format, 'high'),
+    },
+  };
+}
+
+const targets = [
+  target({
+    id: 'everyday',
+    chip: 'Everyday shipping, storage & office',
+    lineSlug: 'standard-clear',
+    formatKey: 'std',
+    why: 'Seals up to ~40 lb cartons in one pass and fits any 2-inch dispenser gun.',
+  }),
+  target({
+    id: 'heavy',
+    chip: 'Moving or heavy boxes',
+    lineSlug: 'ultra-thick',
+    formatKey: 'std',
+    why: "3.2 mil film resists splitting on edges and corners — for boxes you don't get to re-tape.",
+  }),
+  target({
+    id: 'events',
+    chip: 'Cables, events & floors',
+    lineSlug: 'gaffers',
+    formatKey: 'black',
+    why: 'Cloth matte gaff holds hard and comes up clean — no residue on removal.',
+  }),
+  target({
+    id: 'repairs',
+    chip: 'Repairs & rough surfaces',
+    lineSlug: 'duct-tape',
+    formatKey: 'std',
+    why: '11 mil duct tape tears by hand and sticks where clear tape gives up.',
+  }),
+  target({
+    id: 'quiet',
+    chip: 'Shared workspace — hate the screech',
+    lineSlug: 'standard-clear',
+    formatKey: 'quiet',
+    why: 'Quiet 2.6 mil film — the same seal without the unwind noise.',
+  }),
+];
+
+const volumes = [
+  { tier: 'low', chip: 'A few rolls a year' },
+  { tier: 'mid', chip: 'A roll or two a month' },
+  { tier: 'high', chip: 'We ship every day' },
+];
+---
+
+<div id="tk-picker" hidden>
+  <div class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-5 sm:p-6">
+    <p class="font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--steel)]">
+      STEP 1 — WHAT'S THE JOB?
+    </p>
+    <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="What's the job?">
+      {
+        targets.map((t) => (
+          <button
+            type="button"
+            data-job={t.id}
+            aria-pressed="false"
+            class="tk-pick rounded-[6px] border border-[var(--line)] bg-[var(--card)] px-3 py-2 font-mono text-xs font-semibold tracking-[0.03em] text-[var(--steel)]"
+          >
+            {t.chip}
+          </button>
+        ))
+      }
+    </div>
+
+    <div data-volume-q hidden>
+      <p class="mt-5 font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--steel)]">
+        STEP 2 — HOW MUCH DO YOU GO THROUGH?
+      </p>
+      <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="How much tape do you go through?">
+        {
+          volumes.map((v) => (
+            <button
+              type="button"
+              data-volume={v.tier}
+              aria-pressed={v.tier === 'mid' ? 'true' : 'false'}
+              class="tk-pick rounded-[6px] border border-[var(--line)] bg-[var(--card)] px-3 py-2 font-mono text-xs font-semibold tracking-[0.03em] text-[var(--steel)]"
+            >
+              {v.chip}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    {/* Result — filled by the script, announced politely to screen readers. */}
+    <div data-result aria-live="polite" hidden class="mt-5 border-t border-[var(--line)] pt-5">
+      <div class="grid items-start gap-5 sm:grid-cols-[1.2fr_1fr]">
+        <div>
+          <p class="font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--amber)]">OUR PICK</p>
+          <h3 class="mt-1.5 text-[22px]" data-r-name></h3>
+          <div class="mt-1 font-mono text-[11.5px] tracking-[0.02em] text-[var(--steel)]" data-r-spec></div>
+          <p class="mt-2.5 text-[14.5px] text-[var(--steel)]" data-r-why></p>
+          <p class="mt-2 hidden font-mono text-[11.5px] text-[var(--steel)]" data-r-formats></p>
+        </div>
+        <div class="rounded-[8px] border border-[var(--line)] bg-[var(--surface-2)] p-4">
+          <p class="font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--steel)]">YOUR PACK</p>
+          <p class="mt-1.5 text-[15px] font-semibold" data-r-pack></p>
+          <p class="mt-0.5 font-mono text-[13px] text-[var(--steel)]" data-r-math></p>
+          <div class="mt-3.5 flex flex-wrap gap-2">
+            <a
+              data-r-pdp
+              href="#"
+              class="rounded-[6px] bg-[var(--ink)] px-3.5 py-2 text-[13.5px] font-semibold text-white no-underline hover:bg-black"
+            ></a>
+            <a
+              data-r-amz
+              href="#"
+              target="_blank"
+              rel="sponsored noopener"
+              data-amazon-cta
+              data-cta-position="picker"
+              class="rounded-[6px] bg-[var(--amber)] px-3.5 py-2 text-[13.5px] font-bold text-white no-underline hover:bg-[var(--amber-dk)]"
+            >
+              Buy on Amazon ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="tk-picker-data" set:html={JSON.stringify(targets)} />
+
+<style is:global>
+  .tk-pick[aria-pressed='true'] {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: #fbf6ec;
+  }
+</style>
+
+<script>
+  const picker = document.getElementById('tk-picker');
+  const targets = JSON.parse(document.getElementById('tk-picker-data').textContent);
+  const byId = new Map(targets.map((t) => [t.id, t]));
+
+  let job = null;
+  let tier = 'mid';
+
+  const q = (sel) => picker.querySelector(sel);
+  const qa = (sel) => picker.querySelectorAll(sel);
+
+  function render() {
+    const t = byId.get(job);
+    if (!t) return;
+    q('[data-volume-q]').hidden = !t.multiRung;
+    const r = t.rungs[t.multiRung ? tier : 'low'];
+    q('[data-r-name]').textContent = t.name;
+    q('[data-r-spec]').textContent = t.spec;
+    q('[data-r-why]').textContent = t.why;
+    const fmts = q('[data-r-formats]');
+    fmts.classList.toggle('hidden', t.otherFormats.length === 0);
+    // ' / ' separator — format labels themselves contain '·' (e.g. "XL · 110 YD").
+    fmts.textContent = t.otherFormats.length ? `ALSO IN: ${t.otherFormats.join(' / ')}` : '';
+    q('[data-r-pack]').textContent = r.pack_label;
+    q('[data-r-math]').textContent = [r.price, r.per_roll && `${r.per_roll}/roll`, r.per_yard].filter(Boolean).join(' · ');
+    const pdp = q('[data-r-pdp]');
+    pdp.href = t.href;
+    pdp.textContent = `See ${t.name} →`;
+    const amz = q('[data-r-amz]');
+    amz.href = r.url;
+    amz.dataset.asin = r.asin;
+    q('[data-result]').hidden = false;
+  }
+
+  qa('[data-job]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      job = btn.dataset.job;
+      qa('[data-job]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      render();
+    });
+  });
+  qa('[data-volume]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tier = btn.dataset.volume;
+      qa('[data-volume]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      render();
+    });
+  });
+
+  picker.hidden = false;
+</script>

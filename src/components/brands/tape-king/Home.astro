@@ -11,7 +11,7 @@
 // store tape" per scope §7 until the competitor figure is sourced.
 import Base from '../../../layouts/Base.astro';
 import Ticks from './Ticks.astro';
-import { getTapeCatalog, specLine, formatInches } from '../../../lib/tapeking.js';
+import { getTapeCatalog, lineHref, specLine, formatInches } from '../../../lib/tapeking.js';
 import { getBrandReviewAggregate } from '../../../lib/content.js';
 import { getLocalImagesByAsin } from '../../../lib/images.js';
 
@@ -21,13 +21,12 @@ const imagesByAsin = await getLocalImagesByAsin();
 const aggregate = await getBrandReviewAggregate();
 
 const repOf = (line) => line.skus.find((s) => s.asin === line.representative_asin);
-// Interim P1 link targets: v1 per-ASIN PDP when the ASIN is live on the site,
-// else straight to Amazon (duct is DB-hidden until its photography lands).
+// Line PDPs for pdp lines; the dispenser line stays on its v1 ASIN page until
+// scope §5.2 widths are confirmed (lineHref falls back to Amazon only if the
+// target ASIN ever drops off the site).
 const linkOf = (line) => {
-  const rep = repOf(line);
-  return rep.live
-    ? { href: `/products/${rep.asin}/`, external: false, asin: rep.asin }
-    : { href: rep.amazon_url, external: true, asin: rep.asin };
+  const href = lineHref(line);
+  return { href, external: href.startsWith('http'), asin: line.representative_asin };
 };
 
 const std = bySlug.get('standard-clear');
@@ -93,9 +92,7 @@ const jobs = [
     title: 'Warehouse & freight',
     body: 'Case quantities at case pricing.',
     go: `${caseSku.pack_count}-ROLL CASES →`,
-    href: `/products/${caseSku.asin}/`,
-    external: false,
-    asin: caseSku.asin,
+    ...linkOf(std),
   },
 ];
 

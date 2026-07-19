@@ -18,12 +18,52 @@ lines:
     blurb: The everyday workhorse
     family_keys: [B0B782VXFQ]
     representative_asin: B01K0Z9QYK
+    crumb: Packing Tape
+    title: Standard Clear Packing Tape
+    sub: >-
+      The everyday workhorse. Stronger 2.7 mil film, aggressive acrylic
+      adhesive, full 60-yard rolls.
+    chips: ['2.7 MIL', '2" WIDE', 60 YD / ROLL, CLEAR]
+    formats:
+      - key: std
+        note: The everyday standard — fits any 2-inch dispenser gun.
+        default_asin: B01KGTT7GC
+      - key: xl
+        note: Nearly double the yardage per roll — fewer roll changes on high-volume days.
+      - key: wide
+        note: 50% more coverage per pass — one strip seals wide cartons.
+      - key: quiet
+        note: 2.6 mil low-noise film — same seal, no screech in shared workspaces.
+    specs:
+      - { label: FILM THICKNESS, value: 2.7 mil BOPP }
+      - { label: ADHESIVE, value: 'Acrylic, high-tack' }
+      - { label: ROLL SIZE, value: 2 in × 60 yd }
+      - { label: CORE, value: '3 in, fits standard dispenser guns' }
+      - { label: CARTON RATING, value: Single-pass seal up to ~40 lb }
+      - { label: MADE FOR, value: 'Shipping, moving, storage, office' }
+    cross_sell: [dispenser-guns, utility-knives]
 
   - slug: ultra-thick
     name: Ultra Thick
     blurb: For heavy or high-value cartons
     family_keys: [B07CKPDC14]
     representative_asin: B072LGT8CX
+    crumb: Packing Tape
+    title: Ultra Thick Packing Tape
+    sub: >-
+      3.2 mil film for heavy or high-value cartons — resists splitting on
+      edges and corners.
+    chips: ['3.2 MIL', '2" WIDE', 60 YD / ROLL, CLEAR]
+    formats:
+      - key: std
+        note: One format, three pack sizes — the same 3.2 mil film in every roll.
+    specs:
+      - { label: FILM THICKNESS, value: 3.2 mil BOPP }
+      - { label: ADHESIVE, value: 'Acrylic, high-tack' }
+      - { label: ROLL SIZE, value: 2 in × 60 yd }
+      - { label: CORE, value: '3 in, fits standard dispenser guns' }
+      - { label: MADE FOR, value: 'Heavy boxes, freight, long transit' }
+    cross_sell: [dispenser-guns, standard-clear]
 
   - slug: gaffers
     name: Gaffers
@@ -32,12 +72,46 @@ lines:
     representative_asin: B01N48VBS7
     spec_override: CLOTH MATTE · 2" × 30 YD
     film_label: CLOTH
+    crumb: Gaffers Tape
+    title: Gaffers Tape
+    sub: >-
+      Cloth matte gaff for cables, staging, and floors — holds hard, removes
+      clean, no residue.
+    chips: [CLOTH MATTE, '2" WIDE', 30 YD / ROLL, RUBBER ADHESIVE]
+    formats:
+      - key: black
+        note: Matte black — the standard for cables, staging, and light control.
+      - key: black-white
+        note: One black + one white roll per pack — mark, mask, and label on any surface.
+    specs:
+      - { label: SURFACE, value: 'Cloth, matte finish' }
+      - { label: ADHESIVE, value: 'Rubber, residue-free removal' }
+      - { label: ROLL SIZE, value: 2 in × 30 yd }
+      - { label: PACK, value: 2 rolls per pack }
+      - { label: MADE FOR, value: 'Events, AV, staging, floors' }
+    cross_sell: [utility-knives, standard-clear]
 
   - slug: duct-tape
     name: Duct Tape
     blurb: Tears by hand, sticks to rough surfaces
     family_keys: [B0DG2X4LHF]
     representative_asin: B078X3F29Q
+    crumb: Duct Tape
+    title: Silver Duct Tape
+    sub: >-
+      11 mil heavy-duty duct tape — tears by hand, sticks to rough surfaces
+      indoors and out.
+    chips: [11 MIL, '1.88" WIDE', 35 YD / ROLL, SILVER]
+    formats:
+      - key: std
+        note: Same 11 mil roll — pick the pack that matches the job.
+    specs:
+      - { label: FILM THICKNESS, value: 11 mil }
+      - { label: ROLL SIZE, value: 1.88 in × 35 yd }
+      - { label: COLOR, value: Silver }
+      - { label: TEAR, value: 'Hand-tearable, no knife needed' }
+      - { label: MADE FOR, value: 'Repairs, bundling, rough surfaces' }
+    cross_sell: [utility-knives, standard-clear]
 
   - slug: dispenser-guns
     name: Dispenser Guns
@@ -46,9 +120,12 @@ lines:
     representative_asin: B077GCV6PH
     # Line-level truth only: the line spans 2" and 3" guns. Per-ASIN widths in
     # bronze titles are unreliable (scope §5.2) — confirm with Kennon before
-    # the Dispensers PDP ships.
+    # the Dispensers PDP ships. pdp: false keeps this line's ASINs on their v1
+    # pages so the site never asserts a width it can't back; flip to true and
+    # fill in formats/specs once Kennon confirms which gun is which.
     spec_override: 2" & 3" · TAPE INCLUDED
     consumable: false
+    pdp: false
 
   - slug: utility-knives
     name: Utility Knives
@@ -57,6 +134,21 @@ lines:
     representative_asin: B0751PNK7W
     spec_override: RETRACTABLE · MULTI-PACK
     consumable: false
+    crumb: Tools
+    title: Utility Knife Set
+    sub: >-
+      Retractable 18 mm blade knives by the dozen — one for every bench,
+      drawer, and packing station.
+    chips: [18 MM BLADE, RETRACTABLE, 12-PACK]
+    formats:
+      - key: knife-18mm
+        note: Sold as a 12-pack — spread them around the shop.
+    specs:
+      - { label: BLADE, value: '18 mm, wide format' }
+      - { label: HANDLE, value: 'Retractable, locking slider' }
+      - { label: COUNT, value: 12 knives per pack }
+      - { label: MADE FOR, value: 'Cartons, cardboard, crafts, warehouse' }
+    cross_sell: [standard-clear, dispenser-guns]
 
 skus:
   # ---- Standard Clear — parent B0B782VXFQ (2.7 mil acrylic) ----
@@ -139,7 +231,7 @@ skus:
     roll_yards: 60
     mil: 2.6
     width_in: 2
-    notes: DB-hidden via hide_from_site; price under review upstream (scope §5.3). Unhide for P2.
+    notes: Price under review upstream vs $38.99 list (scope §5.3) — display current price as-is.
 
   # ---- Ultra Thick — parent B07CKPDC14 (3.2 mil) ----
   - asin: B072LGT8CX
@@ -204,7 +296,6 @@ skus:
     roll_yards: 35
     mil: 11
     width_in: 1.88
-    notes: DB-hidden via hide_from_site pending photography (scope §4). Unhide for P2.
 
   - asin: B07B9FQQNT
     line: duct-tape
@@ -215,7 +306,6 @@ skus:
     roll_yards: 35
     mil: 11
     width_in: 1.88
-    notes: DB-hidden via hide_from_site pending photography (scope §4). Unhide for P2.
 
   # ---- Dispensers — parent B09KK6L3ZK + standalones. width_in stays null on
   # every dispenser until Kennon confirms actual width per ASIN (scope §5.2 —
@@ -229,7 +319,7 @@ skus:
     roll_yards: null
     mil: null
     width_in: null
-    notes: DB-hidden via hide_from_site. Width per §5.2 pending Kennon.
+    notes: Width per §5.2 pending Kennon.
 
   - asin: B01MAT3DPM
     line: dispenser-guns
@@ -281,6 +371,7 @@ skus:
     format_key: knife-18mm
     format_label: 18 MM · 12-PACK
     display_name: Utility Knife Set — 18 mm
+    rung_label: 12 knives
     pack_count: 12
     roll_yards: null
     mil: null

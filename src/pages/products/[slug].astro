@@ -11,19 +11,45 @@ import VariantSelector from '../../components/VariantSelector.astro';
 import ComparisonTable from '../../components/ComparisonTable.astro';
 import FaqAccordion from '../../components/FaqAccordion.astro';
 import StickyCta from '../../components/StickyCta.astro';
+import LinePdp from '../../components/brands/tape-king/LinePdp.astro';
 import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
 import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
 import { getMergedCatalog } from '../../lib/content.js';
+import { getTapeCatalogIfAny } from '../../lib/tapeking.js';
 
 // Route modes:
-// - Authored families → one page per family slug (the v2 PDP), plus one
-//   redirect stub per child ASIN so every live /products/<ASIN>/ URL still
-//   resolves (301-equivalent meta refresh, noindex, canonical → family).
+// - Line-catalog brands (catalog.yaml, currently tape-king) → one page per
+//   line with pdp: true, plus one redirect stub per curated ASIN of those
+//   lines; SKUs of pdp: false lines (dispensers, pending scope §5.2) keep
+//   their v1 per-ASIN pages.
+// - Authored families (products/*.yaml) → one page per family slug (the v2
+//   PDP), plus one redirect stub per child ASIN so every live
+//   /products/<ASIN>/ URL still resolves (301-equivalent meta refresh,
+//   noindex, canonical → family).
 // - Unauthored brands → v1 per-ASIN pages, unchanged.
 // - Unauthored families on an authored brand → no page (404) per scope §9.3;
 //   getStaticPaths warns so the gap is visible at build time.
 export async function getStaticPaths() {
+  const tape = await getTapeCatalogIfAny();
+  if (tape) {
+    const paths = [];
+    const stubbed = new Set();
+    for (const line of tape.lines) {
+      if (line.pdp === false) continue;
+      paths.push({ params: { slug: line.slug }, props: { mode: 'tape-line', lineSlug: line.slug } });
+      for (const sku of line.skus) {
+        stubbed.add(sku.asin);
+        paths.push({ params: { slug: sku.asin }, props: { mode: 'redirect', to: `/products/${line.slug}/` } });
+      }
+    }
+    const products = await getProducts();
+    for (const product of products.filter((p) => !stubbed.has(p.asin))) {
+      paths.push({ params: { slug: product.asin }, props: { mode: 'v1', product } });
+    }
+    return paths;
+  }
+
   const merged = await getMergedCatalog();
   const authoredBrand = merged.some((g) => g.authored);
 
@@ -170,7 +196,9 @@ if (mode === 'v1') {
 ---
 
 {
-  mode === 'redirect' ? (
+  mode === 'tape-line' ? (
+    <LinePdp lineSlug={Astro.props.lineSlug} />
+  ) : mode === 'redirect' ? (
     <html lang="en">
       <head>
         <meta charset="utf-8" />

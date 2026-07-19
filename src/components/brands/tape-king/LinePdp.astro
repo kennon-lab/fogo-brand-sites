@@ -1,0 +1,386 @@
+---
+// Tape King line PDP (P2, TAPEKING_SITE_SCOPE.md §3): breadcrumb → gallery →
+// name + sub + spec chips → rating → format tabs → pack ladder → Amazon CTA →
+// S&S callout → spec table → review pull-quotes → cross-sell.
+//
+// Everything priced is derived in src/lib/tapeking.js from live bronze data —
+// this template formats, it never computes. Amazon SEO titles never render.
+// Review excerpts render only when catalog.yaml carries real verbatim quotes
+// (REVIEW_EXCERPT_CANDIDATES.md workflow); the section is absent until then.
+//
+// Without JS the default format's ladder renders with its default rung
+// selected and a working CTA; tabs and rung switching are enhancements.
+import Base from '../../../layouts/Base.astro';
+import Ticks from './Ticks.astro';
+import { getTapeCatalog, lineHref, formatMoney, formatPerYard } from '../../../lib/tapeking.js';
+import { getBrand } from '../../../lib/supabase.js';
+import { getLocalImagesByAsin } from '../../../lib/images.js';
+
+const { lineSlug } = Astro.props;
+const brand = await getBrand();
+const { lines } = await getTapeCatalog();
+const line = lines.find((l) => l.slug === lineSlug);
+const bySlug = new Map(lines.map((l) => [l.slug, l]));
+const imagesByAsin = await getLocalImagesByAsin();
+const images = imagesByAsin.get(line.representative_asin) ?? [];
+
+const title = line.title ?? line.name;
+const chips = line.chips.length > 0 ? line.chips : [line.spec].filter(Boolean);
+const formats = line.formats;
+const allRungs = formats.flatMap((f) => f.rungs);
+const defaultFormat = formats[0];
+const defaultRung = defaultFormat.rungs[defaultFormat.defaultIndex];
+const showPerYard = allRungs.some((r) => r.per_yard != null);
+const prices = allRungs.map((r) => r.price).filter((v) => v != null);
+
+const crossSell = line.cross_sell.map((slug) => bySlug.get(slug)).filter(Boolean);
+const reviewsUrl = `https://www.amazon.com/product-reviews/${line.representative_asin}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: title,
+  description: line.sub ?? line.blurb,
+  ...(images.length > 0 && { image: images.map((src) => new URL(src, Astro.site).href) }),
+  brand: { '@type': 'Brand', name: brand.brand },
+  ...(line.reviews && {
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: line.reviews.rating,
+      reviewCount: line.reviews.count,
+    },
+  }),
+  offers: {
+    '@type': 'AggregateOffer',
+    url: defaultRung.attribution_url ?? defaultRung.amazon_url,
+    priceCurrency: 'USD',
+    ...(prices.length > 0 && {
+      lowPrice: Math.min(...prices).toFixed(2),
+      highPrice: Math.max(...prices).toFixed(2),
+    }),
+    offerCount: allRungs.length,
+    availability: 'https://schema.org/InStock',
+  },
+};
+---
+
+<Base title={title} description={line.sub ?? line.blurb} ogImage={images[0] ?? null} jsonLd={jsonLd} pageType="pdp">
+  <div id="tk-pdp" class="mx-auto max-w-6xl px-4 sm:px-6">
+    <nav class="pt-5 font-mono text-[12.5px] text-[var(--steel)]" aria-label="Breadcrumb">
+      <a href="/" class="no-underline hover:text-[var(--ink)]">Home</a>
+      <span aria-hidden="true"> / </span>
+      <a href="/products/" class="no-underline hover:text-[var(--ink)]">{line.crumb ?? 'Catalog'}</a>
+      <span aria-hidden="true"> / </span>
+      <span class="text-[var(--ink)]">{line.name}</span>
+    </nav>
+
+    <div class="grid items-start gap-10 py-7 pb-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+      {/* ---- Gallery ---- */}
+      <div class="lg:sticky lg:top-24">
+        {
+          images.length > 0 ? (
+            <>
+              <div class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-7">
+                <img
+                  id="tk-g-main"
+                  src={images[0]}
+                  alt={title}
+                  width="800"
+                  height="800"
+                  fetchpriority="high"
+                  decoding="async"
+                  class="mx-auto max-h-[430px] w-auto object-contain"
+                />
+              </div>
+              {images.length > 1 && (
+                <div class="mt-3 flex gap-2.5">
+                  {images.slice(0, 4).map((src, i) => (
+                    <button
+                      type="button"
+                      data-thumb={src}
+                      aria-label={`Show image ${i + 1}`}
+                      class:list={[
+                        'w-[76px] rounded-[8px] border bg-[var(--card)] p-2',
+                        i === 0 ? 'border-[var(--amber)]' : 'border-[var(--line)]',
+                      ]}
+                    >
+                      <img src={src} alt="" width="60" height="52" loading="lazy" decoding="async" class="mx-auto h-[52px] w-auto object-contain" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div class="flex aspect-square items-center justify-center rounded-[10px] border border-[var(--line)] bg-[repeating-linear-gradient(45deg,#F1F1ED_0_10px,#FAFAF8_10px_20px)] p-10 text-center">
+              <span class="font-mono text-[12px] text-[var(--steel)]">PHOTOGRAPHY COMING — SHOP ON AMAZON</span>
+            </div>
+          )
+        }
+      </div>
+
+      {/* ---- Buy column ---- */}
+      <div>
+        <h1 class="text-[clamp(28px,3.4vw,38px)] leading-[1.08]">{title}</h1>
+        {line.sub && <p class="mt-2 text-[15.5px] text-[var(--steel)]">{line.sub}</p>}
+
+        <div class="mb-1.5 mt-4 flex flex-wrap gap-2">
+          {chips.map((chip) => (
+            <span class="rounded-[4px] border border-[var(--line)] bg-[var(--paper)] px-2 py-1 font-mono text-[11.5px] font-semibold tracking-[0.04em] text-[var(--steel)]">
+              {chip}
+            </span>
+          ))}
+        </div>
+
+        {
+          line.reviews && (
+            <div class="mt-3.5 flex items-center gap-2.5 text-[14.5px]">
+              <span class="tracking-[2px] text-[var(--amber)]" aria-hidden="true">
+                ★★★★★
+              </span>
+              <strong>{line.reviews.rating}</strong>
+              <a
+                href={reviewsUrl}
+                target="_blank"
+                rel="noopener"
+                class="text-[13.5px] text-[var(--steel)] underline-offset-4 hover:underline"
+              >
+                {line.reviews.count.toLocaleString('en-US')} verified Amazon reviews
+              </a>
+            </div>
+          )
+        }
+
+        {/* ---- Format tabs ---- */}
+        {
+          formats.length > 1 && (
+            <div class="mt-5 flex flex-wrap gap-2" role="tablist" aria-label="Choose format">
+              {formats.map((f, i) => (
+                <button
+                  type="button"
+                  role="tab"
+                  data-fmt-tab={f.key}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  class="tk-tab rounded-[6px] border border-[var(--line)] bg-[var(--card)] px-3 py-2 font-mono text-xs font-semibold tracking-[0.03em] text-[var(--steel)]"
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )
+        }
+
+        {/* ---- Pack ladder, one panel per format ---- */}
+        {
+          formats.map((f, fi) => (
+            <div data-fmt-panel={f.key} hidden={fi !== 0}>
+              {f.note && <p class="mt-2.5 text-[13px] text-[var(--steel)]">{f.note}</p>}
+              <div
+                class="mt-3 overflow-hidden rounded-[10px] border border-[var(--line)] bg-[var(--card)]"
+                role="radiogroup"
+                aria-label="Choose pack size"
+              >
+                <div class="flex items-center justify-between border-b border-[var(--line)] bg-[var(--surface-2)] px-4 py-3">
+                  <span class="font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--steel)]">PACK SIZE</span>
+                  <span class="font-mono text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[var(--steel)]">
+                    {showPerYard ? 'PER ROLL · PER YARD' : 'PER UNIT'}
+                  </span>
+                </div>
+                {f.rungs.map((r, ri) => (
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={ri === f.defaultIndex ? 'true' : 'false'}
+                    data-rung
+                    data-asin={r.asin}
+                    data-url={r.attribution_url ?? r.amazon_url}
+                    data-price={formatMoney(r.price)}
+                    class="tk-rung grid w-full grid-cols-[auto_1fr_auto_auto] items-center gap-3.5 border-b border-[var(--line)] px-4 py-3.5 text-left last:border-b-0"
+                  >
+                    <span class="tk-radio h-4 w-4 rounded-full border-2 border-[var(--line)]" aria-hidden="true" />
+                    <span>
+                      <span class="block text-[15px] font-semibold">{r.pack_label}</span>
+                      {r.sub_label && <span class="block text-[12.5px] text-[var(--steel)]">{r.sub_label}</span>}
+                    </span>
+                    <span class="text-right font-mono text-[13px] text-[var(--steel)]">
+                      {r.per_yard != null && <span class="block">{formatPerYard(r.per_yard)}</span>}
+                      <b class="block font-semibold text-[var(--ink)]">{formatMoney(r.per_roll)}</b>
+                    </span>
+                    <span class="min-w-[78px] text-right font-mono text-[16.5px] font-semibold">
+                      {formatMoney(r.price)}
+                      {r.save_pct != null && (
+                        <span class="ml-1.5 inline-block rounded-[4px] bg-[#E8F4EC] px-1.5 py-0.5 align-[2px] font-mono text-[10.5px] font-semibold text-[#1F7A3D]">
+                          −{r.save_pct}%
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+
+        {/* ---- CTA (scope §8: attribution URL per selected ASIN, plain /dp/ fallback) ---- */}
+        <div class="mt-5">
+          <a
+            id="tk-cta"
+            href={defaultRung.attribution_url ?? defaultRung.amazon_url}
+            target="_blank"
+            rel="sponsored noopener"
+            data-amazon-cta
+            data-asin={defaultRung.asin}
+            data-cta-position="pdp-primary"
+            class="block rounded-[6px] bg-[var(--amber)] px-5 py-3.5 text-center text-[15.5px] font-bold text-white no-underline hover:bg-[var(--amber-dk)]"
+          >
+            Buy on Amazon — {formatMoney(defaultRung.price)} ↗
+          </a>
+          <p class="mt-2.5 text-[12.5px] text-[var(--steel)]">
+            Checkout completes on Amazon with your Prime shipping and Amazon's return policy.
+          </p>
+        </div>
+
+        {
+          line.consumable && (
+            <div class="mt-4 rounded-[8px] border border-dashed border-[var(--line)] bg-[var(--surface-2)] px-4 py-3 text-[13.5px] text-[var(--steel)]">
+              <b class="text-[var(--ink)]">Reorder without thinking about it.</b> Choose Subscribe &amp; Save at Amazon
+              checkout — an extra discount on every scheduled delivery, cancel anytime.
+            </div>
+          )
+        }
+
+        {/* ---- Spec table ---- */}
+        {
+          line.specs.length > 0 && (
+            <div class="mt-8">
+              <h2 class="text-[19px]">Specifications</h2>
+              <table class="mt-3 w-full border-collapse text-sm">
+                <tbody>
+                  {line.specs.map((s) => (
+                    <tr>
+                      <td class="w-[44%] border-b border-[var(--line)] py-2.5 font-mono text-[12.5px] text-[var(--steel)]">{s.label}</td>
+                      <td class="border-b border-[var(--line)] py-2.5 font-medium">{s.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+
+  <Ticks amber />
+
+  {/* ---- Review pull-quotes: real verbatim quotes only; absent until they exist ---- */}
+  {
+    line.review_excerpts.length > 0 && (
+      <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <h2 class="mb-6 text-[27px]">From the people reordering it</h2>
+        <div class="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+          {line.review_excerpts.map((q) => (
+            <figure class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-5">
+              <span class="text-[13px] tracking-[2px] text-[var(--amber)]" aria-label={`${q.rating} out of 5 stars`}>
+                {'★'.repeat(Math.round(q.rating))}
+              </span>
+              <blockquote class="mt-2.5 text-sm leading-relaxed">“{q.text}”</blockquote>
+              <figcaption class="mt-3 font-mono text-[11.5px] uppercase tracking-[0.04em] text-[var(--steel)]">
+                VERIFIED PURCHASE · {q.name}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {/* ---- Cross-sell (dispenser ↔ tape) ---- */}
+  {
+    crossSell.length > 0 && (
+      <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <h2 class="mb-6 text-[27px]">Pairs with</h2>
+        <div class="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+          {crossSell.map((x) => {
+            const img = imagesByAsin.get(x.representative_asin)?.[0] ?? null;
+            return (
+              <a
+                href={lineHref(x)}
+                class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-4 no-underline transition-colors duration-150 hover:border-[var(--ink)] motion-reduce:transition-none"
+              >
+                {img ? (
+                  <img src={img} alt="" width="400" height="400" loading="lazy" decoding="async" class="mx-auto mb-3 mt-1.5 h-[110px] w-auto object-contain" />
+                ) : (
+                  <div class="mb-3 mt-1.5 flex h-[110px] items-center justify-center rounded-[6px] bg-[repeating-linear-gradient(45deg,#F1F1ED_0_10px,#FAFAF8_10px_20px)] font-mono text-[11px] text-[var(--steel)]">
+                    PHOTO
+                  </div>
+                )}
+                <h3 class="text-[15.5px] font-bold">{x.name}</h3>
+                <div class="mt-1 font-mono text-[11.5px] tracking-[0.02em] text-[var(--steel)]">{x.spec}</div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+{/* Selected-state styling for tabs and rungs — driven purely by ARIA state so
+    the script only flips attributes. */}
+<style is:global>
+  .tk-tab[aria-selected='true'] {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: #fbf6ec;
+  }
+  .tk-rung:hover {
+    background: #fbf8f2;
+  }
+  .tk-rung[aria-checked='true'] {
+    background: #fbf6ec;
+  }
+  .tk-rung[aria-checked='true'] .tk-radio {
+    border-color: var(--amber);
+    background: var(--amber);
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+</style>
+
+<script>
+  const root = document.getElementById('tk-pdp');
+  const cta = document.getElementById('tk-cta');
+
+  function selectRung(btn) {
+    const panel = btn.closest('[data-fmt-panel]');
+    panel.querySelectorAll('[data-rung]').forEach((b) => b.setAttribute('aria-checked', String(b === btn)));
+    cta.href = btn.dataset.url;
+    cta.dataset.asin = btn.dataset.asin;
+    cta.textContent = `Buy on Amazon — ${btn.dataset.price} ↗`;
+  }
+
+  root.querySelectorAll('[data-rung]').forEach((btn) => {
+    btn.addEventListener('click', () => selectRung(btn));
+  });
+
+  root.querySelectorAll('[data-fmt-tab]').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      root.querySelectorAll('[data-fmt-tab]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      root.querySelectorAll('[data-fmt-panel]').forEach((p) => {
+        p.hidden = p.dataset.fmtPanel !== tab.dataset.fmtTab;
+      });
+      const active = root.querySelector(`[data-fmt-panel="${tab.dataset.fmtTab}"] [data-rung][aria-checked='true']`);
+      if (active) selectRung(active);
+    });
+  });
+
+  const main = document.getElementById('tk-g-main');
+  root.querySelectorAll('[data-thumb]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('[data-thumb]').forEach((b) => {
+        b.classList.toggle('border-[var(--amber)]', b === btn);
+        b.classList.toggle('border-[var(--line)]', b !== btn);
+      });
+      main.src = btn.dataset.thumb;
+    });
+  });
+</script>

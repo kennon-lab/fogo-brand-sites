@@ -2,18 +2,17 @@
 // Tape King footer (mockup parity): navy band, wordmark, mono column heads,
 // Amazon-completion disclosure in the legal line (scope §7).
 import Wordmark from './Wordmark.astro';
-import { getTapeCatalog } from '../../../lib/tapeking.js';
+import { getTapeCatalog, lineHref } from '../../../lib/tapeking.js';
 
 const { lines } = await getTapeCatalog();
 const bySlug = new Map(lines.map((l) => [l.slug, l]));
 
-// Interim v1 per-ASIN targets until the P2 line pages exist.
 const shop = [
   { label: 'Packing tape', slug: 'standard-clear' },
   { label: 'Gaffers tape', slug: 'gaffers' },
   { label: 'Dispensers', slug: 'dispenser-guns' },
   { label: 'Utility knives', slug: 'utility-knives' },
-].map(({ label, slug }) => ({ label, href: `/products/${bySlug.get(slug).representative_asin}/` }));
+].map(({ label, slug }) => ({ label, href: lineHref(bySlug.get(slug)) }));
 
 const company = [
   { label: 'About', href: '/about/' },

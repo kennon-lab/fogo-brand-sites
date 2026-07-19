@@ -145,19 +145,45 @@ const catalog = defineCollection({
   schema: z.object({
     lines: z.array(
       z.object({
-        slug: z.string(), // future line-PDP route + anchor id
+        slug: z.string(), // line-PDP route (/products/<slug>/) + anchor id
         name: z.string(), // display name, e.g. "Standard Clear"
         blurb: z.string(), // one-liner under the name (cards, compare table)
         // Parent ASIN(s) the line spans — informational, used for review
         // aggregation; grouping itself is by the per-SKU `line` field.
         family_keys: z.array(z.string().regex(/^B0[A-Z0-9]{8}$/)).default([]),
-        representative_asin: z.string().regex(/^B0[A-Z0-9]{8}$/), // card image + interim link target
+        representative_asin: z.string().regex(/^B0[A-Z0-9]{8}$/), // card image + gallery source
         // Mono spec chip on cards, e.g. `2.7 MIL · 2" × 60 YD`. Omit to derive
         // from the representative SKU's mil/width/yards; non-tape lines
         // (dispensers, knives) must set it explicitly.
         spec_override: z.string().optional(),
         film_label: z.string().optional(), // compare-table "Film" cell when mil alone is wrong (e.g. CLOTH)
         consumable: z.boolean().default(true), // false = no S&S callout (knives/dispensers)
+        // ---- PDP fields (scope §3 PDP section order) ----
+        // false = no line PDP yet; the line's ASINs keep their v1 pages
+        // (dispensers until §5.2 widths are confirmed with Kennon).
+        pdp: z.boolean().default(true),
+        title: z.string().optional(), // PDP h1, defaults to `name`
+        sub: z.string().optional(), // lede under the h1
+        crumb: z.string().optional(), // breadcrumb group label, e.g. "Packing Tape"
+        chips: z.array(z.string()).default([]), // mono spec chips; empty = derive from representative SKU
+        // Format-tab order + per-format note; keys must match SKU format_key
+        // values. A line with one format renders no tab row.
+        formats: z
+          .array(
+            z.object({
+              key: z.string(),
+              note: z.string().optional(),
+              default_asin: z.string().regex(/^B0[A-Z0-9]{8}$/).optional(), // pre-selected rung
+            })
+          )
+          .default([]),
+        specs: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+        // Real, verified Amazon review quotes only (verbatim, Kennon-approved
+        // — see REVIEW_EXCERPT_CANDIDATES.md). Renders nothing while empty.
+        review_excerpts: z
+          .array(z.object({ name: z.string(), rating: z.number().min(1).max(5), text: z.string() }))
+          .default([]),
+        cross_sell: z.array(z.string()).default([]), // line slugs, e.g. dispenser ↔ tape
       })
     ),
     skus: z.array(
@@ -172,6 +198,7 @@ const catalog = defineCollection({
         mil: z.number().positive().nullable(),
         width_in: z.number().positive().nullable(), // null = unverified (dispensers, scope §5.2)
         hidden: z.boolean().default(false), // future use — all rungs display at launch
+        rung_label: z.string().optional(), // overrides the derived pack-size label on the ladder
         notes: z.string().optional(), // internal only, never rendered
       })
     ),

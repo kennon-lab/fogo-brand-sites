@@ -2,22 +2,18 @@
 // Tape King header (mockup parity): sticky, blurred paper, type-set wordmark,
 // mono reorder CTA, yardage tick strip underneath.
 //
-// Interim nav targets (P1): line PDPs land in P2, so links point at the v1
-// per-ASIN pages that exist today. Swap to /products/<line-slug>/ in P2.
 import Ticks from './Ticks.astro';
 import Wordmark from './Wordmark.astro';
-import { getTapeCatalog } from '../../../lib/tapeking.js';
+import { getTapeCatalog, lineHref } from '../../../lib/tapeking.js';
 
 const { lines } = await getTapeCatalog();
 const bySlug = new Map(lines.map((l) => [l.slug, l]));
 const std = bySlug.get('standard-clear');
-const gaffers = bySlug.get('gaffers');
-const dispensers = bySlug.get('dispenser-guns');
 
 const nav = [
-  { label: 'Packing Tape', href: `/products/${std.representative_asin}/` },
-  { label: 'Gaffers Tape', href: `/products/${gaffers.representative_asin}/` },
-  { label: 'Dispensers', href: `/products/${dispensers.representative_asin}/` },
+  { label: 'Packing Tape', href: lineHref(std) },
+  { label: 'Gaffers Tape', href: lineHref(bySlug.get('gaffers')) },
+  { label: 'Dispensers', href: lineHref(bySlug.get('dispenser-guns')) },
   { label: 'Which tape do I need?', href: '/#cmp' },
 ];
 

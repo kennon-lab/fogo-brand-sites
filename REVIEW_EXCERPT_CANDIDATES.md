@@ -83,3 +83,22 @@ review_excerpts:
     rating: 5
     text: "REAL VERBATIM QUOTE HERE"
 ```
+
+---
+
+## Tape King PDP excerpts (catalog.yaml → lines[].review_excerpts, 2–3 each)
+
+Same rules as above: Kennon replaces each theme with a **verbatim verified
+Amazon quote** before it enters the yaml; the PDPs render nothing until then.
+Skip quotes naming prices or competitors; spec-confirming quotes ("actually
+60 yards", "doesn't split") are the register target.
+
+| Line | Theme to find | Register target | Search terms |
+|---|---|---|---|
+| standard-clear | Volume shipper switched & stayed | "We ship 60–80 boxes a week… haven't split a carton since." | boxes a week, stopped, switched |
+| standard-clear | Honest yardage | "Actually 60 yards. You notice when the roll doesn't die halfway through a pallet." | actually, full roll, yards |
+| standard-clear | S&S / repeat buyer | "Third case this year. It's on Subscribe & Save now, done deciding." | subscribe, again, case |
+| ultra-thick | Heavy cartons hold | "Taped 50 lb book boxes for a cross-country move — nothing popped." | heavy, held, move |
+| gaffers | Removes clean | "Down all weekend on a gym floor, came up with zero residue." | residue, removed clean, floor |
+| duct-tape | Sticks to rough surfaces | "Stuck to brick/concrete where the hardware-store roll gave up." | outdoor, stuck, rough |
+| utility-knives | Fleet pricing / handiness | "One in every drawer and toolbox. Blades lock solid." | every drawer, sturdy, lock |

@@ -7,7 +7,10 @@
 // figures are DERIVED here — never authored, never hardcoded in templates.
 //
 // Per-yard is comparable within a width only (scope §4) — callers must never
-// cross-compare per-yard between widths in UI copy.
+// cross-compare per-yard between widths in UI copy. Savings badges follow the
+// same spirit: they are computed within one (line, format) ladder and only
+// for tape rungs (roll_yards set), so a $18 gun is never compared to a $50
+// two-pack of a different gun.
 
 import { getCollection } from 'astro:content';
 import { getProducts, getReviewStats } from './supabase.js';
@@ -38,6 +41,22 @@ export function formatPerYard(perYard) {
   return perYard == null ? null : `${(perYard * 100).toFixed(1)}¢/yd`;
 }
 
+/** Ladder pack-size label, e.g. `6 rolls`, `Case · 24 rolls`, `Full case · 36 rolls`. */
+function packLabel(sku) {
+  if (sku.rung_label) return sku.rung_label;
+  if (sku.pack_count === 1) return 'Single';
+  if (sku.pack_count >= 36) return `Full case · ${sku.pack_count} rolls`;
+  if (sku.pack_count >= 24) return `Case · ${sku.pack_count} rolls`;
+  return `${sku.pack_count} rolls`;
+}
+
+/** Route for a line: its PDP, or the interim v1 ASIN page while pdp: false. */
+export function lineHref(line) {
+  if (line.pdp !== false) return `/products/${line.slug}/`;
+  const rep = line.skus.find((s) => s.asin === line.representative_asin);
+  return rep?.live ? `/products/${rep.asin}/` : `https://www.amazon.com/dp/${line.representative_asin}`;
+}
+
 let catalogPromise;
 
 /**
@@ -48,15 +67,19 @@ let catalogPromise;
  *   per_roll, per_yard, total_yards, save_pct }
  * - live=false → the ASIN is not in brand_site_products (hidden upstream via
  *   hide_from_site, or delisted): price/math are null and a build warning
- *   names it. amazon_url still resolves (plain /dp/ fallback) so cards can
- *   link out.
- * - save_pct: per-roll saving vs the smallest priced pack in the same
- *   (line, format_key) ladder, only when it's an actual saving (≥1%).
+ *   names it. amazon_url still resolves (plain /dp/ fallback).
+ * - save_pct: per-roll saving vs the smallest priced tape pack in the same
+ *   (line, format_key) ladder — tape rungs only, ≥1% only.
  *
- * Each line: yaml fields + { skus, visibleSkus, spec, reviews }
+ * Each line: yaml fields + { skus, visibleSkus, spec, reviews, formats }
  * - spec: spec_override, else derived from the representative SKU
  * - reviews: { rating, count } — MAX across the line's ASINs (Amazon pools
  *   reviews per listing; summing overcounts), null when stats are missing.
+ * - formats: ordered ladder groups for the PDP —
+ *   { key, label, note, defaultIndex, rungs: [sku + { pack_label, sub_label,
+ *   best_value }] }. Ordered by the line's authored `formats` list (or SKU
+ *   encounter order), rungs by pack_count. Hidden or not-live SKUs never
+ *   become rungs.
  */
 export function getTapeCatalog() {
   catalogPromise ??= (async () => {
@@ -82,6 +105,17 @@ export function getTapeCatalog() {
       if (l.spec_override == null && !skus.some((s) => s.asin === l.representative_asin && specLine(s))) {
         problems.push(`line "${l.slug}": no spec_override and representative SKU derives no spec`);
       }
+      const fmtKeys = new Set(l.formats.map((f) => f.key));
+      if (fmtKeys.size !== l.formats.length) problems.push(`line "${l.slug}": duplicate format keys`);
+      if (l.formats.length > 0) {
+        for (const s of skus.filter((s) => s.line === l.slug)) {
+          if (!fmtKeys.has(s.format_key)) problems.push(`${s.asin}: format_key "${s.format_key}" not in line "${l.slug}" formats list`);
+        }
+      }
+      for (const x of l.cross_sell) {
+        if (!lineSlugs.has(x)) problems.push(`line "${l.slug}": unknown cross_sell "${x}"`);
+      }
+      if (l.pdp !== false && l.formats.length === 0) problems.push(`line "${l.slug}": pdp line needs a formats list`);
     }
     if (problems.length > 0) {
       throw new Error(`[tapeking.js] invalid catalog.yaml:\n  ${problems.join('\n  ')}`);
@@ -122,7 +156,8 @@ export function getTapeCatalog() {
     });
 
     // Savings badge: within each (line, format_key) ladder, vs the smallest
-    // priced pack's per-roll figure.
+    // priced pack's per-roll figure. Tape rungs only — cross-comparing
+    // different physical products (dispenser models) is never a "saving".
     const ladders = new Map();
     for (const s of mergedSkus) {
       const key = `${s.line}/${s.format_key}`;
@@ -131,9 +166,12 @@ export function getTapeCatalog() {
     }
     for (const rungs of ladders.values()) {
       rungs.sort((a, b) => a.pack_count - b.pack_count);
-      const base = rungs.find((r) => r.per_roll != null) ?? null;
+      const base = rungs.find((r) => r.per_roll != null && r.roll_yards != null) ?? null;
       for (const r of rungs) {
-        const pct = base && r !== base && r.per_roll != null ? Math.round((1 - r.per_roll / base.per_roll) * 100) : null;
+        const pct =
+          base && r !== base && r.per_roll != null && r.roll_yards != null
+            ? Math.round((1 - r.per_roll / base.per_roll) * 100)
+            : null;
         r.save_pct = pct != null && pct >= 1 ? pct : null;
       }
     }
@@ -152,16 +190,52 @@ export function getTapeCatalog() {
           reviews = { rating: r.rating, count: r.review_count };
         }
       }
+
+      // Ladder groups: authored format order (else SKU encounter order).
+      const fmtDefs = l.formats.length
+        ? l.formats
+        : [...new Set(lineSkus.map((s) => s.format_key))].map((key) => ({ key }));
+      const formats = fmtDefs
+        .map((def) => {
+          const rungs = lineSkus
+            .filter((s) => s.format_key === def.key && !s.hidden && s.live)
+            .sort((a, b) => a.pack_count - b.pack_count);
+          const bestValue =
+            rungs.length > 1
+              ? rungs.reduce((best, r) => (r.per_roll != null && (best == null || r.per_roll < best.per_roll) ? r : best), null)
+              : null;
+          for (const r of rungs) {
+            r.pack_label = packLabel(r);
+            r.best_value = r === bestValue;
+            r.sub_label =
+              r.total_yards != null
+                ? `${r.total_yards.toLocaleString('en-US')} yards${r.best_value ? ' · best value' : ''}`
+                : r.best_value
+                  ? 'best value'
+                  : null;
+          }
+          const defaultIndex = Math.max(0, rungs.findIndex((r) => r.asin === def.default_asin));
+          return { key: def.key, label: rungs[0]?.format_label ?? def.key, note: def.note ?? null, defaultIndex, rungs };
+        })
+        .filter((f) => f.rungs.length > 0);
+
       return {
         ...l,
         skus: lineSkus,
         visibleSkus: lineSkus.filter((s) => !s.hidden && s.live),
         spec: l.spec_override ?? specLine(rep),
         reviews,
+        formats,
       };
     });
 
     return { lines: mergedLines, skus: mergedSkus, skuByAsin };
   })();
   return catalogPromise;
+}
+
+/** getTapeCatalog(), or null when this brand has no catalog.yaml. */
+export async function getTapeCatalogIfAny() {
+  const entries = await getCollection('catalog');
+  return entries.some((e) => e.id === `${BRAND_SLUG}/catalog`) ? getTapeCatalog() : null;
 }

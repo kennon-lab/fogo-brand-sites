@@ -34,11 +34,16 @@ if (!Array.isArray(rows) || rows.length === 0) {
 }
 const brandDomain = rows[0].domain;
 
-// Authored brands replace per-ASIN PDPs with family-slug pages; the ASIN URLs
-// become noindex redirect stubs and must stay out of the sitemap. Unauthored
-// brands keep ASIN pages as their canonical PDPs.
+// Authored brands replace per-ASIN PDPs with family-slug pages (products/
+// *.yaml) or line pages (catalog.yaml); the ASIN URLs become noindex redirect
+// stubs and must stay out of the sitemap. Unauthored brands keep ASIN pages
+// as their canonical PDPs. (For catalog.yaml brands a pdp:false line keeps
+// real v1 ASIN pages — those drop out of the sitemap too, an accepted interim
+// until the line's PDP ships.)
 const contentDir = join('src', 'content', 'brands', BRAND_SLUG, 'products');
-const isAuthored = existsSync(contentDir) && readdirSync(contentDir).some((f) => /\.ya?ml$/.test(f));
+const isAuthored =
+  (existsSync(contentDir) && readdirSync(contentDir).some((f) => /\.ya?ml$/.test(f))) ||
+  existsSync(join('src', 'content', 'brands', BRAND_SLUG, 'catalog.yaml'));
 
 export default defineConfig({
   output: 'static',

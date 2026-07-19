@@ -4,12 +4,16 @@ import ProductCard from '../../components/ProductCard.astro';
 import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
 import { getMergedCatalog, getSiteContent } from '../../lib/content.js';
+import { getTapeCatalogIfAny, lineHref } from '../../lib/tapeking.js';
 
 const brand = await getBrand();
 const products = await getProducts();
 const imagesByAsin = await getLocalImagesByAsin();
 // Same groups as groupByParent, plus authored labels (empty when unauthored).
 const groups = await getMergedCatalog();
+
+// Line-catalog brands (tape-king): the full catalog IS the line list.
+const tape = await getTapeCatalogIfAny();
 
 // Authored brands: editorial catalog — one card per shoppable family
 // (accessories hidden), authored names/taglines, family-slug links.
@@ -18,7 +22,46 @@ const shoppable = site ? groups.filter((g) => g.authored && g.authored.nav !== f
 ---
 
 {
-  site ? (
+  tape ? (
+    <Base title="Full catalog" description={`Every ${brand.brand} line — checkout happens on Amazon.`} pageType="catalog">
+      <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <h1 class="text-[27px]">Full catalog</h1>
+        <p class="mt-2 max-w-2xl text-[15.5px] text-[var(--steel)]">
+          {`${tape.lines.length} lines, no filler. Every purchase completes on Amazon — Prime shipping, Amazon returns.`}
+        </p>
+        <div class="mt-8 grid grid-cols-2 gap-3.5 sm:grid-cols-3">
+          {tape.lines.map((line) => {
+            const img = imagesByAsin.get(line.representative_asin)?.[0] ?? null;
+            return (
+              <a
+                href={lineHref(line)}
+                class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-4 no-underline transition-colors duration-150 hover:border-[var(--ink)] motion-reduce:transition-none"
+              >
+                {img ? (
+                  <img
+                    src={img}
+                    alt=""
+                    width="400"
+                    height="400"
+                    loading="lazy"
+                    decoding="async"
+                    class="mx-auto mb-3 mt-1.5 h-[140px] w-auto object-contain"
+                  />
+                ) : (
+                  <div class="mb-3 mt-1.5 flex h-[140px] items-center justify-center rounded-[6px] bg-[repeating-linear-gradient(45deg,#F1F1ED_0_10px,#FAFAF8_10px_20px)] font-mono text-[11px] text-[var(--steel)]">
+                    PHOTO
+                  </div>
+                )}
+                <h2 class="text-[15.5px] font-bold">{line.name}</h2>
+                <div class="mt-1 font-mono text-[11.5px] tracking-[0.02em] text-[var(--steel)]">{line.spec}</div>
+                <p class="mt-1.5 text-[13px] text-[var(--steel)]">{line.blurb}</p>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    </Base>
+  ) : site ? (
     <Base title="All products" description={`Everything ${brand.brand} makes — checkout happens on Amazon.`} pageType="catalog">
       <section class="mx-auto max-w-6xl px-4 py-12">
         <h1 class="text-[length:var(--step-5)] leading-tight">Everything we make</h1>

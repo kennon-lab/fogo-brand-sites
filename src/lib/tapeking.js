@@ -13,7 +13,7 @@
 // two-pack of a different gun.
 
 import { getCollection } from 'astro:content';
-import { getProducts, getReviewStats } from './supabase.js';
+import { getAffiliateProducts, getProducts, getReviewStats } from './supabase.js';
 
 const BRAND_SLUG = import.meta.env.BRAND_SLUG;
 
@@ -238,4 +238,52 @@ export function getTapeCatalog() {
 export async function getTapeCatalogIfAny() {
   const entries = await getCollection('catalog');
   return entries.some((e) => e.id === `${BRAND_SLUG}/catalog`) ? getTapeCatalog() : null;
+}
+
+let affiliatesPromise;
+
+/**
+ * Affiliate-brand listings (catalog.yaml `affiliates` merged with the live
+ * public.brand_site_affiliate_products rows): yaml owns identity and specs,
+ * bronze owns price/attribution. Derived per-roll / per-yard when the yaml
+ * carries pack_count / roll_yards. Listings with no live bronze row are
+ * dropped with a warning (delisted or missing bronze.brand_site_affiliates
+ * mapping) — a listing page must never render without a synced price.
+ */
+export function getAffiliates() {
+  affiliatesPromise ??= (async () => {
+    const catalog = await getTapeCatalog();
+    void catalog; // ensures catalog.yaml validation ran before affiliates render
+    const entries = await getCollection('catalog');
+    const entry = entries.find((e) => e.id === `${BRAND_SLUG}/catalog`);
+    const authored = entry?.data.affiliates ?? [];
+    if (authored.length === 0) return [];
+
+    const live = await getAffiliateProducts();
+    const liveByAsin = new Map(live.map((p) => [p.asin, p]));
+
+    const merged = [];
+    for (const a of authored) {
+      const row = liveByAsin.get(a.asin);
+      if (!row || row.item_price == null) {
+        console.warn(
+          `[tapeking.js] affiliate ${a.asin} ("${a.slug}") has no live row in brand_site_affiliate_products — page skipped.`
+        );
+        continue;
+      }
+      const price = row.item_price;
+      const per_roll = a.pack_count != null ? round2(price / a.pack_count) : null;
+      const total_yards = a.pack_count != null && a.roll_yards != null ? a.pack_count * a.roll_yards : null;
+      merged.push({
+        ...a,
+        price,
+        per_roll,
+        per_yard: total_yards != null ? price / total_yards : null,
+        attribution_url: row.attribution_url ?? null,
+        amazon_url: row.amazon_url,
+      });
+    }
+    return merged;
+  })();
+  return affiliatesPromise;
 }

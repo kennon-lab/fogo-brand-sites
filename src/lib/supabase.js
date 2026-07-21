@@ -32,6 +32,7 @@ const num = (v) => (v === null || v === undefined || v === '' ? null : parseFloa
 // is fetched exactly once per build.
 let brandPromise;
 let productsPromise;
+let affiliatesPromise;
 let imagesPromise;
 let reviewStatsPromise;
 
@@ -76,6 +77,25 @@ export function getProducts() {
 }
 
 /**
+ * Affiliate-brand listings for this site (public.brand_site_affiliate_products
+ * ← bronze.brand_site_affiliates): items sold under a sibling brand (e.g.
+ * Grizzly Power on tapeking.com) that render as standalone listing pages.
+ * Price and attribution sync from bronze exactly like the main catalog.
+ * Empty array for brands with no affiliate rows.
+ */
+export function getAffiliateProducts() {
+  affiliatesPromise ??= rest(`brand_site_affiliate_products?site_slug=eq.${encodeURIComponent(BRAND_SLUG)}`).then(
+    (rows) =>
+      rows.map((p) => ({
+        ...p,
+        item_price: num(p.item_price),
+        amazon_url: p.attribution_url || p.plain_amazon_url,
+      }))
+  );
+  return affiliatesPromise;
+}
+
+/**
  * Mirrored image URLs by ASIN: Map<asin, string[]> ordered by position.
  * Only the brand-site-images bucket ever appears here (mirror script output).
  * ASINs with no mirrored images are simply absent — callers render text-only.
@@ -110,9 +130,13 @@ export function getReviewStats() {
 }
 
 export function getImagesByAsin() {
-  imagesPromise ??= Promise.all([getProducts(), rest('brand_site_images?order=asin.asc,position.asc')]).then(
-    ([products, rows]) => {
-      const wanted = new Set(products.map((p) => p.asin));
+  imagesPromise ??= Promise.all([
+    getProducts(),
+    getAffiliateProducts(),
+    rest('brand_site_images?order=asin.asc,position.asc'),
+  ]).then(
+    ([products, affiliates, rows]) => {
+      const wanted = new Set([...products, ...affiliates].map((p) => p.asin));
       const map = new Map();
       for (const r of rows) {
         if (!wanted.has(r.asin)) continue;

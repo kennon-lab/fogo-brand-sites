@@ -186,6 +186,26 @@ const catalog = defineCollection({
         cross_sell: z.array(z.string()).default([]), // line slugs, e.g. dispenser ↔ tape
       })
     ),
+    // Affiliate-brand listings (e.g. Grizzly Power on tapeking.com): standalone
+    // static listing pages, never linked from nav/homepage grids. Price and
+    // attribution sync from bronze via public.brand_site_affiliate_products;
+    // the bronze.brand_site_affiliates mapping row must exist for the ASIN.
+    affiliates: z
+      .array(
+        z.object({
+          asin: z.string().regex(/^B0[A-Z0-9]{8}$/),
+          slug: z.string(), // page route: /products/<slug>/
+          brand_name: z.string(), // e.g. "Grizzly Power" — breadcrumb + disclosure
+          display_name: z.string(), // human name — Amazon SEO title never renders
+          sub: z.string(),
+          upc: z.string().regex(/^\d{12,14}$/).optional(), // rendered in specs + JSON-LD gtin
+          pack_count: z.number().int().positive().nullable().default(null), // enables per-roll math
+          roll_yards: z.number().positive().nullable().default(null), // enables per-yard math
+          chips: z.array(z.string()).default([]),
+          specs: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+        })
+      )
+      .default([]),
     skus: z.array(
       z.object({
         asin: z.string().regex(/^B0[A-Z0-9]{8}$/),

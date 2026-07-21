@@ -1,0 +1,173 @@
+---
+// Standalone affiliate-brand listing page (e.g. Grizzly Power on
+// tapeking.com). Deliberately unlinked from nav, homepage grids, and the
+// /products/ catalog — reachable only by direct URL and the sitemap.
+// Price and attribution sync from bronze via getAffiliates(); per-roll /
+// per-yard are derived there, never authored. The UPC renders in the spec
+// table and as JSON-LD gtin.
+import Base from '../../../layouts/Base.astro';
+import Ticks from './Ticks.astro';
+import { getAffiliates, formatMoney, formatPerYard } from '../../../lib/tapeking.js';
+import { getBrand } from '../../../lib/supabase.js';
+import { getLocalImagesByAsin } from '../../../lib/images.js';
+
+const { affiliateSlug } = Astro.props;
+const brand = await getBrand();
+const listing = (await getAffiliates()).find((a) => a.slug === affiliateSlug);
+const imagesByAsin = await getLocalImagesByAsin();
+const images = imagesByAsin.get(listing.asin) ?? [];
+
+const mathParts = [
+  listing.per_roll != null && `${formatMoney(listing.per_roll)}/roll`,
+  formatPerYard(listing.per_yard),
+].filter(Boolean);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: listing.display_name,
+  description: listing.sub,
+  ...(images.length > 0 && { image: images.map((src) => new URL(src, Astro.site).href) }),
+  brand: { '@type': 'Brand', name: listing.brand_name },
+  ...(listing.upc && { [listing.upc.length === 14 ? 'gtin14' : 'gtin12']: listing.upc }),
+  offers: {
+    '@type': 'Offer',
+    url: listing.attribution_url ?? listing.amazon_url,
+    priceCurrency: 'USD',
+    price: listing.price.toFixed(2),
+    availability: 'https://schema.org/InStock',
+  },
+};
+---
+
+<Base title={listing.display_name} description={listing.sub} ogImage={images[0] ?? null} jsonLd={jsonLd} pageType="pdp">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <nav class="pt-5 font-mono text-[12.5px] text-[var(--steel)]" aria-label="Breadcrumb">
+      <a href="/" class="no-underline hover:text-[var(--ink)]">Home</a>
+      <span aria-hidden="true"> / </span>
+      <span>{listing.brand_name}</span>
+      <span aria-hidden="true"> / </span>
+      <span class="text-[var(--ink)]">{listing.display_name}</span>
+    </nav>
+
+    <div class="grid items-start gap-10 py-7 pb-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+      {/* ---- Gallery ---- */}
+      <div class="lg:sticky lg:top-24">
+        {
+          images.length > 0 ? (
+            <>
+              <div class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-7">
+                <img
+                  id="tk-aff-main"
+                  src={images[0]}
+                  alt={listing.display_name}
+                  width="800"
+                  height="800"
+                  fetchpriority="high"
+                  decoding="async"
+                  class="mx-auto max-h-[430px] w-auto object-contain"
+                />
+              </div>
+              {images.length > 1 && (
+                <div class="mt-3 flex gap-2.5">
+                  {images.slice(0, 4).map((src, i) => (
+                    <button
+                      type="button"
+                      data-thumb={src}
+                      aria-label={`Show image ${i + 1}`}
+                      class:list={[
+                        'w-[76px] rounded-[8px] border bg-[var(--card)] p-2',
+                        i === 0 ? 'border-[var(--amber)]' : 'border-[var(--line)]',
+                      ]}
+                    >
+                      <img src={src} alt="" width="60" height="52" loading="lazy" decoding="async" class="mx-auto h-[52px] w-auto object-contain" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div class="flex aspect-square items-center justify-center rounded-[10px] border border-[var(--line)] bg-[repeating-linear-gradient(45deg,#F1F1ED_0_10px,#FAFAF8_10px_20px)] p-10 text-center">
+              <span class="font-mono text-[12px] text-[var(--steel)]">PHOTOGRAPHY COMING — SHOP ON AMAZON</span>
+            </div>
+          )
+        }
+      </div>
+
+      {/* ---- Listing column ---- */}
+      <div>
+        <p class="mb-3 font-mono text-[12.5px] font-semibold uppercase tracking-[0.12em] text-[var(--amber)]">
+          {listing.brand_name} · AFFILIATE BRAND
+        </p>
+        <h1 class="text-[clamp(28px,3.4vw,38px)] leading-[1.08]">{listing.display_name}</h1>
+        <p class="mt-2 text-[15.5px] text-[var(--steel)]">{listing.sub}</p>
+
+        <div class="mb-1.5 mt-4 flex flex-wrap gap-2">
+          {listing.chips.map((chip) => (
+            <span class="rounded-[4px] border border-[var(--line)] bg-[var(--paper)] px-2 py-1 font-mono text-[11.5px] font-semibold tracking-[0.04em] text-[var(--steel)]">
+              {chip}
+            </span>
+          ))}
+        </div>
+
+        <div class="mt-5 flex items-baseline gap-3">
+          <span class="font-mono text-[26px] font-semibold">{formatMoney(listing.price)}</span>
+          {mathParts.length > 0 && <span class="font-mono text-[13px] text-[var(--steel)]">{mathParts.join(' · ')}</span>}
+        </div>
+
+        <div class="mt-4">
+          <a
+            href={listing.attribution_url ?? listing.amazon_url}
+            target="_blank"
+            rel="sponsored noopener"
+            data-amazon-cta
+            data-asin={listing.asin}
+            data-cta-position="pdp-primary"
+            class="block rounded-[6px] bg-[var(--amber)] px-5 py-3.5 text-center text-[15.5px] font-bold text-white no-underline hover:bg-[var(--amber-dk)]"
+          >
+            Buy on Amazon — {formatMoney(listing.price)} ↗
+          </a>
+          <p class="mt-2.5 text-[12.5px] text-[var(--steel)]">
+            {listing.brand_name} is an affiliate brand of {brand.brand}. Checkout completes on Amazon with your Prime
+            shipping and Amazon's return policy.
+          </p>
+        </div>
+
+        <div class="mt-8">
+          <h2 class="text-[19px]">Specifications</h2>
+          <table class="mt-3 w-full border-collapse text-sm">
+            <tbody>
+              {listing.specs.map((s) => (
+                <tr>
+                  <td class="w-[44%] border-b border-[var(--line)] py-2.5 font-mono text-[12.5px] text-[var(--steel)]">{s.label}</td>
+                  <td class="border-b border-[var(--line)] py-2.5 font-medium">{s.value}</td>
+                </tr>
+              ))}
+              {listing.upc && (
+                <tr>
+                  <td class="w-[44%] border-b border-[var(--line)] py-2.5 font-mono text-[12.5px] text-[var(--steel)]">UPC</td>
+                  <td class="border-b border-[var(--line)] py-2.5 font-mono font-medium">{listing.upc}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Ticks amber />
+</Base>
+
+<script>
+  const main = document.getElementById('tk-aff-main');
+  document.querySelectorAll('[data-thumb]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-thumb]').forEach((b) => {
+        b.classList.toggle('border-[var(--amber)]', b === btn);
+        b.classList.toggle('border-[var(--line)]', b !== btn);
+      });
+      main.src = btn.dataset.thumb;
+    });
+  });
+</script>

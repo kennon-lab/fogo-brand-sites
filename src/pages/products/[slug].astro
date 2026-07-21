@@ -11,12 +11,13 @@ import VariantSelector from '../../components/VariantSelector.astro';
 import ComparisonTable from '../../components/ComparisonTable.astro';
 import FaqAccordion from '../../components/FaqAccordion.astro';
 import StickyCta from '../../components/StickyCta.astro';
+import AffiliateListing from '../../components/brands/tape-king/AffiliateListing.astro';
 import LinePdp from '../../components/brands/tape-king/LinePdp.astro';
 import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
 import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
 import { getMergedCatalog } from '../../lib/content.js';
-import { getTapeCatalogIfAny } from '../../lib/tapeking.js';
+import { getAffiliates, getTapeCatalogIfAny } from '../../lib/tapeking.js';
 
 // Route modes:
 // - Line-catalog brands (catalog.yaml, currently tape-king) → one page per
@@ -46,6 +47,11 @@ export async function getStaticPaths() {
     const products = await getProducts();
     for (const product of products.filter((p) => !stubbed.has(p.asin))) {
       paths.push({ params: { slug: product.asin }, props: { mode: 'v1', product } });
+    }
+    // Affiliate-brand listings: standalone pages, deliberately unlinked from
+    // nav and grids (reachable by direct URL + sitemap only).
+    for (const aff of await getAffiliates()) {
+      paths.push({ params: { slug: aff.slug }, props: { mode: 'tape-affiliate', affiliateSlug: aff.slug } });
     }
     return paths;
   }
@@ -198,6 +204,8 @@ if (mode === 'v1') {
 {
   mode === 'tape-line' ? (
     <LinePdp lineSlug={Astro.props.lineSlug} />
+  ) : mode === 'tape-affiliate' ? (
+    <AffiliateListing affiliateSlug={Astro.props.affiliateSlug} />
   ) : mode === 'redirect' ? (
     <html lang="en">
       <head>

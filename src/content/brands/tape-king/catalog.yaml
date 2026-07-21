@@ -150,6 +150,28 @@ lines:
       - { label: MADE FOR, value: 'Cartons, cardboard, crafts, warehouse' }
     cross_sell: [standard-clear, dispenser-guns]
 
+# Affiliate-brand listings: standalone pages, deliberately absent from nav,
+# homepage grids, and the /products/ catalog page (per Kennon 2026-07-21).
+affiliates:
+  - asin: B07FK7RLNK
+    slug: grizzly-power-duct-tape
+    brand_name: Grizzly Power
+    display_name: Grizzly Power Silver Duct Tape — 2-Pack
+    sub: >-
+      Heavy-duty silver duct tape from Grizzly Power, an affiliate brand of
+      Tape King. Waterproof roll for repairs, sealing, and general fixes.
+    upc: '00199874393766'
+    pack_count: 2
+    roll_yards: 30
+    chips: ['1.88" WIDE', 30 YD / ROLL, 2-PACK, SILVER]
+    specs:
+      - { label: BRAND, value: Grizzly Power }
+      - { label: ROLL SIZE, value: 1.88 in × 30 yd }
+      - { label: PACK, value: 2 rolls }
+      - { label: COLOR, value: Silver }
+      - { label: WATERPROOF, value: 'Yes' }
+      - { label: MADE FOR, value: 'Repairs, sealing, wrapping, general fixes' }
+
 skus:
   # ---- Standard Clear — parent B0B782VXFQ (2.7 mil acrylic) ----
   - asin: B01K0Z9QYK

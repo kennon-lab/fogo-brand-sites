@@ -129,6 +129,18 @@ const site = defineCollection({
         )
         .default([]),
       comparison_teaser: z.object({ headline: z.string(), body: z.string() }).optional(),
+      // Warranty page (/warranty/): the route builds only for brands that
+      // declare terms here (src/pages/warranty/[...path].astro gates on it).
+      warranty: z
+        .object({
+          term: z.string(), // headline commitment, e.g. "5-Year Limited Warranty"
+          intro: z.string(),
+          covers: z.array(z.string()).min(1),
+          excludes: z.array(z.string()).min(1),
+          claim: z.object({ intro: z.string(), steps: z.array(z.string()).min(1) }),
+          fine_print: z.array(z.string()).default([]),
+        })
+        .optional(),
       nav: z.array(z.object({ label: z.string(), href: z.string() })),
       footer_disclosure: z.string(),
     }),

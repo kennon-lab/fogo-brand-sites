@@ -38,6 +38,47 @@ comparison_teaser:
   body: >-
     Solid foam holds one shape. Down flattens by morning. Shredded memory foam
     holds the shape you give it — see how the fills compare before you choose.
+# Term follows the pillow-industry standard — Coop, Tempur-Pedic, and
+# Stearns & Foster all warrant 5 years against manufacturing defects; lifetime
+# terms are a mattress convention, not a pillow one. The body pillow's Amazon
+# listing promises 20 years, so the longer-listing-period clause in fine_print
+# is load-bearing — do not remove it while that listing copy stands.
+warranty:
+  term: 5-Year Limited Warranty
+  intro: >-
+    Every Xtreme Comforts product is warranted against defects in materials
+    and workmanship for five years from the date of purchase. If something we
+    made fails because we made it wrong, we replace it — that simple.
+  covers:
+    - Foam that splits, crumbles, or permanently collapses under normal use
+    - Seams, stitching, or zippers that fail
+    - Covers that tear along a seam or come apart despite washing per the care label
+    - Any other flaw in materials or workmanship present when your product arrived
+  excludes:
+    - The gradual softening and flattening every pillow fill experiences with normal nightly use
+    - Comfort preference — too firm, too soft, wrong loft. Inside Amazon's return window, Amazon's return policy covers this
+    - Damage from misuse, improper washing or drying, pets, burns, cuts, or alterations
+    - Stains, odors, or discoloration
+    - Products purchased from anyone other than our official Amazon listings
+  claim:
+    intro: >-
+      A claim takes one message — no receipts to dig up, your Amazon order ID
+      is your proof of purchase.
+    steps:
+      - Find your order ID under Your Orders on Amazon.com
+      - Reach out through our contact page with the order ID and a photo or two of the defect
+      - If it's covered, we send a replacement at no charge
+  fine_print:
+    - This warranty covers the original purchaser with proof of purchase (your
+      Amazon order ID) and is not transferable.
+    - The remedy under this warranty is replacement with the same product, or a
+      comparable current product if the original has been discontinued. Refunds
+      are handled by Amazon's return policy during the return window, not by
+      this warranty.
+    - Where a product's Amazon listing states a longer warranty period for that
+      product, the longer period applies.
+    - This warranty gives you specific legal rights, and you may also have
+      other rights which vary from state to state.
 nav:
   - label: Pillows
     href: /collections/neck-support/

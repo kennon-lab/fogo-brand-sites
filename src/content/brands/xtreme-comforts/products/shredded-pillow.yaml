@@ -1,7 +1,9 @@
 # Flagship family (12 variants). The Slim King single (B014E9UMHI) is a
 # standalone listing on Amazon but belongs here on the site — content.js
 # "adopts" it into this family via the variants list below.
-family_key: B0G5Q8C8RG
+# family_key must track the live parent_asin in brand_site_products — Amazon
+# reassigned this variation family's parent (was B0G5Q8C8RG) in a listing sync.
+family_key: B0HBXM6VDJ
 display_name: The Shredded Memory Foam Pillow
 tagline: Add or remove fill until the loft is exactly yours.
 category: pillows

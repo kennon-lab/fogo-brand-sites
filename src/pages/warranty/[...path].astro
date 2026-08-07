@@ -1,0 +1,99 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getBrand } from '../../lib/supabase.js';
+import { getSiteContent } from '../../lib/content.js';
+
+// The warranty page exists only for brands that declare warranty terms in
+// site.yaml — every other brand builds no /warranty/ route at all (same
+// gating idiom as collections/[slug].astro). The rest param with an
+// undefined value is Astro's way to conditionally emit a fixed route.
+export async function getStaticPaths() {
+  const site = await getSiteContent();
+  return site?.warranty ? [{ params: { path: undefined } }] : [];
+}
+
+const brand = await getBrand();
+const site = await getSiteContent();
+const w = site.warranty;
+---
+
+<Base title="Warranty" description={`${brand.brand} ${w.term}: ${w.intro}`} pageType="warranty">
+  <section class="mx-auto max-w-3xl px-4 pt-10 pb-8">
+    <nav class="text-sm text-[var(--mist)]" aria-label="Breadcrumb">
+      <a href="/" class="no-underline hover:underline underline-offset-4">Home</a>
+      <span aria-hidden="true"> / </span>
+      <span>Warranty</span>
+    </nav>
+    <p class="mt-6 inline-block rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-1.5 text-sm font-semibold tracking-wide text-[var(--accent-ink)]">
+      {w.term}
+    </p>
+    <h1 class="mt-4 text-[length:var(--step-5)] leading-tight">Our warranty</h1>
+    <p class="mt-4 max-w-2xl text-[length:var(--step-0)] leading-relaxed text-[var(--mist)]">{w.intro}</p>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 pb-4">
+    <div class="grid gap-6 sm:grid-cols-2">
+      <div class="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+        <h2 class="text-[length:var(--step-1)]">What's covered</h2>
+        <ul class="mt-4 space-y-3">
+          {
+            w.covers.map((item) => (
+              <li class="flex gap-3 text-sm leading-relaxed">
+                <span aria-hidden="true" class="mt-0.5 font-bold text-[var(--accent-ink)]">✓</span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+        <h2 class="text-[length:var(--step-1)]">What's not</h2>
+        <ul class="mt-4 space-y-3">
+          {
+            w.excludes.map((item) => (
+              <li class="flex gap-3 text-sm leading-relaxed text-[var(--mist)]">
+                <span aria-hidden="true" class="mt-0.5 font-bold">✕</span>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-10">
+    <h2 class="text-[length:var(--step-2)]">How to make a claim</h2>
+    <p class="mt-3 max-w-2xl leading-relaxed text-[var(--mist)]">{w.claim.intro}</p>
+    <ol class="mt-6 space-y-4">
+      {
+        w.claim.steps.map((step, i) => (
+          <li class="flex items-start gap-4">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--brand)] text-sm font-bold">
+              {i + 1}
+            </span>
+            <span class="pt-1 leading-relaxed">{step}</span>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="mt-6 leading-relaxed">
+      <a
+        href="/contact/"
+        class="font-semibold text-[var(--accent-ink)] no-underline hover:underline underline-offset-4"
+      >Start a claim on the contact page →</a>
+    </p>
+  </section>
+
+  {
+    w.fine_print.length > 0 && (
+      <section class="mx-auto max-w-3xl px-4 pb-14">
+        <div class="border-t border-[var(--line)] pt-6 space-y-3 text-xs leading-relaxed text-[var(--mist)]">
+          {w.fine_print.map((line) => (
+            <p>{line}</p>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</Base>

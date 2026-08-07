@@ -38,17 +38,18 @@ comparison_teaser:
   body: >-
     Solid foam holds one shape. Down flattens by morning. Shredded memory foam
     holds the shape you give it — see how the fills compare before you choose.
-# Term follows the pillow-industry standard — Coop, Tempur-Pedic, and
-# Stearns & Foster all warrant 5 years against manufacturing defects; lifetime
-# terms are a mattress convention, not a pillow one. The body pillow's Amazon
-# listing promises 20 years, so the longer-listing-period clause in fine_print
-# is load-bearing — do not remove it while that listing copy stands.
+# Lifetime chosen deliberately (Kennon, 2026-08) — it exceeds the pillow
+# industry's typical 5-year defect term (Coop, Tempur-Pedic, Stearns & Foster)
+# and the 20-year claim on the body pillow's Amazon listing, so no
+# longer-listing-period clause is needed. Coverage is defects only, never
+# normal wear; the "lifetime of the product" definition in fine_print is
+# load-bearing — do not remove it.
 warranty:
-  term: 5-Year Limited Warranty
+  term: Lifetime Limited Warranty
   intro: >-
     Every Xtreme Comforts product is warranted against defects in materials
-    and workmanship for five years from the date of purchase. If something we
-    made fails because we made it wrong, we replace it — that simple.
+    and workmanship for as long as you own it. If something we made fails
+    because we made it wrong, we replace it — that simple.
   covers:
     - Foam that splits, crumbles, or permanently collapses under normal use
     - Seams, stitching, or zippers that fail
@@ -75,8 +76,10 @@ warranty:
       comparable current product if the original has been discontinued. Refunds
       are handled by Amazon's return policy during the return window, not by
       this warranty.
-    - Where a product's Amazon listing states a longer warranty period for that
-      product, the longer period applies.
+    - '"Lifetime" means the usable life of the product while owned by the
+      original purchaser — it is a promise about how the product is made, not
+      a promise that any pillow lasts forever. Coverage ends if the product is
+      sold, given away, or replaced.'
     - This warranty gives you specific legal rights, and you may also have
       other rights which vary from state to state.
 nav:

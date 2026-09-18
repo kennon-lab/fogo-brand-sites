@@ -1,0 +1,207 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getBrand } from '../../lib/supabase.js';
+import { getLocalImagesByAsin, localBucketImage } from '../../lib/images.js';
+import { getBlogPosts, getMergedCatalog, formatPostDate } from '../../lib/content.js';
+
+// The blog exists only for brands with posts in
+// src/content/brands/<slug>/blog/ — every other brand builds no /blog/ routes
+// at all (same gating idiom as warranty/[...path].astro). One rest route
+// serves both the index (slug undefined) and each post.
+export async function getStaticPaths() {
+  const posts = await getBlogPosts();
+  if (posts.length === 0) return [];
+  return [
+    { params: { slug: undefined }, props: { mode: 'index' } },
+    ...posts.map((post) => ({ params: { slug: post.slug }, props: { mode: 'post', postSlug: post.slug } })),
+  ];
+}
+
+const { mode, postSlug } = Astro.props;
+const brand = await getBrand();
+const posts = await getBlogPosts();
+
+// Index data: every post with its localized hero.
+const cards =
+  mode === 'index'
+    ? await Promise.all(
+        posts.map(async (p) => ({
+          ...p,
+          hero: p.hero_image_path ? await localBucketImage(p.hero_image_path, 900) : null,
+        }))
+      )
+    : [];
+
+// Post data.
+const post = mode === 'post' ? posts.find((p) => p.slug === postSlug) : null;
+const { Content } = post ? await render(post.entry) : { Content: null };
+const hero = post?.hero_image_path ? await localBucketImage(post.hero_image_path, 1400) : null;
+
+// Related products: one card per catalog family containing a listed ASIN, in
+// the order authored. ASINs missing from the live catalog are skipped.
+let related = [];
+let imagesByAsin = new Map();
+if (post && post.related_asins.length > 0) {
+  const merged = await getMergedCatalog();
+  imagesByAsin = await getLocalImagesByAsin();
+  const seen = new Set();
+  for (const asin of post.related_asins) {
+    const group = merged.find((g) => g.children.some((c) => c.asin === asin));
+    if (!group) {
+      console.warn(`[blog] "${post.slug}": related ASIN ${asin} is not in the live catalog — skipped.`);
+      continue;
+    }
+    if (seen.has(group.key)) continue;
+    seen.add(group.key);
+    related.push(group);
+  }
+}
+const morePosts = post ? posts.filter((p) => p.slug !== post.slug).slice(0, 3) : [];
+
+const jsonLd = post
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.description,
+      datePublished: post.date,
+      dateModified: post.updated ?? post.date,
+      author: { '@type': 'Organization', name: brand.brand },
+      publisher: { '@type': 'Organization', name: brand.brand },
+      mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href,
+      ...(hero ? { image: new URL(hero, Astro.site).href } : {}),
+    }
+  : null;
+---
+
+{
+  mode === 'index' ? (
+    <Base
+      title="Blog"
+      description={`Guides, recipes and ideas from ${brand.brand}.`}
+      ogImage={cards.find((c) => c.hero)?.hero ?? null}
+      pageType="blog"
+    >
+      <section class="mx-auto max-w-6xl px-4 py-14">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">The {brand.brand} blog</h1>
+        <p class="mt-3 max-w-2xl text-lg text-black/70">Guides, recipes and ideas to help you get more out of your kitchen.</p>
+        <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card) => (
+            <article class="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-[var(--surface)] shadow-sm hover:shadow-md transition-shadow">
+              <a href={`/blog/${card.slug}/`} class="block no-underline" tabindex="-1" aria-hidden="true">
+                {card.hero ? (
+                  <img
+                    src={card.hero}
+                    alt=""
+                    width="900"
+                    height="450"
+                    loading="lazy"
+                    decoding="async"
+                    class="aspect-[2/1] w-full object-cover"
+                  />
+                ) : (
+                  <div class="aspect-[2/1] w-full bg-[var(--brand)]" />
+                )}
+              </a>
+              <div class="flex flex-1 flex-col p-6">
+                <p class="text-sm text-black/60">
+                  <time datetime={card.date}>{formatPostDate(card.date)}</time>
+                </p>
+                <h2 class="mt-2 text-xl font-extrabold leading-snug tracking-tight">
+                  <a href={`/blog/${card.slug}/`} class="no-underline hover:underline underline-offset-4">
+                    {card.title}
+                  </a>
+                </h2>
+                <p class="mt-3 text-black/70">{card.description}</p>
+                <a
+                  href={`/blog/${card.slug}/`}
+                  class="mt-auto pt-5 font-bold underline underline-offset-4 decoration-[var(--brand)] decoration-2"
+                  aria-label={`Read: ${card.title}`}
+                >
+                  Read more →
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </Base>
+  ) : (
+    <Base title={post.title} description={post.description} ogImage={hero} jsonLd={jsonLd} pageType="blog-post">
+      <article>
+        <header class="mx-auto max-w-3xl px-4 pt-10">
+          <nav class="text-sm text-black/60" aria-label="Breadcrumb">
+            <a href="/blog/" class="hover:underline underline-offset-4">Blog</a>
+            <span aria-hidden="true"> / </span>
+            <span>{post.title}</span>
+          </nav>
+          <h1 class="mt-6 text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight">{post.title}</h1>
+          <p class="mt-4 text-sm text-black/60">
+            <time datetime={post.date}>{formatPostDate(post.date)}</time>
+            {post.updated && post.updated !== post.date && (
+              <span>
+                {' · Updated '}
+                <time datetime={post.updated}>{formatPostDate(post.updated)}</time>
+              </span>
+            )}
+          </p>
+        </header>
+        {hero && (
+          <div class="mx-auto max-w-5xl px-4 pt-8">
+            <img
+              src={hero}
+              alt={post.hero_alt ?? ''}
+              width="1400"
+              height="700"
+              fetchpriority="high"
+              decoding="async"
+              class="aspect-[2/1] w-full rounded-3xl object-cover shadow-md"
+            />
+          </div>
+        )}
+        <div class="prose-post mx-auto max-w-3xl px-4 py-10 text-lg text-black/80">
+          <Content />
+        </div>
+      </article>
+
+      {related.length > 0 && (
+        <section class="border-t border-black/10 bg-[var(--surface)]">
+          <div class="mx-auto max-w-6xl px-4 py-14">
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Featured in this post</h2>
+            <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((group) => (
+                <ProductCard
+                  representative={group.representative}
+                  children={group.children}
+                  images={imagesByAsin.get(group.representative.asin) ?? []}
+                  labels={group.labels}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {morePosts.length > 0 && (
+        <section class="mx-auto max-w-3xl px-4 py-14">
+          <h2 class="text-2xl font-extrabold tracking-tight">Keep reading</h2>
+          <ul class="mt-6 space-y-4">
+            {morePosts.map((p) => (
+              <li>
+                <a
+                  href={`/blog/${p.slug}/`}
+                  class="text-lg font-bold underline underline-offset-4 decoration-[var(--brand)] decoration-2"
+                >
+                  {p.title}
+                </a>
+                <p class="mt-1 text-black/70">{p.description}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </Base>
+  )
+}

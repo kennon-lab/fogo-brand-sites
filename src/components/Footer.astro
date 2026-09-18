@@ -1,6 +1,6 @@
 ---
 import { getBrand } from '../lib/supabase.js';
-import { getSiteContent } from '../lib/content.js';
+import { getSiteContent, getBlogPosts } from '../lib/content.js';
 
 const brand = await getBrand();
 
@@ -11,6 +11,7 @@ const BrandFooter = footerOverrides[`./brands/${brand.slug}/Footer.astro`]?.defa
 // Authored brands get the v2 brand footer (night palette, authored nav +
 // disclosure-as-logistics). Unauthored brands render the v1 footer unchanged.
 const site = await getSiteContent();
+const hasBlog = (await getBlogPosts()).length > 0;
 const year = new Date().getFullYear();
 ---
 
@@ -61,6 +62,7 @@ const year = new Date().getFullYear();
         <p>{`© ${year} ${brand.brand}. All rights reserved.`}</p>
         <nav aria-label="Footer">
           <ul class="flex items-center gap-5">
+            {hasBlog && <li><a href="/blog/" class="hover:underline underline-offset-4">Blog</a></li>}
             <li><a href="/about/" class="hover:underline underline-offset-4">About</a></li>
             <li><a href="/contact/" class="hover:underline underline-offset-4">Contact</a></li>
             <li><a href="/privacy/" class="hover:underline underline-offset-4">Privacy</a></li>

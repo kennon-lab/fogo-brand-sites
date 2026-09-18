@@ -1,7 +1,7 @@
 ---
 import { getBrand } from '../lib/supabase.js';
 import { localImage } from '../lib/images.js';
-import { getSiteContent } from '../lib/content.js';
+import { getSiteContent, getBlogPosts } from '../lib/content.js';
 
 const brand = await getBrand();
 
@@ -23,12 +23,15 @@ const logoUrl =
 
 // Authored brands (site.yaml) own their nav; unauthored brands keep the v1
 // default so bean-envy renders unchanged.
+// A Blog link joins the v1 nav once the brand has published posts.
 const site = await getSiteContent();
+const hasBlog = (await getBlogPosts()).length > 0;
 const nav = site
   ? [{ href: '/', label: 'Home' }, ...site.nav]
   : [
       { href: '/', label: 'Home' },
       { href: '/products/', label: 'Products' },
+      ...(hasBlog ? [{ href: '/blog/', label: 'Blog' }] : []),
       { href: '/about/', label: 'About' },
       { href: '/contact/', label: 'Contact' },
     ];

@@ -10,7 +10,14 @@ import ReviewStars from '../components/ui/ReviewStars.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
 import { getBrand } from '../lib/supabase.js';
 import { getLocalImagesByAsin, localBucketImage } from '../lib/images.js';
-import { getMergedCatalog, getSiteContent, getNeeds, getBrandReviewAggregate } from '../lib/content.js';
+import {
+  getMergedCatalog,
+  getSiteContent,
+  getNeeds,
+  getBrandReviewAggregate,
+  getBlogPosts,
+  formatPostDate,
+} from '../lib/content.js';
 
 const brand = await getBrand();
 
@@ -30,6 +37,15 @@ const site = await getSiteContent();
 // v1 data (also the fallback if a brand authors products but no site.yaml).
 const featured = merged.slice(0, 6);
 const v1OgImage = featured.map((g) => imagesByAsin.get(g.representative.asin)?.[0]).find(Boolean) ?? null;
+// Latest posts for the v1 "From the blog" strip — empty for brands with no blog.
+const latestPosts = site
+  ? []
+  : await Promise.all(
+      (await getBlogPosts()).slice(0, 3).map(async (p) => ({
+        ...p,
+        hero: p.hero_image_path ? await localBucketImage(p.hero_image_path, 900) : null,
+      }))
+    );
 
 // v2 data
 const needs = site ? await getNeeds() : [];
@@ -273,6 +289,44 @@ const whyIcons = {
           </a>
         </div>
       </section>
+
+      {latestPosts.length > 0 && (
+        <section class="mx-auto max-w-6xl px-4 pb-14">
+          <div class="flex items-end justify-between gap-4">
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">From the blog</h2>
+            <a href="/blog/" class="font-bold underline underline-offset-4 decoration-[var(--brand)] decoration-2">
+              All posts →
+            </a>
+          </div>
+          <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {latestPosts.map((p) => (
+              <a
+                href={`/blog/${p.slug}/`}
+                class="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-[var(--surface)] no-underline shadow-sm hover:shadow-md transition-shadow"
+              >
+                {p.hero && (
+                  <img
+                    src={p.hero}
+                    alt=""
+                    width="900"
+                    height="450"
+                    loading="lazy"
+                    decoding="async"
+                    class="aspect-[2/1] w-full object-cover"
+                  />
+                )}
+                <div class="p-5">
+                  <p class="text-sm text-black/60">{formatPostDate(p.date)}</p>
+                  <h3 class="mt-1 text-lg font-extrabold leading-snug group-hover:underline underline-offset-4">
+                    {p.title}
+                  </h3>
+                  <p class="mt-2 text-sm text-black/70">{p.description}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {brand.about_html && (
         <section class="bg-[var(--surface)] border-y border-black/10">

@@ -182,3 +182,28 @@ export async function getBrandReviewAggregate() {
   console.log(`[content.js] brand review aggregate: ${count.toLocaleString()} reviews (family-max sum), rating ${rating}, as_of ${as_of}`);
   return { count, rating, as_of };
 }
+
+let blogPromise;
+/**
+ * Published blog posts for this brand, newest first:
+ * [{ slug, entry, ...frontmatter }]. Empty for brands with no blog directory —
+ * callers gate every blog surface (routes, nav link, home section) on length.
+ */
+export function getBlogPosts() {
+  blogPromise ??= getCollection('blog').then((entries) =>
+    entries
+      .filter((e) => e.id.startsWith(`${BRAND_SLUG}/`) && !e.data.draft)
+      .map((e) => ({ slug: e.id.split('/').pop(), entry: e, ...e.data }))
+      .sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug))
+  );
+  return blogPromise;
+}
+
+/**
+ * "September 18, 2026" from a YYYY-MM-DD string. Built from the parts as a
+ * LOCAL date — never parse/serialize through UTC (shifts the day).
+ */
+export function formatPostDate(ymd) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}

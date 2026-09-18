@@ -237,4 +237,26 @@ const catalog = defineCollection({
   }),
 });
 
-export const collections = { products, needs, site, catalog };
+// Per-brand blog: src/content/brands/<slug>/blog/<post-slug>.md. A brand with no
+// posts builds no /blog/ routes and gets no nav link (gated in
+// src/pages/blog/[...slug].astro + getBlogPosts() in src/lib/content.js).
+const blog = defineCollection({
+  loader: glob({ pattern: '*/blog/*.md', base: './src/content/brands' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().max(200), // meta description + index-card excerpt
+    // Plain YYYY-MM-DD string on purpose: never round-trip post dates through
+    // Date/toISOString (timezone shifts the day) — see formatPostDate().
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    // Bucket-relative path in brand-site-images (owned creative only).
+    hero_image_path: z.string().optional(),
+    hero_alt: z.string().optional(),
+    // Products featured at the end of the post (PDP link + Amazon CTA). ASINs
+    // not in the live catalog (hidden / inactive) are skipped at build.
+    related_asins: z.array(z.string().regex(ASIN)).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { products, needs, site, catalog, blog };

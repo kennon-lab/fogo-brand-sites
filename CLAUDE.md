@@ -91,6 +91,15 @@ Known quirks (do not re-derive):
 - Catalog groups by parent (`groupByParent`); variant chips label via title-diffing
   (`variantLabel`), falling back to price then ASIN (identical sibling titles → ASIN chips).
 - PDPs emit JSON-LD `Product` with `offers.url` = the Amazon link.
+- Blog (per brand, opt-in by content): markdown posts in
+  `src/content/brands/<slug>/blog/<post-slug>.md` (schema: `blog` collection in
+  `src/content.config.ts` — `title`, `description` ≤200 chars, quoted `date: "YYYY-MM-DD"`,
+  optional bucket-relative `hero_image_path`/`hero_alt`, `related_asins`, `draft`). A brand
+  with ≥1 published post gets `/blog/` + `/blog/<slug>/` (`src/pages/blog/[...slug].astro`),
+  a Blog link in the v1 header/footer nav, and a "From the blog" strip on the v1 homepage;
+  brands with no posts build none of it. Authored (`site.yaml`) brands own their nav — add
+  the link there. No inline remote images in post bodies; never print an ASIN in post text
+  (link to `/products/<asin>/` instead). Live on: otis-classic.
 - `toISOString().slice(0,10)` is banned in any script — use a local-date helper if dates are
   ever needed. Never generate files via PowerShell here-strings — write files directly.
 - Complete files only, no partial snippets; validate Astro/JSX parses before finishing.

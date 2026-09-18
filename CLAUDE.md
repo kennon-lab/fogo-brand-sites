@@ -105,7 +105,9 @@ Known quirks (do not re-derive):
   a Blog link in the v1 header/footer nav, and a "From the blog" strip on the v1 homepage;
   brands with no posts build none of it. Authored (`site.yaml`) brands own their nav — add
   the link there. No inline remote images in post bodies; never print an ASIN in post text
-  (link to `/products/<asin>/` instead). Live on: otis-classic.
+  (link to `/products/<asin>/` instead). Blog-index intro copy is per brand in `BLOG_INTROS`
+  (`src/pages/blog/[...slug].astro`) — add an entry when launching a blog, else the generic line
+  renders. Live on: otis-classic, amazing-shields.
 - `toISOString().slice(0,10)` is banned in any script — use a local-date helper if dates are
   ever needed. Never generate files via PowerShell here-strings — write files directly.
 - Complete files only, no partial snippets; validate Astro/JSX parses before finishing.

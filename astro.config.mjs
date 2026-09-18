@@ -33,6 +33,11 @@ if (!Array.isArray(rows) || rows.length === 0) {
   throw new Error(`[fogo-brand-sites] BRAND_SLUG "${BRAND_SLUG}" not found in public.brand_sites. Insert the brand row first (scope section 6, step 1).`);
 }
 const brandDomain = rows[0].domain;
+// Every brand's Vercel project serves www as the primary host (apex 308s to
+// www), so canonicals, og:url, the sitemap and robots.txt must all use www —
+// otherwise they point at a redirecting host. brand_sites.domain stays the
+// bare apex (display text, e.g. the privacy page).
+const canonicalHost = brandDomain.startsWith('www.') ? brandDomain : `www.${brandDomain}`;
 
 // Authored brands replace per-ASIN PDPs with family-slug pages (products/
 // *.yaml) or line pages (catalog.yaml); the ASIN URLs become noindex redirect
@@ -47,7 +52,7 @@ const isAuthored =
 
 export default defineConfig({
   output: 'static',
-  site: `https://${brandDomain}`,
+  site: `https://${canonicalHost}`,
   integrations: [
     tailwind({ applyBaseStyles: false }),
     sitemap({

@@ -91,6 +91,9 @@ Known quirks (do not re-derive):
 - Catalog groups by parent (`groupByParent`); variant chips label via title-diffing
   (`variantLabel`), falling back to price then ASIN (identical sibling titles → ASIN chips).
 - PDPs emit JSON-LD `Product` with `offers.url` = the Amazon link.
+- Canonical host is always `www.<domain>` (`astro.config.mjs` derives `site` from
+  `brand_sites.domain`, which stays the bare apex). Every Vercel project must keep www as the
+  primary domain with the apex redirecting to it; submit the www sitemap URL in Search Console.
 - Blog (per brand, opt-in by content): markdown posts in
   `src/content/brands/<slug>/blog/<post-slug>.md` (schema: `blog` collection in
   `src/content.config.ts` — `title`, `description` ≤200 chars, quoted `date: "YYYY-MM-DD"`,

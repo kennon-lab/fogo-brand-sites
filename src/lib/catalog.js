@@ -58,7 +58,13 @@ export function variantLabel(product, siblings) {
     while (i < suffix && i < t.length && mine[mine.length - 1 - i] === t[t.length - 1 - i]) i++;
     suffix = Math.min(suffix, i);
   }
-  const distinct = mine.slice(prefix, mine.length - suffix).replace(/^[\s,\-–|]+|[\s,\-–|]+$/g, '');
+  let distinct = mine.slice(prefix, mine.length - suffix).replace(/^[\s,\-–|]+|[\s,\-–|]+$/g, '');
+  // A bare number ("6" from "… - 6 Pack XL") reads as nothing on a chip —
+  // keep the unit word that follows it in the title ("6 Pack").
+  if (/^\d+$/.test(distinct)) {
+    const unit = mine.slice(mine.length - suffix).match(/^[\s-]*([A-Za-z]+)/);
+    if (unit) distinct = `${distinct} ${unit[1]}`;
+  }
   if (distinct && distinct.length <= 40) return distinct;
   if (product.item_price != null && siblings.filter((s) => s.item_price === product.item_price).length === 1) {
     return `$${product.item_price.toFixed(2)}`;

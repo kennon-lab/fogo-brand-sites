@@ -81,7 +81,10 @@ Known quirks (do not re-derive):
   Fonts CDN — the shipped site must make no external font requests. Current registry: Archivo
   Black + Inter (Bean Envy ≈ Nimbus Sans Ext), Michroma + Montserrat (Xtreme Comforts ≈
   Eurostile Heavy per their style guide), Fira Sans Condensed + Fira Sans (Otis Classic, per
-  OtisClassic_BrandGuidelines.pdf: teal #86BDC2, charcoal #373131).
+  OtisClassic_BrandGuidelines.pdf: teal #86BDC2, charcoal #373131), Zilla Slab + Barlow Semi
+  Condensed (Amazing Shields ≈ Neue Aachen Pro + Ballinger Condensed per
+  STL_Stelucca_US_OnePager_100121.pdf: coral #E56A54, navy #1B365D, mint #9BE3BF, yellow
+  #F2C75C, tan #F1E6B2).
 - `brand_sites.hero_style` picks the hero layout variant in `Hero.astro`: `'split'` (text
   beside image), `'full-bleed'` (edge-to-edge image, dark overlay, white text), `'minimal'`
   (centered text, no image). NULL = auto (split when hero_image_path set, else minimal).

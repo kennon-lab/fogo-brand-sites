@@ -13,7 +13,7 @@ const products = await getProducts();
 const site = await getSiteContent();
 const categories = site
   ? (await getCategories()).map((c) => c.display)
-  : [...new Set(products.map((p) => p.category).filter(Boolean))];
+  : [...new Set(products.map((p) => p.category).filter((c) => c && c !== 'Discontinued'))];
 const banner = brand.about_banner_path ? await localBucketImage(brand.about_banner_path, 1200) : null;
 ---
 

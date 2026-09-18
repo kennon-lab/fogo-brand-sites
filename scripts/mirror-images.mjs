@@ -8,8 +8,14 @@
 //         (storage upload + table writes). Loaded from .env automatically.
 //
 // Re-run whenever a brand's catalog or listing images change.
+//
+// Supplements: when bronze.amazon_listing_attributes has no image locators
+// for an ASIN (the SP-API snapshot omits them for some listings), an optional
+// scripts/image-supplements/<slug>.json — { "<asin>": ["<source url>", ...] }
+// — supplies the listing's gallery URLs instead. View data always wins.
 
 import process from 'node:process';
+import { existsSync, readFileSync } from 'node:fs';
 
 try {
   process.loadEnvFile('.env');
@@ -76,14 +82,21 @@ if (products.length === 0) {
 }
 console.log(`Mirroring images for ${products.length} ASINs (brand: ${slug})`);
 
+const supplementPath = new URL(`./image-supplements/${slug}.json`, import.meta.url);
+const supplements = existsSync(supplementPath) ? JSON.parse(readFileSync(supplementPath, 'utf8')) : {};
+
 let totalUploaded = 0;
 let totalSkipped = 0;
 const dbFailedRows = []; // rows we couldn't write via PostgREST (e.g. key lacks REST access)
 
 for (const p of products) {
-  const sources = [p.main_image_url, ...(Array.isArray(p.alt_image_urls) ? p.alt_image_urls : [])]
+  let sources = [p.main_image_url, ...(Array.isArray(p.alt_image_urls) ? p.alt_image_urls : [])]
     .filter(Boolean)
     .filter((url, i, arr) => arr.indexOf(url) === i);
+  if (sources.length === 0 && Array.isArray(supplements[p.asin])) {
+    sources = supplements[p.asin];
+    console.log(`  ${p.asin}: no listing-attribute images — using ${sources.length} supplement URLs`);
+  }
 
   if (sources.length === 0) {
     console.log(`  ${p.asin}: no source images — will render text-only`);

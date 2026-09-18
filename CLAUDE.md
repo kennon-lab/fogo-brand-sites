@@ -61,6 +61,8 @@ Known quirks (do not re-derive):
   shipped site makes zero requests to `*.supabase.co` at runtime. `astro.config.mjs` allowlists
   the Supabase hostname under `image.domains`.
 - ASINs with no mirrored images render a text-only card — never a broken `<img>`.
+- ASINs whose listing-attribute snapshot has no image locators: list their gallery URLs in
+  `scripts/image-supplements/<slug>.json` (`{asin: [urls]}`) — the mirror script falls back to it.
 - If the script can't write DB rows (bad key), it saves `scripts/mirror-manifest.json` and
   exits 2 — fix the key and re-run (uploads are idempotent via `x-upsert`).
 
@@ -78,7 +80,8 @@ Known quirks (do not re-derive):
   `brand_sites.font_heading`/`font_body` to the CSS family name. Never load fonts from Google
   Fonts CDN — the shipped site must make no external font requests. Current registry: Archivo
   Black + Inter (Bean Envy ≈ Nimbus Sans Ext), Michroma + Montserrat (Xtreme Comforts ≈
-  Eurostile Heavy per their style guide).
+  Eurostile Heavy per their style guide), Fira Sans Condensed + Fira Sans (Otis Classic, per
+  OtisClassic_BrandGuidelines.pdf: teal #86BDC2, charcoal #373131).
 - `brand_sites.hero_style` picks the hero layout variant in `Hero.astro`: `'split'` (text
   beside image), `'full-bleed'` (edge-to-edge image, dark overlay, white text), `'minimal'`
   (centered text, no image). NULL = auto (split when hero_image_path set, else minimal).

@@ -1,0 +1,54 @@
+---
+// Compact product card injected inside a blog post body — the early
+// (after the intro) and mid-post (end of a named H2 section) purchase paths.
+// The bottom "Featured in this post" strip is the third; check-blog.mjs counts
+// all of them so every post ships >= 3 ways to reach Amazon.
+//
+// Props:
+//   product  — the exact catalog row being sold (post.primary_asin)
+//   group    — its getMergedCatalog() group (name / PDP href / price range)
+//   images   — build-local image paths for `product` (may be empty)
+//   variant  — 'early' | 'mid' (GA cta_position = blog-<variant>)
+import AmazonCTA from './AmazonCTA.astro';
+import { formatPrice } from '../lib/catalog.js';
+
+const { product, group, images = [], variant = 'early' } = Astro.props;
+
+const name = group.authored?.display_name ?? product.display_title;
+const href = group.slug ? `/products/${group.slug}/` : `/products/${product.asin}/`;
+const blurb = group.authored?.tagline ?? null;
+const priceLabel = product.item_price != null ? formatPrice(product.item_price) : null;
+const eyebrow = variant === 'early' ? 'Featured in this guide' : 'Get the one we use';
+---
+
+<aside class="blog-cta my-10 rounded-2xl border border-black/10 bg-[var(--surface)] p-5 shadow-sm sm:p-6" data-blog-cta={variant}>
+  <div class="flex items-center gap-5">
+    {
+      images.length > 0 && (
+        <a href={href} class="shrink-0" tabindex="-1" aria-hidden="true">
+          <img
+            src={images[0]}
+            alt=""
+            width="160"
+            height="160"
+            loading="lazy"
+            decoding="async"
+            class="h-24 w-24 rounded-xl bg-white object-contain sm:h-32 sm:w-32"
+          />
+        </a>
+      )
+    }
+    <div class="min-w-0 flex-1">
+      <p class="text-xs font-bold uppercase tracking-wide text-black/50">{eyebrow}</p>
+      <p class="mt-1 text-lg font-extrabold leading-snug">
+        <a href={href}>{name}</a>
+      </p>
+      {blurb && <p class="mt-1 text-sm text-black/70">{blurb}</p>}
+      <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <AmazonCTA product={product} size="sm" position={`blog-${variant}`} />
+        {priceLabel && <span class="font-semibold">{priceLabel}</span>}
+        <a href={href} class="text-sm font-semibold">Details →</a>
+      </div>
+    </div>
+  </div>
+</aside>

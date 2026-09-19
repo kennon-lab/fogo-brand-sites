@@ -1,20 +1,41 @@
 ---
 title: "How to Install Cat Scratch Furniture Protectors (So They Actually Stay Put)"
-description: "A step-by-step guide to installing clear cat scratch furniture protectors: which fabrics work, how to cut and place the sheets, and how to make them stay put."
+description: "How to install cat scratch furniture protectors step by step: which fabrics work, how to cut and place the sheets, and how to make them stay put for months."
 date: "2026-09-18"
+updated: "2026-09-19"
 hero_image_path: "amazing-shields/blog/shields-on-sofa.jpg"
 hero_alt: "Clear furniture protector sheets applied along the side of a cream upholstered sofa"
+target_keyword: "how to install cat scratch furniture protectors"
+secondary_keywords:
+  - "cat scratch furniture protector"
+  - "cat couch protector"
+  - "furniture protectors from cats"
+  - "clear couch protector for cats"
+search_intent: commercial
+summary: "Test on a hidden spot, vacuum the fabric, cut the sheets to size with rounded corners, peel and press from the center out, then add twist pins at the corners and top edge. They hold on woven upholstery; skip leather, velvet and microfiber."
 related_asins:
   - B07DT83CBV
   - B07JNSZT13
   - B0BN6T3265
+primary_asin: B07JNSZT13
+cta_after_sections:
+  - "Step by step"
+faq:
+  - q: "Do cat scratch furniture protectors work on leather or velvet?"
+    a: "No. The adhesive is designed for woven upholstery such as polyester, cotton and acrylic blends. On leather, faux leather, velvet and microfiber it doesn't grip properly and can mark delicate finishes, so test on a hidden spot before committing to any fabric."
+  - q: "Will the protectors damage my couch when I remove them?"
+    a: "On the fabrics they're designed for, peel slowly from one corner, keeping the sheet close to the fabric rather than pulling straight out. That's why the guide starts with a 24-hour test on a hidden area: it shows you exactly how your upholstery responds before you cover a visible spot."
+  - q: "How many furniture protector sheets do I need for a sofa?"
+    a: "Each XL sheet covers 17 by 12 inches. A single armchair or the two front arms of a sofa usually takes a 6 pack; a standard sofa with scratching on the arms and back corners takes a 10 or 12 pack; a sectional or a multi-cat home is an 18 pack. When in doubt, size up and keep the spares."
+  - q: "Can I wash or reuse the protectors?"
+    a: "Wipe them with a soft, damp cloth while they're on the furniture. The adhesive is meant for one placement, so once a sheet has been peeled off it won't re-stick reliably; use a fresh sheet for a new spot."
 ---
 
-Furniture protectors are simple: a clear sheet goes over the spot your cat scratches, and the smooth surface takes the fun out of it. But the difference between shields that stay up for months and shields that peel at the corners in a week comes down to a few minutes of prep. Here's how to get it right the first time.
+Furniture protectors are simple: a clear sheet goes over the spot your cat scratches, and the smooth surface takes the fun out of it. But the difference between shields that stay up for months and shields that peel at the corners in a week comes down to a few minutes of prep. Here's how to install cat scratch furniture protectors so they stay put — and get it right the first time.
 
 ## First: check your fabric
 
-Our shields are designed for **fabric and upholstered furniture**. They hold well on common woven upholstery such as polyester, cotton, acrylic and acetate blends.
+Our [clear furniture protectors](/products/B07JNSZT13/) are designed for **fabric and upholstered furniture**. They hold well on common woven upholstery such as polyester, cotton, acrylic and acetate blends.
 
 They are **not recommended for leather, faux leather, velvet or microfiber**. The adhesive doesn't grip those surfaces properly, and delicate finishes can be marked.
 

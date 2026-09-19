@@ -1,16 +1,37 @@
 ---
 title: "Kombucha Second Fermentation: How to Bottle for Flavor and Fizz"
-description: "Second fermentation is where homemade kombucha gets its flavor and fizz. How to bottle it in swing top bottles, how long to wait, and how to avoid gushers."
+description: "Kombucha second fermentation is where homemade kombucha gets its flavor and fizz. How to bottle it in swing top bottles, how long to wait, and how to avoid gushers."
 date: "2026-09-18"
+updated: "2026-09-19"
 hero_image_path: "otis-classic/brand/about-banner.jpg"
 hero_alt: "Pouring homemade kombucha from a swing top glass bottle beside a row of amber and clear bottles"
+target_keyword: "kombucha second fermentation"
+secondary_keywords:
+  - "how long to second ferment kombucha"
+  - "kombucha bottling"
+  - "swing top bottles for kombucha"
+  - "kombucha f2"
+search_intent: informational
+summary: "Bottle finished kombucha in pressure-rated swing top bottles with 10–20% fruit or juice, leave about an inch of headspace, seal, and keep at room temperature for 2 to 4 days before refrigerating. Chill and open one bottle at day two to check the fizz and avoid gushers."
 related_asins:
   - B01LB1862A
   - B076PKTRXV
   - B01DM1J6I0
+primary_asin: B01LB1862A
+cta_after_sections:
+  - "Why the bottle matters"
+faq:
+  - q: "How long should kombucha second fermentation take?"
+    a: "Two to four days at room temperature is the usual window. Warm kitchens and high-sugar fruits such as mango, pineapple or ginger ferment faster, so chill and test one bottle after two days and move the rest to the fridge once the fizz is where you like it."
+  - q: "Do you need a SCOBY for second fermentation?"
+    a: "No. The SCOBY goes back into your next first-fermentation batch with about two cups of starter liquid. Enough live yeast stays in the finished kombucha to carbonate the bottles on its own."
+  - q: "What bottles are safe for kombucha second fermentation?"
+    a: "Use thick, round glass bottles made for carbonated drinks, with a swing top closure and a soft rubber gasket that seals airtight. Round shapes spread pressure evenly; thin repurposed jars and decorative square bottles are not designed to hold carbonation."
+  - q: "Why is my kombucha flat after second fermentation?"
+    a: "The most common reasons are a tired or badly seated gasket letting gas escape, too much headspace in the bottle, a cold room slowing the yeast, or not enough new sugar for the yeast to eat. Fix the seal first, then add a little more fruit next batch."
 ---
 
-If your homemade kombucha tastes good but falls a little flat — literally — the answer is second fermentation. It's the step where you bottle your finished brew with a bit of fruit or juice, seal it up, and let the yeast do one more round of work. The result is the flavored, naturally sparkling kombucha you'd pay five dollars a bottle for at the store.
+If your homemade kombucha tastes good but falls a little flat — literally — the answer is kombucha second fermentation. It's the step where you bottle your finished brew with a bit of fruit or juice, seal it up, and let the yeast do one more round of work. The result is the flavored, naturally sparkling kombucha you'd pay five dollars a bottle for at the store.
 
 It sounds technical. It isn't. Here's how it works.
 
@@ -23,6 +44,8 @@ In the **second fermentation** (F2), you move that finished kombucha into sealed
 ## Why the bottle matters
 
 Carbonation means pressure, so this is the one place in home brewing where your container really matters. You want bottles that are **made to hold carbonated drinks**: thick, round glass with a swing top closure and a rubber gasket that seals airtight. Round bottles distribute pressure evenly; decorative square bottles and thin repurposed jars do not, and shouldn't be used for F2.
+
+Our [16 oz swing top bottles](/products/B01LB1862A/) are exactly this kind of bottle — thick clear glass, round shoulders, and a gasket that seals tight — and a set of six holds most of a one-gallon batch. If you brew with light-sensitive flavors or just prefer the look, the [amber set](/products/B01DM1J6I0/) is the same bottle in tinted glass.
 
 Before each batch, check your bottles for chips or cracks, and make sure the gaskets are soft and seated properly. A tired gasket is the most common reason for flat kombucha.
 
@@ -51,7 +74,7 @@ Before each batch, check your bottles for chips or cracks, and make sure the gas
 - **Blueberry + lavender** (go easy on the lavender)
 - **Apple + cinnamon stick** for fall
 
-## How to avoid gushers
+## How do you avoid gushers?
 
 Over-carbonated bottles are the one real hazard of F2, and they're easy to avoid.
 
@@ -63,6 +86,6 @@ Over-carbonated bottles are the one real hazard of F2, and they're easy to avoid
 
 ## Beyond kombucha
 
-The same bottles and the same method work for water kefir, ginger beer, and homemade sodas — anything that carbonates naturally in the bottle. And when they're not busy fermenting, swing tops are just as good for cold brew, infused oils, syrups, and homemade vanilla extract.
+The same bottles and the same method work for water kefir, ginger beer, and homemade sodas — anything that carbonates naturally in the bottle. And when they're not busy fermenting, swing tops are just as good for cold brew, infused oils, syrups, and homemade vanilla extract. If you go through a lot of bottles, the [ceramic-capped set](/products/B076PKTRXV/) trades the plastic tops for porcelain that shrugs off years of clamping.
 
 Start simple, take notes on what you liked, and change one thing at a time. A few batches in, you'll have a house flavor that's entirely yours.

@@ -16,8 +16,9 @@ import LinePdp from '../../components/brands/tape-king/LinePdp.astro';
 import { getBrand, getProducts } from '../../lib/supabase.js';
 import { getLocalImagesByAsin } from '../../lib/images.js';
 import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
-import { getMergedCatalog } from '../../lib/content.js';
+import { getMergedCatalog, getBlogPosts } from '../../lib/content.js';
 import { getAffiliates, getTapeCatalogIfAny } from '../../lib/tapeking.js';
+import PdpGuides from '../../components/PdpGuides.astro';
 
 // Route modes:
 // - Line-catalog brands (catalog.yaml, currently tape-king) → one page per
@@ -162,6 +163,16 @@ if (mode === 'family') {
   stickyProduct = { ...g.representative, display_title: a.display_name };
 }
 
+// Blog posts that feature any ASIN of this family / variant group — the
+// PDP ↔ post backlink (posts link here via related_asins; this closes the loop
+// so guides are one click from the buy page). Empty for brands with no blog.
+async function guidesFor(asins) {
+  const wanted = new Set(asins);
+  return (await getBlogPosts()).filter((p) => p.related_asins.some((x) => wanted.has(x)));
+}
+let guides = [];
+if (mode === 'family') guides = await guidesFor(g.children.map((c) => c.asin));
+
 // ---- v1 mode data (unchanged from the original page) ------------------------
 let product = null;
 let v1Images = [];
@@ -182,6 +193,7 @@ if (mode === 'v1') {
   v1Labels = merged.find((x) => x.key === groupKey(product))?.labels ?? new Map();
   v1Price = formatPrice(product.item_price);
   v1MetaDescription = (product.bullets[0] ?? product.display_title ?? '').slice(0, 155);
+  guides = await guidesFor(siblings.map((s) => s.asin));
   v1JsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -397,6 +409,9 @@ if (mode === 'v1') {
         </div>
       </section>
 
+      {/* Guides that feature this product (blog backlinks) */}
+      <PdpGuides posts={guides} />
+
       {/* 8 — Sticky mobile CTA */}
       <StickyCta product={stickyProduct} priceLabel={priceLabel} />
 
@@ -508,6 +523,8 @@ if (mode === 'v1') {
           )}
         </div>
       </section>
+
+      <PdpGuides posts={guides} />
     </Base>
   )
 }

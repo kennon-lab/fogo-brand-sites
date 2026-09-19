@@ -6,9 +6,10 @@
   "description": "Per-brand static marketing sites for the FOGO Brands portfolio. One repo, one template, N builds selected via BRAND_SLUG.",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/check-dist.mjs",
+    "build": "node scripts/check-blog.mjs && astro build && node scripts/check-dist.mjs",
     "preview": "astro preview",
-    "mirror-images": "node scripts/mirror-images.mjs"
+    "mirror-images": "node scripts/mirror-images.mjs",
+    "check:blog": "node scripts/check-blog.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",
@@ -27,5 +28,8 @@
     "@fontsource/zilla-slab": "^5.3.0",
     "astro": "^5.1.1",
     "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.1"
   }
 }

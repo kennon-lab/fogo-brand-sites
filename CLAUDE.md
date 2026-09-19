@@ -15,6 +15,7 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `npm run preview` — serve `dist/`
 - `node scripts/mirror-images.mjs --brand=<slug>` — mirror Amazon images to Storage (see below)
 - `.\scripts\rebuild-all.ps1` — POST every `vercel_deploy_hook_url` where `is_live=true`
+- `npm run check:blog` — blog content gate (also the first step of `npm run build`)
 
 ## Environment (`.env`, never committed; see `.env.example`)
 
@@ -38,6 +39,8 @@ Reads go through PostgREST with the anon key, only in `src/lib/supabase.js` and
   `bronze.amazon_listing_attributes` + overrides + attribution links; `hide_from_site` rows
   already filtered out)
 - `public.brand_site_images` — mirrored image URLs written by the mirror script
+- `public.brand_site_paid_links` — paid-channel attribution tags (channel ≠ `brand_site`),
+  read soft-fail by `getPaidLinks()`; see "Paid-traffic attribution" below
 
 Known quirks (do not re-derive):
 
@@ -108,6 +111,32 @@ Known quirks (do not re-derive):
   (link to `/products/<asin>/` instead). Blog-index intro copy is per brand in `BLOG_INTROS`
   (`src/pages/blog/[...slug].astro`) — add an entry when launching a blog, else the generic line
   renders. Live on: otis-classic, amazing-shields.
+- Blog search brief (every post, enforced by `scripts/check-blog.mjs`, which runs first in
+  `npm run build` and standalone as `npm run check:blog [-- --brand=<slug>]`; any FAIL stops
+  every brand's build): `target_keyword` (must be in the title and body), `secondary_keywords`,
+  `search_intent`, `summary` (renders the "Quick answer" box + schema `abstract`), `faq` ≥2
+  (`FaqAccordion` + FAQPage JSON-LD), optional `author` (Person schema). Purchase paths ≥3 per
+  post: `cta_early` (product card after the intro, default on) + `cta_after_sections` (exact
+  H2 texts; card at the end of each section) + inline `/products/` links + the bottom
+  "Featured in this post" strip. `primary_asin` (must be in `related_asins`, defaults to the
+  first) is what the cards sell. Cards are `src/components/BlogCta.astro`, injected by
+  splitting `entry.rendered.html` at H2s. Also failed: ASIN in text, direct amazon.com links,
+  inline images, disease/FDA/"clinically proven" claims. The same brief will feed the Google
+  Ads campaign generator (one keyword → H1, slug, ad headline, attribution tag name).
+- Blog ↔ PDP backlinks: `PdpGuides.astro` lists posts whose `related_asins` hit the family on
+  both v1 and authored PDPs. `/llms.txt` (`src/pages/llms.txt.ts`) and `/robots.txt` (explicit
+  AI-crawler allows) are generated per brand from the same data.
+- Paid-traffic attribution: `public.brand_site_paid_links` (SQL in `sql/`; every active
+  `bronze.attribution_links` row with channel ≠ `brand_site`) is read at build by
+  `getPaidLinks()` and embedded as JSON in `Base.astro`. A landing with `gclid`/`gbraid`/
+  `wbraid` (or `utm_source=google&utm_medium=cpc`) is stored in sessionStorage for the session
+  and every `a[data-amazon-cta]` swaps to the `google_ads` tag for its ASIN, with ValueTrack
+  placeholders (`{campaignid}` `{adgroupid}` `{creative}` `{keyword}` …) filled from the landing
+  URL; a MutationObserver re-applies after variant switchers rewrite hrefs, and
+  `window.fogoResolveCta(asin, fallback)` is exposed for scripts. GA outbound events carry
+  `cta_channel` (`google_ads` | `organic`). Insert `google_ads` rows (Amazon Attribution
+  macro-enabled tags for Google Ads) into `bronze.attribution_links` to activate; until then
+  nothing is emitted and CTAs keep the organic link.
 - `toISOString().slice(0,10)` is banned in any script — use a local-date helper if dates are
   ever needed. Never generate files via PowerShell here-strings — write files directly.
 - Complete files only, no partial snippets; validate Astro/JSX parses before finishing.

@@ -256,6 +256,32 @@ const blog = defineCollection({
     // not in the live catalog (hidden / inactive) are skipped at build.
     related_asins: z.array(z.string().regex(ASIN)).default([]),
     draft: z.boolean().default(false),
+
+    // ---- Search brief (shared by the post, its schema markup and the Google
+    // Ads campaign generator — one keyword drives H1, slug, meta and ad copy).
+    // scripts/check-blog.mjs enforces the rules below at build time.
+    target_keyword: z.string().min(3), // must appear in the title and the body
+    secondary_keywords: z.array(z.string()).default([]),
+    search_intent: z.enum(['informational', 'commercial', 'transactional']).default('informational'),
+    // 1–2 sentence direct answer rendered as a "Quick answer" box above the body
+    // and emitted as the BlogPosting `abstract` (answer-engine readability).
+    summary: z.string().max(400).optional(),
+    // Rendered as an accordion after the body + FAQPage JSON-LD. Plain text
+    // answers (\n\n for paragraphs). check-blog requires >= 2.
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+    // Byline → schema.org Person author. Omit for an Organization author.
+    author: z.string().optional(),
+
+    // ---- Purchase paths. The product the inline CTA cards sell; defaults to
+    // related_asins[0]. Must be in related_asins.
+    primary_asin: z.string().regex(ASIN).optional(),
+    // Compact product card injected right after the intro (before the first
+    // H2). Set false for posts where an early pitch would feel out of place.
+    cta_early: z.boolean().default(true),
+    // Exact H2 texts; a product card is injected at the END of each matching
+    // section (reader has just read the explanation). check-blog verifies each
+    // heading exists.
+    cta_after_sections: z.array(z.string()).default([]),
   }),
 });
 

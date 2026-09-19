@@ -1,15 +1,34 @@
 ---
 title: "5 Things to Make with a Whipped Cream Dispenser (Besides Whipped Cream)"
-description: "Mousse in minutes, coffee-shop cold foam, rapid cocktail infusions and more — five ways to put your whipped cream dispenser to work."
+description: "Five things to make with a whipped cream dispenser: mousse in minutes, coffee-shop cold foam, rapid cocktail infusions, flavored creams and savory foams."
 date: "2026-09-18"
+updated: "2026-09-19"
 hero_image_path: "otis-classic/brand/tile-dispensers.jpg"
 hero_alt: "Filling puff pastry shells with cream using a stainless steel whipped cream dispenser"
+target_keyword: "things to make with a whipped cream dispenser"
+secondary_keywords:
+  - "whipped cream dispenser uses"
+  - "whipped cream dispenser recipes"
+  - "rapid infusion whipped cream dispenser"
+  - "cold foam at home"
+search_intent: informational
+summary: "Beyond whipped cream, a dispenser makes flavored creams, quick chocolate mousse, coffee-shop cold foam, minute-long cocktail infusions and savory foams for soups and crostini. The one rule: everything that goes in must be strained completely smooth."
 related_asins:
-  - B01DZ2HZ2U
   - B06WVD2K6N
+  - B01DZ2HZ2U
+primary_asin: B06WVD2K6N
+cta_after_sections:
+  - "2. Chocolate mousse in minutes"
+faq:
+  - q: "Can you put anything other than cream in a whipped cream dispenser?"
+    a: "Yes. Any smooth liquid with enough fat or body to hold air works: sweetened cream bases, chilled chocolate-cream mixtures, cream-and-milk blends for cold foam, and spirits for rapid infusion. Strain everything through a fine-mesh sieve first so nothing can clog the nozzle."
+  - q: "What is a rapid infusion with a whipped cream dispenser?"
+    a: "Pressure forces liquid into the pores of herbs, chilies, citrus peel or spices; when the gas is released, the liquid rushes back out carrying their flavor. A cup of spirit and a handful of aromatics infuse in a couple of minutes instead of days. Release the gas slowly, holding the dispenser upright."
+  - q: "How do you make cold foam with a whipped cream dispenser?"
+    a: "Combine half a cup of heavy cream, a quarter cup of milk and one to two tablespoons of vanilla syrup in the dispenser, charge it, and shake only two or three times so it stays pourable. Float it over cold brew or an iced latte."
 ---
 
-A whipped cream dispenser does one simple thing: it dissolves gas into a liquid under pressure, then releases it as a foam. Whipped cream is just the most famous result. Once you see it as a tool for making things light and airy, a lot of other doors open.
+A whipped cream dispenser does one simple thing: it dissolves gas into a liquid under pressure, then releases it as a foam. Whipped cream is just the most famous result. Once you see it as a tool for making things light and airy, a lot of other doors open. Here are five things to make with a whipped cream dispenser that go well beyond dessert topping.
 
 One rule applies to everything below: **whatever goes into the dispenser has to be completely smooth.** Strain mixtures through a fine-mesh sieve before you fill. Seeds, zest, and undissolved sugar are what clog a nozzle.
 
@@ -45,6 +64,10 @@ Restaurants use dispensers on the savory side just as much as the sweet. A few p
 - **Herbed cream** for soups: heavy cream with a pinch of salt and finely strained herb oil, dispensed over tomato or squash soup.
 - **Horseradish cream** for roast beef: cream, prepared horseradish (strained), salt, and a squeeze of lemon.
 - **Whipped feta or goat cheese:** blend the cheese with cream until perfectly smooth, strain, and dispense onto crostini.
+
+## Which dispenser is right for this?
+
+Any of our dispensers handles everything above. The [professional 304 stainless steel model](/products/B06WVD2K6N/) is the one to reach for if you'll be doing infusions and savory work often — the heavier bottle shrugs off daily use — while the [standard stainless dispenser](/products/B01DZ2HZ2U/) with its three nozzles is the easy pick for desserts and coffee.
 
 ## Keep experimenting
 

@@ -87,3 +87,16 @@ h3,
   margin: 2.5rem 0;
   border-color: rgb(0 0 0 / 0.1);
 }
+/* Inline product cards (BlogCta.astro) sit inside the prose column but are UI,
+   not copy: undo the prose link treatment for them. */
+.prose-post .blog-cta a {
+  font-weight: inherit;
+  text-decoration: none;
+}
+.prose-post .blog-cta a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.prose-post .blog-cta a[data-amazon-cta]:hover {
+  text-decoration: none;
+}

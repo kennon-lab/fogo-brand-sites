@@ -3,7 +3,8 @@
 // when one exists for (brand, asin, channel='brand_site'), else the plain
 // Amazon PDP link. Opens a new tab on desktop; a Base.astro script switches
 // to same-tab on touch devices. `position` feeds the GA4 cta_position
-// dimension (hero | card | pdp-primary | sticky | comparison | footer).
+// dimension (hero | card | pdp-primary | sticky | comparison | footer |
+// blog-early | blog-mid).
 const { product, size = 'md', label = 'View on Amazon', position = null } = Astro.props;
 
 const href = product.attribution_url || product.plain_amazon_url;

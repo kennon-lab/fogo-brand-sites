@@ -1,19 +1,38 @@
 ---
 title: "How to Choose a Scratching Post Your Cat Will Actually Use"
-description: "The right scratching post in the right spot gives your cat a better option than your couch. What to look for in height, material and stability — and where to put it."
+description: "How to choose a scratching post your cat will actually use: the right height, a base that never wobbles, sisal or cardboard, and the one spot in the house to put it."
 date: "2026-09-18"
+updated: "2026-09-19"
 hero_image_path: "amazing-shields/blog/orange-cat.jpg"
 hero_alt: "An orange tabby cat sitting against a navy blue background"
+target_keyword: "how to choose a scratching post"
+secondary_keywords:
+  - "best scratching post for cats"
+  - "cat scratching post height"
+  - "sisal scratching post"
+  - "where to put a cat scratching post"
+search_intent: informational
+summary: "Pick a post at least 30 inches tall with a wide, heavy base and a sisal or cardboard surface, and put it right next to the furniture your cat already scratches. Cover the old spot with a clear shield so the post becomes the better option."
 related_asins:
   - B0BN6RV6L4
   - B0BN6T3265
+primary_asin: B0BN6RV6L4
+cta_after_sections:
+  - "Pair it with protection"
+faq:
+  - q: "How tall should a cat scratching post be?"
+    a: "Tall enough for a full stretch: around 30 inches or more for most adult cats, so they can reach all the way up with their back extended. Short posts sold for kittens force an adult cat to hunch, which is why so many go unused."
+  - q: "Where is the best place to put a scratching post?"
+    a: "Right next to the furniture your cat already scratches, ideally in the room the family uses most. Cats scratch where life happens and where scent marks matter; a post in a spare room or basement rarely gets used. Once the post is the clear favorite, move it a few feet at a time toward where you'd like it to live."
+  - q: "Why won't my cat use the scratching post?"
+    a: "Usually it's the wrong post or the wrong place: too short for a full stretch, a base that wobbles, a surface that doesn't shred, or a location far from where your cat spends time. Fix those, add a little catnip, reward use with a treat, and cover the sofa spot so the post wins by default."
 ---
 
-Plenty of cat owners have bought a scratching post, watched their cat sniff it once, and then watched that same cat walk straight back to the sofa. It's easy to conclude that your cat "just doesn't like posts."
+Plenty of cat owners have bought a scratching post, watched their cat sniff it once, and then watched that same cat walk straight back to the sofa. It's easy to conclude that your cat "just doesn't like posts." Knowing how to choose a scratching post — and where to put it — is what turns that around.
 
 Almost always, the real story is simpler: it was the wrong post, in the wrong place. Cats are picky about scratching surfaces for good reasons — and once you know what they're looking for, picking a winner gets a lot easier.
 
-## What your cat wants from a scratching surface
+## What does your cat want from a scratching surface?
 
 Think about why the couch is so popular. It's tall, it's heavy, and the fabric gives claws something to grab. A good post copies all three.
 
@@ -54,7 +73,7 @@ You can always move the post later. Once it's the clear favorite, shift it a few
 
 A great post gives your cat somewhere to go. But your couch has a head start — it already smells like a scratching spot, and the habit is well practiced. While your cat is learning, cover the old targets so the post becomes the better option by a mile.
 
-That's exactly what our clear furniture shields are for: they put a smooth surface over the fabric, so claws can't get a grip and the spot stops being rewarding. Post beside it, shield on it, treats in your pocket — that combination is what changes the habit. See [how to install furniture protectors so they stay put](/blog/how-to-install-cat-scratch-furniture-protectors/), or browse [pack sizes](/products/) to match your furniture.
+That's exactly what our [clear furniture shields](/products/B0BN6RV6L4/) are for: they put a smooth surface over the fabric, so claws can't get a grip and the spot stops being rewarding. Post beside it, shield on it, treats in your pocket — that combination is what changes the habit. See [how to install furniture protectors so they stay put](/blog/how-to-install-cat-scratch-furniture-protectors/), or browse [pack sizes](/products/) to match your furniture.
 
 For homes with more than one cat, plan on **at least one scratching spot per cat**, spread across different rooms, so nobody has to compete.
 

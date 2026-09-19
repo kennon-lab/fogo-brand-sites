@@ -1,17 +1,36 @@
 ---
 title: "Why Do Cats Scratch Furniture? (And How to Save Your Sofa Without Punishment)"
-description: "Scratching isn't bad behavior — it's how cats care for their claws, stretch, and mark home. Here's why it happens and how to protect your sofa without punishment."
+description: "Why do cats scratch furniture? It's how they care for their claws, stretch, and mark home. Here's why it happens and how to protect your sofa without punishment."
 date: "2026-09-18"
+updated: "2026-09-19"
 hero_image_path: "amazing-shields/blog/cat-and-owner.jpg"
 hero_alt: "A smiling woman touching noses with her orange tabby cat on the couch"
+target_keyword: "why do cats scratch furniture"
+secondary_keywords:
+  - "how to stop cats from scratching furniture"
+  - "cat scratching couch"
+  - "stop cat scratching sofa"
+  - "cat furniture protector"
+search_intent: informational
+summary: "Cats scratch furniture to shed old claw sheaths, stretch, and leave scent marks, so the habit can't be trained away — only moved. Protect the spots they already use with clear shields, put a sturdy post right beside them, and reward the switch."
 related_asins:
   - B07DT83CBV
   - B0BN6RV6L4
+primary_asin: B07DT83CBV
+cta_after_sections:
+  - "Why is your couch so appealing?"
+faq:
+  - q: "Can you train a cat to stop scratching completely?"
+    a: "No, and you shouldn't try. Scratching sheds worn claw sheaths, stretches the whole body and leaves scent marks, so it's a need rather than a habit. What you can change is where it happens: make the sofa unrewarding and give your cat a better surface right beside it."
+  - q: "Does spraying a cat with water stop scratching?"
+    a: "It interrupts the moment but doesn't teach an alternative, and cats tend to learn that you are unpredictable rather than that the sofa is off limits. Many simply scratch when you're out. Protecting the spot and rewarding the post works better and keeps your relationship intact."
+  - q: "Why did my cat suddenly start scratching the furniture?"
+    a: "Look for what changed: a move, a new pet or person, a shift in routine, or a favorite post that was thrown out. Stress and territory changes both increase marking. If the change in behavior comes with other differences in eating, litter habits or energy, check in with your veterinarian."
 ---
 
 You come home, drop your keys, and there it is: a fresh set of pulled threads on the arm of the couch. If you share your home with a cat, you know the feeling. Here's the good news — your cat isn't being spiteful, you haven't done anything wrong, and this is one of the most fixable problems in cat ownership.
 
-The fix starts with understanding what scratching actually is.
+So, why do cats scratch furniture in the first place? The fix starts with understanding what scratching actually is.
 
 ## Scratching is a need, not a bad habit
 
@@ -24,7 +43,7 @@ Cats don't scratch to annoy you. They scratch because their bodies and brains ar
 
 Because scratching meets real needs, you can't train a cat to stop scratching. What you *can* do is decide **where** it happens.
 
-## Why your couch is so appealing
+## Why is your couch so appealing?
 
 From a cat's point of view, a sofa is close to the perfect scratching post. It's tall enough for a full stretch. It's heavy, so it doesn't wobble or tip. It's covered in a woven fabric that claws sink into with a satisfying pull. And it sits in the middle of the family's territory, right where a scent mark matters most.
 
@@ -42,7 +61,7 @@ You don't need any of it. There's a kinder plan that works better.
 
 Cats return to the same places again and again, drawn by the texture and their own scent marks. So the first step is making those exact spots unrewarding.
 
-That's what our shields are for. They're clear, flexible sheets that cover the fabric with a smooth surface. Claws can't sink in, so there's no satisfying pull — the spot simply stops being fun. Because the sheets are transparent, your sofa still looks like your sofa. You'll find the pack sizes on our [products page](/products/), and a full walkthrough in [how to install furniture protectors so they stay put](/blog/how-to-install-cat-scratch-furniture-protectors/).
+That's what our [clear furniture shields](/products/B07DT83CBV/) are for. They're clear, flexible sheets that cover the fabric with a smooth surface. Claws can't sink in, so there's no satisfying pull — the spot simply stops being fun. Because the sheets are transparent, your sofa still looks like your sofa. You'll find the pack sizes on our [products page](/products/), and a full walkthrough in [how to install furniture protectors so they stay put](/blog/how-to-install-cat-scratch-furniture-protectors/).
 
 ### 2. Give your cat a better option, right there
 

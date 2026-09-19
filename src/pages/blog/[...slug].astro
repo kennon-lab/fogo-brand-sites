@@ -2,6 +2,8 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
+import BlogCta from '../../components/BlogCta.astro';
+import FaqAccordion from '../../components/FaqAccordion.astro';
 import { getBrand } from '../../lib/supabase.js';
 import { getLocalImagesByAsin, localBucketImage } from '../../lib/images.js';
 import { getBlogPosts, getMergedCatalog, formatPostDate } from '../../lib/content.js';
@@ -36,13 +38,46 @@ const cards =
 
 // Post data.
 const post = mode === 'post' ? posts.find((p) => p.slug === postSlug) : null;
-const { Content } = post ? await render(post.entry) : { Content: null };
 const hero = post?.hero_image_path ? await localBucketImage(post.hero_image_path, 1400) : null;
+
+// Body HTML. The glob loader pre-renders markdown into entry.rendered.html;
+// we split it at H2 boundaries so product cards can be injected after the
+// intro and at the end of named sections (post.cta_after_sections). Falls
+// back to the plain <Content /> component if rendered HTML is ever absent.
+const bodyHtml = post?.entry.rendered?.html ?? null;
+const { Content } = post && !bodyHtml ? await render(post.entry) : { Content: null };
+
+const decode = (s) =>
+  s
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&#x27;|&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+// Smart quotes: the markdown pipeline typographic-quotes the rendered heading
+// while cta_after_sections is authored with straight quotes.
+const norm = (s) => decode(s).toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\s+/g, ' ').trim();
+
+// [{ heading: 'What you'll need' | null, html }] — segment 0 is the intro.
+const sections = bodyHtml
+  ? bodyHtml.split(/(?=<h2[\s>])/).map((html) => {
+      const m = html.match(/^<h2[^>]*>([\s\S]*?)<\/h2>/);
+      return { heading: m ? norm(m[1]) : null, html };
+    })
+  : [];
+const ctaAfter = new Set((post?.cta_after_sections ?? []).map(norm));
+for (const h of ctaAfter) {
+  if (!sections.some((s) => s.heading === h)) {
+    throw new Error(`[blog] "${post.slug}": cta_after_sections heading "${h}" not found among the post's H2s.`);
+  }
+}
 
 // Related products: one card per catalog family containing a listed ASIN, in
 // the order authored. ASINs missing from the live catalog are skipped.
 let related = [];
 let imagesByAsin = new Map();
+let primary = null; // { product, group, images } for the inline cards
 if (post && post.related_asins.length > 0) {
   const merged = await getMergedCatalog();
   imagesByAsin = await getLocalImagesByAsin();
@@ -57,7 +92,21 @@ if (post && post.related_asins.length > 0) {
     seen.add(group.key);
     related.push(group);
   }
+  const primaryAsin = post.primary_asin ?? post.related_asins[0];
+  const group = merged.find((g) => g.children.some((c) => c.asin === primaryAsin));
+  if (group) {
+    const product = group.children.find((c) => c.asin === primaryAsin);
+    primary = {
+      product,
+      group,
+      images: imagesByAsin.get(product.asin) ?? imagesByAsin.get(group.representative.asin) ?? [],
+    };
+  } else {
+    console.warn(`[blog] "${post.slug}": primary ASIN ${primaryAsin} is not in the live catalog — inline CTAs omitted.`);
+  }
 }
+const showEarlyCta = Boolean(primary && post.cta_early && sections.length > 0 && sections[0].html.trim() !== '');
+
 // Index intro copy per brand ({ meta, lede }); brands not listed get the
 // generic line.
 const BLOG_INTROS = {
@@ -77,18 +126,61 @@ const blogIntro = BLOG_INTROS[brand.slug] ?? {
 
 const morePosts = post ? posts.filter((p) => p.slug !== post.slug).slice(0, 3) : [];
 
+// Structured data: BlogPosting + BreadcrumbList (+ FAQPage when the post has
+// an FAQ). Products featured in the post are listed as `mentions` with their
+// PDP URLs so the article ↔ product relationship is explicit to crawlers.
+const postUrl = post ? new URL(Astro.url.pathname, Astro.site).href : null;
+const pdpHref = (group) => (group.slug ? `/products/${group.slug}/` : `/products/${group.representative.asin}/`);
 const jsonLd = post
   ? {
       '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: post.title,
-      description: post.description,
-      datePublished: post.date,
-      dateModified: post.updated ?? post.date,
-      author: { '@type': 'Organization', name: brand.brand },
-      publisher: { '@type': 'Organization', name: brand.brand },
-      mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href,
-      ...(hero ? { image: new URL(hero, Astro.site).href } : {}),
+      '@graph': [
+        {
+          '@type': 'BlogPosting',
+          '@id': `${postUrl}#article`,
+          headline: post.title,
+          description: post.description,
+          ...(post.summary && { abstract: post.summary }),
+          keywords: [post.target_keyword, ...post.secondary_keywords].join(', '),
+          datePublished: post.date,
+          dateModified: post.updated ?? post.date,
+          author: post.author
+            ? { '@type': 'Person', name: post.author, worksFor: { '@type': 'Organization', name: brand.brand } }
+            : { '@type': 'Organization', name: brand.brand },
+          publisher: { '@type': 'Organization', name: brand.brand, url: new URL('/', Astro.site).href },
+          mainEntityOfPage: postUrl,
+          inLanguage: 'en-US',
+          ...(hero ? { image: new URL(hero, Astro.site).href } : {}),
+          ...(related.length > 0 && {
+            mentions: related.map((group) => ({
+              '@type': 'Product',
+              name: group.authored?.display_name ?? group.representative.display_title,
+              url: new URL(pdpHref(group), Astro.site).href,
+            })),
+          }),
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: brand.brand, item: new URL('/', Astro.site).href },
+            { '@type': 'ListItem', position: 2, name: 'Blog', item: new URL('/blog/', Astro.site).href },
+            { '@type': 'ListItem', position: 3, name: post.title, item: postUrl },
+          ],
+        },
+        ...(post.faq.length > 0
+          ? [
+              {
+                '@type': 'FAQPage',
+                '@id': `${postUrl}#faq`,
+                mainEntity: post.faq.map((f) => ({
+                  '@type': 'Question',
+                  name: f.q,
+                  acceptedAnswer: { '@type': 'Answer', text: f.a },
+                })),
+              },
+            ]
+          : []),
+      ],
     }
   : null;
 ---
@@ -146,7 +238,14 @@ const jsonLd = post
       </section>
     </Base>
   ) : (
-    <Base title={post.title} description={post.description} ogImage={hero} jsonLd={jsonLd} pageType="blog-post">
+    <Base
+      title={post.title}
+      description={post.description}
+      ogImage={hero}
+      ogType="article"
+      jsonLd={jsonLd}
+      pageType="blog-post"
+    >
       <article>
         <header class="mx-auto max-w-3xl px-4 pt-10">
           <nav class="text-sm text-black/60" aria-label="Breadcrumb">
@@ -156,6 +255,7 @@ const jsonLd = post
           </nav>
           <h1 class="mt-6 text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight">{post.title}</h1>
           <p class="mt-4 text-sm text-black/60">
+            {post.author && <span>By {post.author} · </span>}
             <time datetime={post.date}>{formatPostDate(post.date)}</time>
             {post.updated && post.updated !== post.date && (
               <span>
@@ -178,9 +278,41 @@ const jsonLd = post
             />
           </div>
         )}
+        {post.summary && (
+          <div class="mx-auto max-w-3xl px-4 pt-8">
+            <div class="rounded-2xl border-l-4 border-[var(--brand)] bg-[var(--surface)] p-5 shadow-sm sm:p-6">
+              <p class="text-xs font-bold uppercase tracking-wide text-black/50">Quick answer</p>
+              <p class="mt-2 text-lg leading-relaxed">{post.summary}</p>
+            </div>
+          </div>
+        )}
         <div class="prose-post mx-auto max-w-3xl px-4 py-10 text-lg text-black/80">
-          <Content />
+          {bodyHtml ? (
+            sections.map((section, i) => (
+              <>
+                <Fragment set:html={section.html} />
+                {i === 0 && showEarlyCta && (
+                  <BlogCta product={primary.product} group={primary.group} images={primary.images} variant="early" />
+                )}
+                {i > 0 && primary && section.heading && ctaAfter.has(section.heading) && (
+                  <BlogCta product={primary.product} group={primary.group} images={primary.images} variant="mid" />
+                )}
+              </>
+            ))
+          ) : (
+            <Content />
+          )}
         </div>
+        {post.faq.length > 0 && (
+          <section class="mx-auto max-w-3xl px-4 pb-12" aria-labelledby="post-faq-heading">
+            <h2 id="post-faq-heading" class="text-2xl font-extrabold tracking-tight">
+              Frequently asked questions
+            </h2>
+            <div class="mt-4">
+              <FaqAccordion items={post.faq.map((f) => ({ question: f.q, answer: f.a }))} />
+            </div>
+          </section>
+        )}
       </article>
 
       {related.length > 0 && (

@@ -35,6 +35,7 @@ let productsPromise;
 let affiliatesPromise;
 let imagesPromise;
 let reviewStatsPromise;
+let paidLinksPromise;
 
 /** The brand row for BRAND_SLUG. Build fails loudly if it doesn't exist. */
 export function getBrand() {
@@ -127,6 +128,34 @@ export function getReviewStats() {
     return map;
   });
   return reviewStatsPromise;
+}
+
+/**
+ * Paid-channel Amazon Attribution tags for this brand
+ * (public.brand_site_paid_links ← bronze.attribution_links, every active
+ * channel except 'brand_site'): Map<asin, { [channel]: url }>. URLs may carry
+ * Google ValueTrack placeholders ({campaignid}, {adgroupid}, {creative},
+ * {keyword}) that the Base.astro swap script fills in client-side.
+ * Fails soft (empty Map + warning): a missing view or a brand with no paid
+ * tags yet must never break a build — CTAs simply keep the organic link.
+ */
+export function getPaidLinks() {
+  paidLinksPromise ??= rest(`brand_site_paid_links?brand_slug=eq.${encodeURIComponent(BRAND_SLUG)}`)
+    .then((rows) => {
+      const map = new Map();
+      for (const r of rows) {
+        if (!r.asin || !r.channel || !r.attribution_url) continue;
+        if (!map.has(r.asin)) map.set(r.asin, {});
+        map.get(r.asin)[r.channel] = r.attribution_url;
+      }
+      if (map.size > 0) console.log(`[supabase.js] paid attribution links for ${map.size} ASIN(s).`);
+      return map;
+    })
+    .catch((err) => {
+      console.warn(`[supabase.js] paid links unavailable (${err.message}) — CTAs keep organic links.`);
+      return new Map();
+    });
+  return paidLinksPromise;
 }
 
 export function getImagesByAsin() {

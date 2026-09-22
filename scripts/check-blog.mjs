@@ -17,12 +17,13 @@
 //                  W description outside 70–200 chars, title > 70 chars
 //   claims         F disease / FDA / "clinically proven" language
 //                  W guarantee / #1 / best-selling superlatives
+//   ads block      F headline/description/callout over Google's limits or
+//                  tripping its editorial rules (scripts/lib/ads-copy.mjs)
 // Pure Node — no Astro, no network — so it runs in a second anywhere.
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
-import YAML from 'yaml';
+import { listPosts, plainText, h2s as headingsOf } from './lib/posts.mjs';
+import { CLAIM_FAIL, CLAIM_WARN } from './lib/claims.mjs';
+import { validateAd, keywordIssues } from './lib/ads-copy.mjs';
 
-const ROOT = join('src', 'content', 'brands');
 const args = process.argv.slice(2);
 const brandArg = args.find((a) => a.startsWith('--brand='))?.slice('--brand='.length) ?? null;
 
@@ -31,54 +32,10 @@ const MIN_PURCHASE_PATHS = 3;
 const MIN_FAQ = 2;
 const MIN_WORDS = 600;
 
-// Claims that must never appear in consumer-product content (FDA
-// structure/function line for wellness brands; Google Ads destination policy).
-const CLAIM_FAIL = [
-  [/\bfda[- ]?(approved|cleared|registered)\b/i, 'FDA approval claim'],
-  [/\bclinically[- ](proven|tested|shown)\b/i, '"clinically proven" claim'],
-  [/\b(cure|cures|cured|curing)\b/i, 'cure claim'],
-  [
-    /\b(treat|treats|treating|prevent|prevents|preventing|diagnose|diagnoses|heal|heals|healing)\b[^.!?\n]{0,80}\b(disease|illness|cancer|diabetes|arthritis|infection|depression|anxiety|insomnia|allerg(?:y|ies)|asthma|virus|covid)\b/i,
-    'disease treatment / prevention claim',
-  ],
-];
-const CLAIM_WARN = [
-  [/\bguarantee[ds]?\b/i, 'guarantee language'],
-  [/(^|\s)#1\b|\bbest[- ]selling\b|\bworld'?s best\b/i, 'unsubstantiated superlative'],
-];
-
-const posts = [];
-for (const brand of readdirSync(ROOT, { withFileTypes: true })) {
-  if (!brand.isDirectory()) continue;
-  if (brandArg && brand.name !== brandArg) continue;
-  const dir = join(ROOT, brand.name, 'blog');
-  if (!existsSync(dir)) continue;
-  for (const f of readdirSync(dir)) {
-    if (!f.endsWith('.md')) continue;
-    posts.push({ brand: brand.name, slug: f.replace(/\.md$/, ''), path: join(dir, f) });
-  }
-}
+const posts = listPosts({ brand: brandArg, includeDrafts: true });
 
 const norm = (s) => String(s ?? '').toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim();
 const words = (s) => s.split(/\s+/).filter(Boolean);
-
-function parse(text) {
-  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!m) return null;
-  return { fm: YAML.parse(m[1]) ?? {}, body: m[2] };
-}
-
-// Markdown body → plain-ish text: drop code, link targets, image syntax,
-// emphasis markers and heading hashes. Good enough for keyword + ASIN checks.
-function plain(body) {
-  return body
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]*`/g, ' ')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/[*_>]/g, '');
-}
 
 const slugsByBrand = new Map();
 for (const p of posts) {
@@ -94,13 +51,12 @@ let skipped = 0;
 for (const post of posts) {
   const F = [];
   const W = [];
-  const parsed = parse(readFileSync(post.path, 'utf8'));
-  if (!parsed) {
+  if (!post.fm) {
     report(post, ['no YAML frontmatter block'], []);
     failures++;
     continue;
   }
-  const { fm, body } = parsed;
+  const { fm, body } = post;
   if (fm.draft === true) {
     skipped++;
     continue;
@@ -120,7 +76,7 @@ for (const post of posts) {
 
   // ---- search brief ------------------------------------------------------
   const kw = norm(fm.target_keyword);
-  const text = plain(body);
+  const text = plainText(body);
   const textN = norm(text);
   if (kw.length < 3) {
     F.push('target_keyword is required (>= 3 chars)');
@@ -138,7 +94,7 @@ for (const post of posts) {
   // ---- structure ---------------------------------------------------------
   const lines = body.split(/\r?\n/);
   const h1s = lines.filter((l) => /^#\s+/.test(l));
-  const h2s = lines.filter((l) => /^##\s+/.test(l)).map((l) => l.replace(/^##\s+/, '').trim());
+  const h2s = headingsOf(body);
   if (h1s.length > 0) F.push('body contains an H1 (# …) — the title is the H1');
   if (h2s.length < 2) F.push(`only ${h2s.length} H2 section(s); posts need at least 2`);
   if (h2s.length > 0 && !h2s.some((h) => h.includes('?'))) W.push('no question-style H2 (answer engines lift these as direct answers)');
@@ -191,6 +147,33 @@ for (const post of posts) {
     F.push(
       `${paths} purchase path(s) (early card ${ctaEarly} + mid cards ${primary ? ctaAfter.length : 0} + inline /products/ links ${inlineProductLinks} + bottom strip ${strip}); need ${MIN_PURCHASE_PATHS}`
     );
+  }
+
+  // ---- Google Ads brief (optional) ------------------------------------------
+  if (fm.ads != null) {
+    if (typeof fm.ads !== 'object' || Array.isArray(fm.ads)) F.push('ads must be a map');
+    else {
+      for (const r of validateAd({
+        headlines: fm.ads.headlines ?? [],
+        descriptions: fm.ads.descriptions ?? [],
+        callouts: fm.ads.callouts ?? [],
+        sitelinks: fm.ads.sitelink ? [{ text: fm.ads.sitelink }] : [],
+        path1: fm.ads.path1,
+        path2: fm.ads.path2,
+      })) {
+        if (/^need at least/.test(r.issues[0]) ) continue; // generator fills the rest
+        F.push(`ads ${r.where} "${r.text}": ${r.issues.join(', ')}`);
+      }
+      for (const k of [...(fm.ads.seeds ?? []), ...(fm.ads.negatives ?? [])]) {
+        const issues = keywordIssues(String(k));
+        if (issues.length) F.push(`ads keyword "${k}": ${issues.join(', ')}`);
+      }
+    }
+  }
+  for (const k of [kw, ...(Array.isArray(fm.secondary_keywords) ? fm.secondary_keywords : [])]) {
+    if (!k) continue;
+    const issues = keywordIssues(String(k));
+    if (issues.length) W.push(`keyword "${k}" is not usable as a Google keyword: ${issues.join(', ')}`);
   }
 
   // ---- claims ------------------------------------------------------------

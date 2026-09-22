@@ -26,6 +26,26 @@ faq:
     a: "Pressure forces liquid into the pores of herbs, chilies, citrus peel or spices; when the gas is released, the liquid rushes back out carrying their flavor. A cup of spirit and a handful of aromatics infuse in a couple of minutes instead of days. Release the gas slowly, holding the dispenser upright."
   - q: "How do you make cold foam with a whipped cream dispenser?"
     a: "Combine half a cup of heavy cream, a quarter cup of milk and one to two tablespoons of vanilla syrup in the dispenser, charge it, and shake only two or three times so it stays pourable. Float it over cold brew or an iced latte."
+ads:
+  sitelink: "5 Dispenser Ideas"
+  path2: "dispenser-ideas"
+  seeds:
+    - "whipped cream dispenser"
+  headlines:
+    - "5 Cream Dispenser Ideas"
+    - "Mousse, Cold Foam, Infusions"
+    - "Chocolate Mousse in Minutes"
+    - "Coffee-Shop Cold Foam at Home"
+    - "Rapid Cocktail Infusions"
+    - "Savory Foams for Soups"
+  descriptions:
+    - "Flavored creams, quick mousse, cold foam, infusions and savory foams. One tool, five uses."
+    - "What a whipped cream dispenser can do beyond whipped cream, with ratios and the one rule."
+  callouts:
+    - "Official Brand Site"
+    - "Sold on Amazon"
+    - "Recipes Included"
+    - "Stainless Steel Dispenser"
 ---
 
 A whipped cream dispenser does one simple thing: it dissolves gas into a liquid under pressure, then releases it as a foam. Whipped cream is just the most famous result. Once you see it as a tool for making things light and airy, a lot of other doors open. Here are five things to make with a whipped cream dispenser that go well beyond dessert topping.

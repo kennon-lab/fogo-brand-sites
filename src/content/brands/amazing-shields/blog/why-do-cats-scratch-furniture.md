@@ -26,6 +26,27 @@ faq:
     a: "It interrupts the moment but doesn't teach an alternative, and cats tend to learn that you are unpredictable rather than that the sofa is off limits. Many simply scratch when you're out. Protecting the spot and rewarding the post works better and keeps your relationship intact."
   - q: "Why did my cat suddenly start scratching the furniture?"
     a: "Look for what changed: a move, a new pet or person, a shift in routine, or a favorite post that was thrown out. Stress and territory changes both increase marking. If the change in behavior comes with other differences in eating, litter habits or energy, check in with your veterinarian."
+ads:
+  sitelink: "Why Cats Scratch"
+  path2: "cats-scratch"
+  seeds:
+    - "cat scratch furniture protector"
+    - "couch protector from cats"
+  headlines:
+    - "Why Cats Scratch Furniture"
+    - "Save Your Sofa, No Punishment"
+    - "Protect, Redirect, Reward"
+    - "Clear Shields for Sofas"
+    - "Scratching Is a Need"
+    - "Stop Couch Scratching"
+  descriptions:
+    - "Cats scratch to shed claw sheaths, stretch and mark home. Move the habit, don't fight it."
+    - "The kind plan that works: shield the spot, add a post beside it, reward the switch."
+  callouts:
+    - "Official Brand Site"
+    - "Sold on Amazon"
+    - "No Punishment Needed"
+    - "Clear and Flexible"
 ---
 
 You come home, drop your keys, and there it is: a fresh set of pulled threads on the arm of the couch. If you share your home with a cat, you know the feeling. Here's the good news — your cat isn't being spiteful, you haven't done anything wrong, and this is one of the most fixable problems in cat ownership.

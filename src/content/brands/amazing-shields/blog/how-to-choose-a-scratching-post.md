@@ -26,6 +26,24 @@ faq:
     a: "Right next to the furniture your cat already scratches, ideally in the room the family uses most. Cats scratch where life happens and where scent marks matter; a post in a spare room or basement rarely gets used. Once the post is the clear favorite, move it a few feet at a time toward where you'd like it to live."
   - q: "Why won't my cat use the scratching post?"
     a: "Usually it's the wrong post or the wrong place: too short for a full stretch, a base that wobbles, a surface that doesn't shred, or a location far from where your cat spends time. Fix those, add a little catnip, reward use with a treat, and cover the sofa spot so the post wins by default."
+ads:
+  sitelink: "Scratching Post Guide"
+  path2: "scratching-post"
+  headlines:
+    - "Choose a Scratching Post"
+    - "A Post Your Cat Will Use"
+    - "Height, Base and Material"
+    - "Where to Put the Post"
+    - "Sisal vs Cardboard vs Carpet"
+    - "Stop Couch Scratching"
+  descriptions:
+    - "At least 30 inches tall, a heavy base, sisal or cardboard, placed beside the sofa."
+    - "Why cats ignore most posts and how to pick one they will actually use."
+  callouts:
+    - "Official Brand Site"
+    - "Sold on Amazon"
+    - "Vet-Free Advice"
+    - "Furniture Protection Tips"
 ---
 
 Plenty of cat owners have bought a scratching post, watched their cat sniff it once, and then watched that same cat walk straight back to the sofa. It's easy to conclude that your cat "just doesn't like posts." Knowing how to choose a scratching post — and where to put it — is what turns that around.

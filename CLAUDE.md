@@ -18,6 +18,10 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `npm run check:blog` — blog content gate (also the first step of `npm run build`)
 - `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads [--probe] [--dry-run] [--force]`
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
+- `npm run ads:campaigns -- --brand=<slug>|all [--post=<slug>] [--days=90]` — write Google Ads
+  campaign specs to `ads/<brand>/<post>.json` from each post's search brief + Amazon search terms
+- `npm run ads:push -- --spec=ads/<brand>/<post>.json [--dry-run|--validate-only|--enable|--pause|--stage=…]`
+  — create / update that campaign through the Google Ads API (see "Google Ads campaigns")
 - `npm run attribution-report -- --brand=<slug>|all [--days=90] [--dry-run]` — pull the Attribution
   PERFORMANCE/PRODUCTS reports and sync every campaign with traffic (Google Ads → Amazon listing
   ads, creator links, console tags — i.e. everything NOT from the site) into
@@ -146,6 +150,31 @@ Known quirks (do not re-derive):
   `cta_channel` (`google_ads` | `organic`). Insert `google_ads` rows (Amazon Attribution
   macro-enabled tags for Google Ads) into `bronze.attribution_links` to activate; until then
   nothing is emitted and CTAs keep the organic link.
+- Google Ads campaigns (one Search campaign per post; specs in `ads/`, see `ads/README.md`):
+  `scripts/ads-campaigns.mjs` reads the post's brief (`target_keyword`, `secondary_keywords`,
+  optional `ads:` block — `budget_daily`, `max_cpc`, `seeds`, `headlines`, `descriptions`,
+  `callouts`, `sitelink`, `negatives`, `path1/2`, all validated by check-blog via
+  `scripts/lib/ads-copy.mjs`) and mines `public.brand_site_search_terms(store, asins, days)`
+  (service-role RPC over `bronze.ads_search_terms` for the ad groups advertising the post's
+  ASIN families). Ad group `guide` = brief keywords; `product` = `ads.seeds` + Amazon terms that
+  convert (tier A ≥5 purchases & ≥5% CVR → exact+phrase; tier B ≥2 purchases & ≥3% → exact),
+  relevance-filtered (≥60% token overlap with a seed) and vocabulary-filtered (every word must
+  occur in the post/brief/product titles — keeps competitor brands out); 1–2 word terms are
+  exact-only. Negatives = generic commerce list + relevant Amazon terms with ≥15 clicks and no
+  purchase + `ads.negatives`. RSA copy = author lines first, then whole (never truncated)
+  phrases from the brief; headline 1 pinned. Final URL = the post; `final_url_suffix` carries
+  ValueTrack (`{campaignid}` `{adgroupid}` `{creative}` `{keyword}` …) which the site's
+  paid-landing swap fills into the Amazon `google_ads` macro tag. Campaign name
+  `fbs-{brand-slug}-{post-slug}` is the join key across Google Ads, GA4 (`utm_campaign`) and
+  Amazon Attribution. `scripts/ads-push.mjs` sends one atomic `googleAds:mutate` (budget →
+  campaign PAUSED → geo/language/negatives → ad groups → keywords → RSA → sitelink/callout
+  assets) with temp ids, writes resource names back into the spec, refuses duplicates, and
+  handles `--validate-only`, `--enable`/`--pause`, `--stage=maximize_conversions|target_roas`.
+  Credentials: `.env` GOOGLE_ADS_* (manager-account OAuth + developer token); client account =
+  `brand_sites.google_ads_customer_id`. Bidding progression: maximize clicks (CPC ceiling) →
+  maximize conversions once GA4 `amazon_click` is imported as a conversion → target ROAS once
+  Attribution purchases are uploaded. Never enable a campaign from a script without a human
+  having read the spec.
 - `toISOString().slice(0,10)` is banned in any script — use a local-date helper if dates are
   ever needed. Never generate files via PowerShell here-strings — write files directly.
 - Complete files only, no partial snippets; validate Astro/JSX parses before finishing.

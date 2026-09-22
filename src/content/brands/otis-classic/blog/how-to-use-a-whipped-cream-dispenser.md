@@ -28,6 +28,24 @@ faq:
     a: "A charged dispenser keeps cream sealed away from air, so it stays fresh in the fridge for up to about a week, as long as that's within the cream's use-by date. Give it a shake or two before each use."
   - q: "Can you use half-and-half or milk in a whipped cream dispenser?"
     a: "No. The cream needs at least 30% fat to trap the gas and hold its shape. Half-and-half, whole milk and most low-fat creams will come out as a thin, foamy liquid. Use heavy cream or heavy whipping cream."
+ads:
+  sitelink: "Dispenser Beginner Guide"
+  path2: "dispenser-guide"
+  headlines:
+    - "Whipped Cream Dispenser Guide"
+    - "Fill, Charge, Shake, Serve"
+    - "Fresh Whipped Cream in 60 Sec"
+    - "Fix Runny or Stiff Cream"
+    - "Which Charger to Use"
+    - "Store It up to a Week"
+  descriptions:
+    - "Cold heavy cream, one N2O charger, four to six shakes. The full beginner's guide."
+    - "Learn to fill, charge, dispense and clean a whipped cream dispenser, plus quick fixes."
+  callouts:
+    - "Official Brand Site"
+    - "Sold on Amazon"
+    - "Step-by-Step Guide"
+    - "Stainless Steel Dispenser"
 ---
 
 A whipped cream dispenser looks like professional kit — and it is — but it's also one of the easiest tools in the kitchen to use. Once you've done it once, fresh whipped cream takes less time than finding the can at the back of the fridge. Here's how to use a whipped cream dispenser, start to finish.

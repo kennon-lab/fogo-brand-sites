@@ -29,6 +29,28 @@ faq:
     a: "Use thick, round glass bottles made for carbonated drinks, with a swing top closure and a soft rubber gasket that seals airtight. Round shapes spread pressure evenly; thin repurposed jars and decorative square bottles are not designed to hold carbonation."
   - q: "Why is my kombucha flat after second fermentation?"
     a: "The most common reasons are a tired or badly seated gasket letting gas escape, too much headspace in the bottle, a cold room slowing the yeast, or not enough new sugar for the yeast to eat. Fix the seal first, then add a little more fruit next batch."
+ads:
+  sitelink: "Kombucha Fizz Guide"
+  path2: "kombucha-fizz"
+  seeds:
+    - "swing top bottles"
+    - "kombucha bottles"
+    - "flip top bottles"
+  headlines:
+    - "Kombucha Second Fermentation"
+    - "Get Flavor and Fizz in F2"
+    - "Bottle Kombucha the Right Way"
+    - "2 to 4 Days to Perfect Fizz"
+    - "Avoid Gushers and Flat Brews"
+    - "Pressure-Rated Swing Tops"
+  descriptions:
+    - "Bottle with 10 to 20 percent fruit, leave an inch of headspace, seal and wait 2 to 4 days."
+    - "How long to ferment, which bottles are safe, flavor combos to start with, no gushers."
+  callouts:
+    - "Official Brand Site"
+    - "Sold on Amazon"
+    - "Flavor Ideas Included"
+    - "Pressure-Rated Bottles"
 ---
 
 If your homemade kombucha tastes good but falls a little flat — literally — the answer is kombucha second fermentation. It's the step where you bottle your finished brew with a bit of fruit or juice, seal it up, and let the yeast do one more round of work. The result is the flavored, naturally sparkling kombucha you'd pay five dollars a bottle for at the store.

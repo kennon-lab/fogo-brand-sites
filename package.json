@@ -11,7 +11,9 @@
     "mirror-images": "node scripts/mirror-images.mjs",
     "check:blog": "node scripts/check-blog.mjs",
     "attribution-tags": "node scripts/attribution-tags.mjs",
-    "attribution-report": "node scripts/attribution-report.mjs"
+    "attribution-report": "node scripts/attribution-report.mjs",
+    "ads:campaigns": "node scripts/ads-campaigns.mjs",
+    "ads:push": "node scripts/ads-push.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",

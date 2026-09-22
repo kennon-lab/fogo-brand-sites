@@ -282,6 +282,25 @@ const blog = defineCollection({
     // section (reader has just read the explanation). check-blog verifies each
     // heading exists.
     cta_after_sections: z.array(z.string()).default([]),
+
+    // ---- Google Ads campaign brief (scripts/ads-campaigns.mjs). Everything is
+    // optional: the generator fills gaps from the search brief above. Author
+    // copy is validated by check-blog (30-char headlines, 90-char descriptions,
+    // no exclamation marks / all caps / claims — Google editorial policy).
+    ads: z
+      .object({
+        budget_daily: z.number().positive().default(10), // USD
+        max_cpc: z.number().positive().default(1.5), // ceiling for the maximize-clicks stage
+        seeds: z.array(z.string()).default([]), // extra product terms for the Amazon search-term miner
+        headlines: z.array(z.string().max(30)).max(15).default([]),
+        descriptions: z.array(z.string().max(90)).max(4).default([]),
+        callouts: z.array(z.string().max(25)).max(10).default([]),
+        sitelink: z.string().max(25).optional(), // this post's link text when it is a sitelink on sibling campaigns
+        negatives: z.array(z.string()).default([]),
+        path1: z.string().max(15).optional(), // display URL path, defaults to "blog"
+        path2: z.string().max(15).optional(),
+      })
+      .optional(),
   }),
 });
 

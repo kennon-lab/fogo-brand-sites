@@ -29,6 +29,27 @@ faq:
     a: "Each XL sheet covers 17 by 12 inches. A single armchair or the two front arms of a sofa usually takes a 6 pack; a standard sofa with scratching on the arms and back corners takes a 10 or 12 pack; a sectional or a multi-cat home is an 18 pack. When in doubt, size up and keep the spares."
   - q: "Can I wash or reuse the protectors?"
     a: "Wipe them with a soft, damp cloth while they're on the furniture. The adhesive is meant for one placement, so once a sheet has been peeled off it won't re-stick reliably; use a fresh sheet for a new spot."
+ads:
+  sitelink: "Install Guide"
+  path2: "install-guide"
+  seeds:
+    - "cat scratch furniture protector"
+    - "couch protector from cats"
+  headlines:
+    - "Cat Scratch Protectors Guide"
+    - "Install Them So They Stay Put"
+    - "Clear Shields for Sofas"
+    - "Which Fabrics Work"
+    - "Cut, Peel, Press, Pin"
+    - "Stop Couch Scratching"
+  descriptions:
+    - "Test a hidden spot, vacuum, cut rounded corners, press from the center out, add pins."
+    - "Step-by-step installation for clear cat scratch protectors and the fabrics they hold on."
+  callouts:
+    - "Official Brand Site"
+    - "Sold on Amazon"
+    - "Clear and Flexible"
+    - "Twist Pins Included"
 ---
 
 Furniture protectors are simple: a clear sheet goes over the spot your cat scratches, and the smooth surface takes the fun out of it. But the difference between shields that stay up for months and shields that peel at the corners in a week comes down to a few minutes of prep. Here's how to install cat scratch furniture protectors so they stay put — and get it right the first time.

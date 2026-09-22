@@ -85,6 +85,12 @@ if (post && post.related_asins.length > 0) {
   const links = await getPaidLinks();
   const forBlog = (p) => {
     const url = links.get(p.asin)?.[BLOG_CHANNEL];
+    if (!url) {
+      console.warn(
+        `[blog] "${post.slug}": no ${BLOG_CHANNEL} tag for ${p.asin} — CTA falls back to the brand_site tag ` +
+          `(reports under Display, not Blogpost). Run: npm run attribution-tags -- --brand=${brand.slug} --channel=${BLOG_CHANNEL}`
+      );
+    }
     return url ? { ...p, attribution_url: url, amazon_url: url } : p;
   };
   const groupForBlog = (g) => ({ ...g, representative: forBlog(g.representative), children: g.children.map(forBlog) });

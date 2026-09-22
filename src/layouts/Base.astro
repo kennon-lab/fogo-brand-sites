@@ -39,7 +39,7 @@ import '@fontsource/barlow-semi-condensed/600.css';
 import '@fontsource/barlow-semi-condensed/700.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { getBrand, getPaidLinks } from '../lib/supabase.js';
+import { getBrand, getPaidLinks, BLOG_CHANNEL } from '../lib/supabase.js';
 import { localBucketImage } from '../lib/images.js';
 
 const brand = await getBrand();
@@ -48,7 +48,13 @@ const brand = await getBrand();
 // JSON and applied client-side by the swap script below when the visitor
 // arrived from a paid click, so Amazon Attribution reports paid vs organic
 // separately. Empty for brands with no paid tags yet → nothing is emitted.
-const paidLinks = Object.fromEntries(await getPaidLinks());
+// brand_site_blog is organic (blog pages bake it into their CTAs at build), so
+// it stays out of the client-side paid map.
+const paidLinks = Object.fromEntries(
+  [...(await getPaidLinks())]
+    .map(([asin, byChannel]) => [asin, Object.fromEntries(Object.entries(byChannel).filter(([c]) => c !== BLOG_CHANNEL))])
+    .filter(([, byChannel]) => Object.keys(byChannel).length > 0)
+);
 const hasPaidLinks = Object.keys(paidLinks).length > 0;
 
 // Per-brand favicon (bucket-relative path, localized at build like all other

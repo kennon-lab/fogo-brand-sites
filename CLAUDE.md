@@ -16,7 +16,7 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `node scripts/mirror-images.mjs --brand=<slug>` — mirror Amazon images to Storage (see below)
 - `.\scripts\rebuild-all.ps1` — POST every `vercel_deploy_hook_url` where `is_live=true`
 - `npm run check:blog` — blog content gate (also the first step of `npm run build`)
-- `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|google_ads [--probe] [--dry-run] [--force]`
+- `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads [--probe] [--dry-run] [--force]`
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
 
 ## Environment (`.env`, never committed; see `.env.example`)
@@ -155,17 +155,22 @@ Known quirks (do not re-derive):
    split hero), `about_banner_path` (wide banner on /about), `feature_tiles` jsonb
    `[{image_path, label, asin}]` (home "Shop by category" grid linking to PDPs).
 2. `node scripts/mirror-images.mjs --brand=<slug>`.
-3. Attribution tags: `npm run attribution-tags -- --brand=<slug> --channel=brand_site --probe`
-   first (lists the store profile's advertisers + publishers; the script picks the advertiser
-   whose name matches the brand and the "Other"/"Custom" publisher for organic — override with
-   `--advertiser=<id>` / `--publisher=<id>`), then `--dry-run`, then for real. Ads API creds
-   come from `public.ads_api_accounts` keyed by `brand_sites.store` (needs
-   `SUPABASE_SERVICE_ROLE_KEY`). One non-macro tag per ASIN; naming convention
-   `fbs-{slug}-brand-site` / `site` / `{asin}` is sent to Amazon as campaign / ad group /
-   creative and stored in `campaign_name`. Idempotent (existing active rows skipped). Then
-   `--channel=google_ads` creates the advertiser-level Google Ads macro tag for every ASIN
-   (feeds the paid-traffic swap). Rebuild the site afterwards so the URLs ship. Bulk CSV in the
-   Attribution console remains the fallback if a store's API scope lacks Attribution.
+3. Attribution tags: run `npm run attribution-tags -- --brand=<slug> --channel=brand_site` and
+   again with `--channel=brand_site_blog` (then `--channel=google_ads` for the paid-traffic
+   swap). Ads API creds come from `public.ads_api_accounts` keyed by `brand_sites.store` (needs
+   `SUPABASE_SERVICE_ROLE_KEY`; run from Git Bash as `env -u SUPABASE_SERVICE_ROLE_KEY node …`
+   so `.env` wins over the stale inherited var). `--probe` lists the profile's advertisers +
+   publishers, `--dry-run` previews, `--force` overwrites. Advertiser = the store's sole
+   Attribution advertiser (auto-picked; `--advertiser=<id>` if a profile exposes several).
+   Publishers (Amazon has no "Website" option): `brand_site` → **Display - Other** (product /
+   catalog / home CTAs), `brand_site_blog` → **Blogpost - Other** (CTAs on /blog/ pages; the
+   blog page swaps them in via `getPaidLinks()`); `--publisher=<id>` overrides. How the API
+   actually works (the docs' method/placeholder names are wrong): `GET /attribution/tags/
+   nonMacroTemplateTag?publisherIds=&advertiserIds=` returns ONE template per (advertiser,
+   publisher) with `{insertCampaign}` / `{insertAdGroupId}` / `{insertCreativeId}`
+   placeholders; the script fills them per ASIN with `fbs-{slug}-{channel}` / `site|blog` /
+   `{asin}` (stored in `campaign_name`), so tags cost no per-ASIN API calls. `macroTag` is the
+   same GET. Idempotent (existing active rows skipped). Rebuild afterwards so the URLs ship.
 4. New Vercel project → this repo → env `BRAND_SLUG=<slug>` (+ SUPABASE_URL, SUPABASE_ANON_KEY)
    → attach domain → Squarespace DNS (A `76.76.21.21` apex, CNAME `cname.vercel-dns.com` www —
    confirm on Vercel's domain screen) → save deploy hook URL into

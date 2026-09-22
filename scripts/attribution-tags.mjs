@@ -3,7 +3,7 @@
 // bronze.attribution_links, one row per (brand, asin, channel).
 //
 // Usage:
-//   node scripts/attribution-tags.mjs --brand=<slug>|all --channel=brand_site|google_ads
+//   node scripts/attribution-tags.mjs --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads
 //                                      [--dry-run] [--probe] [--force]
 //                                      [--advertiser=<id>] [--publisher=<id>]
 //   npm run attribution-tags -- --brand=otis-classic --channel=brand_site --dry-run
@@ -13,10 +13,17 @@
 //             bronze.attribution_links). Never printed, never committed.
 //
 // Channels:
-//   brand_site  Organic site traffic. One NON-macro tag per ASIN with our own
-//               identifiers, so the Attribution console and our table share one
-//               naming convention (below). brand_site_products.attribution_url
-//               picks these up on the next build — every CTA then earns BRB.
+//   brand_site  Organic site traffic (product pages, catalog, home). One
+//               NON-macro tag per ASIN under the "Display - Other" publisher,
+//               with our own identifiers so the Attribution console and our
+//               table share one naming convention (below).
+//               brand_site_products.attribution_url picks these up on the next
+//               build — every CTA then earns BRB.
+//   brand_site_blog
+//               Same, but under the "Blogpost - Other" publisher and ad group
+//               `blog`, so blog-driven sales report separately. Only CTAs
+//               rendered on /blog/ pages use these (src/pages/blog/[...slug].astro
+//               swaps them in via getPaidLinks()).
 //   google_ads  One advertiser-level MACRO tag (Google Ads publisher) applied
 //               to every ASIN. It carries ValueTrack placeholders that the
 //               site fills client-side on paid landings (Base.astro), so the
@@ -25,7 +32,7 @@
 //
 // Naming convention (the one key every report joins on):
 //   campaign   fbs-{brand-slug}-{channel with - for _}   e.g. fbs-otis-classic-brand-site
-//   ad group   site                                        (organic; Google Ads gets Google's own IDs)
+//   ad group   site | blog                                 (organic; Google Ads gets Google's own IDs)
 //   creative   {asin}
 // bronze.attribution_links.campaign_name stores "campaign/adgroup/creative".
 //
@@ -69,8 +76,8 @@ if (!brandArg) {
   console.error('Pass --brand=<slug> or --brand=all.');
   process.exit(1);
 }
-if (!['brand_site', 'google_ads'].includes(channel)) {
-  console.error(`Unknown --channel=${channel} (brand_site | google_ads).`);
+if (!['brand_site', 'brand_site_blog', 'google_ads'].includes(channel)) {
+  console.error(`Unknown --channel=${channel} (brand_site | brand_site_blog | google_ads).`);
   process.exit(1);
 }
 
@@ -139,26 +146,35 @@ async function adsFetch(acct, path, init = {}, attempt = 1) {
   return text ? JSON.parse(text) : null;
 }
 
-// Response shapes differ slightly between the macro / non-macro tag endpoints
-// and have shifted across API versions; find the tag string wherever it is.
-function findTag(obj) {
+// Both tag resources are GETs that return { [advertiserId]: { [publisherId]:
+// tag } } (Amazon Attribution API v1). Index that shape directly, falling back
+// to the first maas= string anywhere in the payload.
+function findTag(obj, advertiserId, publisherId) {
+  const direct = obj?.[String(advertiserId)]?.[String(publisherId)];
+  if (typeof direct === 'string' && direct) return direct;
   if (obj == null) return null;
   if (typeof obj === 'string') return /maas=|^https?:\/\//i.test(obj) ? obj : null;
-  if (Array.isArray(obj)) {
-    for (const v of obj) {
-      const t = findTag(v);
-      if (t) return t;
-    }
-    return null;
-  }
-  for (const [k, v] of Object.entries(obj)) {
-    if (/tag$/i.test(k) && typeof v === 'string' && v) return v;
-  }
   for (const v of Object.values(obj)) {
-    const t = findTag(v);
+    const t = findTag(v, advertiserId, publisherId);
     if (t) return t;
   }
   return null;
+}
+
+// Tag templates for non-macro publishers carry {insert…} placeholders that we
+// fill with our own naming convention so the Attribution console and our
+// table share a key. The docs say {insertCampaignId}/{insertAdGroupId}/
+// {insertAdiD}; the live API returns {insertCampaign}/{insertAdGroupId}/
+// {insertCreativeId} — match on prefix so either spelling works, and fail
+// loudly if anything is left unfilled.
+function fillTemplate(template, { campaignId, adGroupId, creativeId }) {
+  const filled = template
+    .replace(/\{insertCampaign\w*\}/gi, encodeURIComponent(campaignId))
+    .replace(/\{insertAdGroup\w*\}/gi, encodeURIComponent(adGroupId))
+    .replace(/\{insert(Creative|Ad)\w*\}/gi, encodeURIComponent(creativeId));
+  const left = filled.match(/\{insert\w*\}/gi);
+  if (left) throw new Error(`unfilled placeholder(s) ${left.join(', ')} in template ${template}`);
+  return filled;
 }
 
 // A tag is either a full landing URL or a query fragment to append to one.
@@ -174,6 +190,10 @@ const pickByName = (items, re, label, override) => {
     if (!hit) throw new Error(`--${label}=${override} not found in this profile's ${label}s.`);
     return hit;
   }
+  // An Ads profile usually exposes exactly one Attribution advertiser (the
+  // store, e.g. "Stylever" for Otis Classic) — when so, it is the answer
+  // regardless of what it's named.
+  if (items.length === 1) return items[0];
   const hits = items.filter((i) => re.test(i.name ?? ''));
   if (hits.length === 1) return hits[0];
   const list = items.map((i) => `${i.id}: ${i.name}`).join('\n    ');
@@ -183,7 +203,10 @@ const pickByName = (items, re, label, override) => {
 };
 
 const CAMPAIGN_ID = (slug) => `fbs-${slug}-${channel.replace(/_/g, '-')}`;
-const AD_GROUP_ID = 'site';
+const AD_GROUP_ID = channel === 'brand_site_blog' ? 'blog' : 'site';
+// Organic publishers as the Attribution API names them (no "Website" option
+// exists): product/catalog CTAs report under Display, blog CTAs under Blogpost.
+const ORGANIC_PUBLISHER = channel === 'brand_site_blog' ? /^blogpost/i : /^display/i;
 
 // ---- Main -------------------------------------------------------------------
 const brandRows = await rest(
@@ -234,7 +257,7 @@ for (const brand of brandRows) {
     publisher =
       channel === 'google_ads'
         ? pickByName(publishers.filter((p) => p.macroEnabled !== false), /google/i, 'publisher', publisherOverride)
-        : pickByName(publishers, /^(other|custom|website|direct)/i, 'publisher', publisherOverride);
+        : pickByName(publishers, ORGANIC_PUBLISHER, 'publisher', publisherOverride);
   } catch (e) {
     console.error(`  ${e.message}`);
     totals.failed++;
@@ -252,54 +275,42 @@ for (const brand of brandRows) {
   console.log(`  ${products.length} ASIN(s) in catalog, ${have.size} already tagged, ${todo.length} to create.`);
   if (todo.length === 0) continue;
 
-  // google_ads: one macro tag for the advertiser, reused for every ASIN.
-  let macroTag = null;
-  if (channel === 'google_ads') {
-    if (dryRun) {
-      macroTag = '?maas=maas_adg_api_DRYRUN&ref_=aa_maas&tag=maas&aa_campaignid={campaignid}&aa_adgroupid={adgroupid}&aa_creativeid={creative}';
-    } else {
-      const res = await adsFetch(acct, '/attribution/tags/macroTag', {
-        method: 'POST',
-        body: JSON.stringify({ publisherIds: [String(publisher.id)], advertiserIds: [String(advertiser.id)] }),
-      });
-      macroTag = findTag(res);
-      if (!macroTag) {
-        console.error(`  macroTag response had no tag: ${JSON.stringify(res).slice(0, 500)}`);
-        totals.failed++;
-        continue;
-      }
+  // One API call per (advertiser, publisher): the macro tag (google_ads) is
+  // used verbatim for every ASIN; the non-macro TEMPLATE (organic channels)
+  // is filled per ASIN below. Both are GETs — a tag isn't "created" so much
+  // as derived, which is why re-running is harmless.
+  const isMacro = channel === 'google_ads';
+  let baseTag;
+  if (dryRun) {
+    baseTag = isMacro
+      ? '?maas=maas_adg_api_DRYRUN&ref_=aa_maas&tag=maas&aa_campaignid={campaignid}&aa_adgroupid={adgroupid}&aa_creativeid={creative}'
+      : '?maas=maas_adg_api_DRYRUN_static_9_99&ref_=aa_maas&tag=maas&aa_campaignid={insertCampaignId}&aa_adgroupid={insertAdGroupId}&aa_creativeid={insertAdiD}';
+  } else {
+    const qs = new URLSearchParams({ publisherIds: String(publisher.id), advertiserIds: String(advertiser.id) });
+    const path = `/attribution/tags/${isMacro ? 'macroTag' : 'nonMacroTemplateTag'}?${qs}`;
+    let res;
+    try {
+      res = await adsFetch(acct, path);
+    } catch (e) {
+      console.error(`  ${e.message}`);
+      totals.failed++;
+      continue;
     }
+    baseTag = findTag(res, advertiser.id, publisher.id);
+    if (!baseTag) {
+      console.error(`  ${path} returned no tag: ${JSON.stringify(res).slice(0, 500)}`);
+      totals.failed++;
+      continue;
+    }
+    console.log(`  ${isMacro ? 'macro tag' : 'template'}: ${baseTag}`);
   }
 
   const rows = [];
   for (const p of todo) {
     const campaignName = `${CAMPAIGN_ID(brand.slug)}/${AD_GROUP_ID}/${p.asin}`;
-    let tag = macroTag;
-    if (channel === 'brand_site') {
-      if (dryRun) {
-        tag = `?maas=maas_adg_api_DRYRUN_static_${p.asin}&ref_=aa_maas&tag=maas`;
-      } else {
-        try {
-          const res = await adsFetch(acct, '/attribution/tags/nonMacroTag', {
-            method: 'POST',
-            body: JSON.stringify({
-              publisherIds: [String(publisher.id)],
-              advertiserIds: [String(advertiser.id)],
-              campaignId: CAMPAIGN_ID(brand.slug),
-              adGroupId: AD_GROUP_ID,
-              creativeId: p.asin,
-            }),
-          });
-          tag = findTag(res);
-          if (!tag) throw new Error(`no tag in response: ${JSON.stringify(res).slice(0, 300)}`);
-        } catch (e) {
-          console.error(`  ${p.asin} FAILED: ${e.message}`);
-          totals.failed++;
-          continue;
-        }
-        await sleep(300); // stay under the Attribution endpoints' rate limit
-      }
-    }
+    const tag = isMacro
+      ? baseTag
+      : fillTemplate(baseTag, { campaignId: CAMPAIGN_ID(brand.slug), adGroupId: AD_GROUP_ID, creativeId: p.asin });
     const url = attributionUrl(p.asin, tag);
     rows.push({ brand: brand.brand, asin: p.asin, channel, attribution_url: url, campaign_name: campaignName, is_active: true });
     console.log(`  ${dryRun ? 'would create' : 'created'} ${p.asin}  ${campaignName}\n      ${url}`);

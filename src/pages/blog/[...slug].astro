@@ -4,7 +4,7 @@ import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import BlogCta from '../../components/BlogCta.astro';
 import FaqAccordion from '../../components/FaqAccordion.astro';
-import { getBrand } from '../../lib/supabase.js';
+import { getBrand, getPaidLinks, BLOG_CHANNEL } from '../../lib/supabase.js';
 import { getLocalImagesByAsin, localBucketImage } from '../../lib/images.js';
 import { getBlogPosts, getMergedCatalog, formatPostDate } from '../../lib/content.js';
 
@@ -79,6 +79,16 @@ let related = [];
 let imagesByAsin = new Map();
 let primary = null; // { product, group, images } for the inline cards
 if (post && post.related_asins.length > 0) {
+  // Blog CTAs carry the brand_site_blog Attribution tag ("Blogpost - Other"
+  // publisher) when one exists, so blog-driven sales report separately from
+  // the product pages' brand_site tag. Falls back to the organic link.
+  const links = await getPaidLinks();
+  const forBlog = (p) => {
+    const url = links.get(p.asin)?.[BLOG_CHANNEL];
+    return url ? { ...p, attribution_url: url, amazon_url: url } : p;
+  };
+  const groupForBlog = (g) => ({ ...g, representative: forBlog(g.representative), children: g.children.map(forBlog) });
+
   const merged = await getMergedCatalog();
   imagesByAsin = await getLocalImagesByAsin();
   const seen = new Set();
@@ -90,12 +100,12 @@ if (post && post.related_asins.length > 0) {
     }
     if (seen.has(group.key)) continue;
     seen.add(group.key);
-    related.push(group);
+    related.push(groupForBlog(group));
   }
   const primaryAsin = post.primary_asin ?? post.related_asins[0];
   const group = merged.find((g) => g.children.some((c) => c.asin === primaryAsin));
   if (group) {
-    const product = group.children.find((c) => c.asin === primaryAsin);
+    const product = forBlog(group.children.find((c) => c.asin === primaryAsin));
     primary = {
       product,
       group,

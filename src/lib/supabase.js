@@ -139,6 +139,9 @@ export function getReviewStats() {
  * Fails soft (empty Map + warning): a missing view or a brand with no paid
  * tags yet must never break a build — CTAs simply keep the organic link.
  */
+/** Organic blog channel — an attribution_links channel, but not a paid one. */
+export const BLOG_CHANNEL = 'brand_site_blog';
+
 export function getPaidLinks() {
   paidLinksPromise ??= rest(`brand_site_paid_links?brand_slug=eq.${encodeURIComponent(BRAND_SLUG)}`)
     .then((rows) => {

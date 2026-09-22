@@ -10,7 +10,8 @@
     "preview": "astro preview",
     "mirror-images": "node scripts/mirror-images.mjs",
     "check:blog": "node scripts/check-blog.mjs",
-    "attribution-tags": "node scripts/attribution-tags.mjs"
+    "attribution-tags": "node scripts/attribution-tags.mjs",
+    "attribution-report": "node scripts/attribution-report.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",

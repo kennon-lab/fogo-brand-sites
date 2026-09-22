@@ -18,6 +18,13 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `npm run check:blog` — blog content gate (also the first step of `npm run build`)
 - `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads [--probe] [--dry-run] [--force]`
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
+- `npm run attribution-report -- --brand=<slug>|all [--days=90] [--dry-run]` — pull the Attribution
+  PERFORMANCE/PRODUCTS reports and sync every campaign with traffic (Google Ads → Amazon listing
+  ads, creator links, console tags — i.e. everything NOT from the site) into
+  `bronze.attribution_campaigns` (campaign_kind dsa|keyword|other, primary_asin, keywords,
+  90-day clicks/purchases/sales/BRB, is_active = traffic in last 14 days). Re-run any time;
+  upserts on (advertiser_id, campaign_id, ad_group_id). The site's own tags stay in
+  `bronze.attribution_links`; the two tables together are the full Attribution picture.
 
 ## Environment (`.env`, never committed; see `.env.example`)
 

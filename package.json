@@ -9,7 +9,8 @@
     "build": "node scripts/check-blog.mjs && astro build && node scripts/check-dist.mjs",
     "preview": "astro preview",
     "mirror-images": "node scripts/mirror-images.mjs",
-    "check:blog": "node scripts/check-blog.mjs"
+    "check:blog": "node scripts/check-blog.mjs",
+    "attribution-tags": "node scripts/attribution-tags.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",

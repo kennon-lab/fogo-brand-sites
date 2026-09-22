@@ -32,10 +32,10 @@
 // Naming key (joins Google Ads, GA4, Amazon Attribution and our tables):
 //   fbs-{brand-slug}-{post-slug}  — campaign; ad groups "guide" | "product".
 import process from 'node:process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { listPosts } from './lib/posts.mjs';
-import { LIMITS, titleCase, sentenceCase, clauses, sentences, truncateWords, phraseThatFits, dangles, validateAd, keywordIssues } from './lib/ads-copy.mjs';
+import { LIMITS, adText, titleCase, sentenceCase, clauses, sentences, truncateWords, phraseThatFits, dangles, validateAd, keywordIssues } from './lib/ads-copy.mjs';
 import { plainText } from './lib/posts.mjs';
 
 try {
@@ -181,11 +181,11 @@ function buildAd({ post, brand, primaryProduct }) {
   // Candidates are used whole or not at all — no truncation anywhere in ad copy.
   const key = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const addH = (h) => {
-    const t = String(h).trim();
+    const t = adText(h);
     if (t.length >= 5 && t.length <= LIMITS.headline && !headlines.some((x) => key(x) === key(t))) headlines.push(t);
   };
   const addD = (d) => {
-    const t = String(d).trim();
+    const t = adText(d);
     if (t.length <= LIMITS.description && t.length >= 40 && !descriptions.some((x) => key(x) === key(t))) descriptions.push(t);
   };
 
@@ -230,7 +230,7 @@ function buildAd({ post, brand, primaryProduct }) {
     pinned: { headline_1: headlines[0] ?? null },
     path1: ads.path1 ?? 'blog',
     path2: ads.path2 ?? (slugify(truncateWords(phraseThatFits(fm.target_keyword, 60) || fm.target_keyword, LIMITS.path)) || undefined),
-    callouts: (ads.callouts?.length ? ads.callouts : ['Official Brand Site', 'Sold on Amazon', 'Step-by-Step Guide', 'Prime Shipping']).slice(0, LIMITS.calloutsMax),
+    callouts: (ads.callouts?.length ? ads.callouts : ['Official Brand Site', 'Sold on Amazon', 'Step-by-Step Guide', 'Prime Shipping']).map(adText).slice(0, LIMITS.calloutsMax),
     sitelinks: [],
   };
   if (ad.path2 && ad.path2.length > LIMITS.path) ad.path2 = ad.path2.slice(0, LIMITS.path).replace(/-+$/, '');
@@ -250,7 +250,7 @@ function sitelinksFor({ post, siblings, brand, primaryProduct, pdpHref }) {
     links.push({ text: 'See the Product', url: `https://www.${brand.domain}${pdpHref}`, line1: productLine || null, line2: productLine ? 'Sold and shipped by Amazon' : null });
   }
   links.push({ text: 'All Products', url: `https://www.${brand.domain}/products/`, line1: truncateWords(`The full ${brand.brand} catalog`, LIMITS.sitelinkLine), line2: 'Every item links to Amazon' });
-  return links.slice(0, LIMITS.sitelinksMax).map((l) => (l.line1 && l.line2 ? l : { text: l.text, url: l.url, line1: null, line2: null }));
+  return links.slice(0, LIMITS.sitelinksMax).map((l) => ({ ...l, text: adText(l.text), line1: l.line1 && adText(l.line1), line2: l.line2 && adText(l.line2) })).map((l) => (l.line1 && l.line2 ? l : { text: l.text, url: l.url, line1: null, line2: null }));
 }
 
 // ---- Main ----------------------------------------------------------------------------
@@ -267,7 +267,9 @@ if (brandRows.length === 0) {
 let written = 0;
 let problems = 0;
 for (const brand of brandRows) {
-  const posts = listPosts({ brand: brand.slug }).filter((p) => p.fm && (!postArg || p.slug === postArg));
+  // Every published post feeds sibling sitelinks; --post only limits which specs are written.
+  const allPosts = listPosts({ brand: brand.slug }).filter((p) => p.fm);
+  const posts = allPosts.filter((p) => !postArg || p.slug === postArg);
   if (posts.length === 0) {
     console.log(`\n== ${brand.brand}: no published posts — nothing to generate.`);
     continue;
@@ -334,7 +336,7 @@ for (const brand of brandRows) {
 
     // Ad + assets.
     const ad = buildAd({ post, brand, primaryProduct });
-    const siblings = posts.filter((p) => p.slug !== post.slug);
+    const siblings = allPosts.filter((p) => p.slug !== post.slug);
     const pdpHref = primaryProduct ? `/products/${primaryProduct.asin}/` : null;
     ad.sitelinks = sitelinksFor({ post, siblings, brand, primaryProduct, pdpHref });
     const copyProblems = validateAd(ad);
@@ -388,6 +390,14 @@ for (const brand of brandRows) {
     const dir = join(OUT_DIR, brand.slug);
     mkdirSync(dir, { recursive: true });
     const file = join(dir, `${post.slug}.json`);
+    // A pushed spec keeps its Google resource names and live status/bidding
+    // (ads-push.mjs owns those) so a regenerate never orphans the campaign.
+    const prev = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
+    if (prev?.google?.campaign) {
+      spec.google = { ...prev.google, customer_id: prev.google.customer_id ?? spec.google.customer_id };
+      spec.campaign.status = prev.campaign?.status ?? spec.campaign.status;
+      spec.campaign.bidding = prev.campaign?.bidding ?? spec.campaign.bidding;
+    }
     writeFileSync(file, `${JSON.stringify(spec, null, 2)}\n`);
     written++;
     console.log(

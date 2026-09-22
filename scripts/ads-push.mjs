@@ -9,6 +9,7 @@
 //   node scripts/ads-push.mjs --spec=ads/otis-classic/<post>.json [--dry-run] [--validate-only]
 //   node scripts/ads-push.mjs --spec=… --stage=maximize_conversions|target_roas [--target-roas=3]
 //   node scripts/ads-push.mjs --spec=… --enable | --pause
+//   node scripts/ads-push.mjs --spec=… --settings   (re-apply EXCLUDED_PARENT_ASSETS to a pushed campaign)
 //   npm run ads:push -- --spec=ads/otis-classic/<post>.json --validate-only
 //
 // Env (.env):
@@ -21,6 +22,10 @@
 // Safety: --dry-run prints the operations and exits; --validate-only sends the
 // request with validateOnly=true so Google checks it without creating anything.
 // New campaigns are always created PAUSED — go live with --enable after review.
+//
+// Account-level assets (a client account's call/phone asset, etc.) are
+// inherited by every campaign unless excluded; brand-site campaigns never show
+// a phone number, so each one opts out of EXCLUDED_PARENT_ASSETS.
 import process from 'node:process';
 import { readFileSync, writeFileSync } from 'node:fs';
 
@@ -42,6 +47,8 @@ const validateOnly = flag('validate-only');
 const stageArg = arg('stage');
 const enable = flag('enable');
 const pause = flag('pause');
+const settings = flag('settings');
+const EXCLUDED_PARENT_ASSETS = ['CALL'];
 
 if (!specPath) {
   console.error('Pass --spec=ads/<brand>/<post>.json');
@@ -133,6 +140,7 @@ function createOperations() {
         finalUrlSuffix: c.final_url_suffix,
         urlCustomParameters: Object.entries(c.custom_parameters ?? {}).map(([key, value]) => ({ key, value })),
         containsEuPoliticalAdvertising: 'DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING',
+        excludedParentAssetFieldTypes: EXCLUDED_PARENT_ASSETS,
       },
     },
   });
@@ -218,6 +226,9 @@ function updateOperations() {
     ops.push({ campaignOperation: { updateMask: field, update: { resourceName: spec.google.campaign, ...biddingFor(bidding) } } });
     spec.campaign.bidding = bidding;
   }
+  if (settings) {
+    ops.push({ campaignOperation: { updateMask: 'excluded_parent_asset_field_types', update: { resourceName: spec.google.campaign, excludedParentAssetFieldTypes: EXCLUDED_PARENT_ASSETS } } });
+  }
   if (enable || pause) {
     const status = enable ? 'ENABLED' : 'PAUSED';
     ops.push({ campaignOperation: { updateMask: 'status', update: { resourceName: spec.google.campaign, status } } });
@@ -227,7 +238,7 @@ function updateOperations() {
 }
 
 // ---- Main ---------------------------------------------------------------------------
-const isUpdate = Boolean(stageArg || enable || pause);
+const isUpdate = Boolean(stageArg || enable || pause || settings);
 const { ops, campaignRes, adGroupRes } = isUpdate ? { ops: updateOperations(), campaignRes: null, adGroupRes: {} } : createOperations();
 
 if (!isUpdate && spec.google?.campaign && !flag('force')) {
@@ -257,7 +268,7 @@ if (!isUpdate) {
   spec.google.pushed = new Date().toLocaleString('en-US');
   console.log(`created ${spec.google.campaign} (PAUSED) with ${Object.keys(spec.google.ad_groups).length} ad group(s), ${names.length} resources.`);
 } else {
-  console.log(`updated ${spec.google.campaign}: ${[stageArg && `stage=${stageArg}`, enable && 'ENABLED', pause && 'PAUSED'].filter(Boolean).join(', ')}`);
+  console.log(`updated ${spec.google.campaign}: ${[stageArg && `stage=${stageArg}`, settings && `excluded parent assets=${EXCLUDED_PARENT_ASSETS.join(',')}`, enable && 'ENABLED', pause && 'PAUSED'].filter(Boolean).join(', ')}`);
 }
 writeFileSync(specPath, `${JSON.stringify(spec, null, 2)}\n`);
 console.log(`spec updated: ${specPath}`);

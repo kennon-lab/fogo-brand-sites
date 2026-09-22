@@ -67,6 +67,22 @@ const DANGLING = new Set([
 // scratching post" reads wrong.
 const LEAD_PREFIX = /^(how to|how do (you|i)|how (can|should) (you|i)|what (is|are|to)|why (do|does|is)|things to make with( a| an)?|ideas for|tips for|the|a|an)\s+/i;
 
+/**
+ * Ad-safe plain text: Unicode compatibility forms folded to ASCII (N₂O → N2O,
+ * ™ → TM), curly quotes and dashes straightened. Google's SYMBOLS policy
+ * disapproves ads over characters like subscripts.
+ */
+export function adText(s) {
+  return String(s)
+    .normalize('NFKC')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/\s*[–—]\s*/g, ' - ')
+    .replace(/⁄/g, '/')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /** First letter upper-cased, rest untouched. */
 export function sentenceCase(s) {
   const t = String(s).trim();
@@ -110,6 +126,7 @@ const GIMMICK = [
   [/\bclick here\b/i, '"click here"'],
   [/\b\d{3}[-. ]\d{3}[-. ]\d{4}\b/, 'phone number'],
   [/[★☆✓✔➤►→•]/, 'symbol character'],
+  [/[^ -~]/, 'non-ASCII character (Google SYMBOLS policy)'],
   [/\b(free|cheap|lowest|100%|guaranteed)\b.*\b(free|cheap|lowest|100%|guaranteed)\b/i, 'stacked promotional words'],
 ];
 const CAPS_ALLOW = new Set(['N2O', 'CO2', 'USA', 'FAQ', 'XL', 'BPA', 'LED', 'UV']);

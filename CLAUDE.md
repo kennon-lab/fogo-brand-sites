@@ -20,8 +20,11 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
 - `npm run ads:campaigns -- --brand=<slug>|all [--post=<slug>] [--days=90]` — write Google Ads
   campaign specs to `ads/<brand>/<post>.json` from each post's search brief + Amazon search terms
-- `npm run ads:push -- --spec=ads/<brand>/<post>.json [--dry-run|--validate-only|--enable|--pause|--stage=…]`
-  — create / update that campaign through the Google Ads API (see "Google Ads campaigns")
+- `npm run ads:review -- --brand=<slug> | --spec=…` — the required review gate between generate
+  and push (account overlap, policy, negatives, copy, landing page, tags, Google validate-only);
+  records `review` in each spec — see `ads/README.md`
+- `npm run ads:push -- --spec=ads/<brand>/<post>.json [--dry-run|--validate-only|--sync|--enable [--ack-warnings]|--pause|--stage=…]`
+  — create / sync / update that campaign through the Google Ads API (see "Google Ads campaigns")
 - `npm run ads:auth [-- --accounts]` — one-time loopback OAuth (Desktop client in Cloud project
   404956388162) that writes `GOOGLE_ADS_REFRESH_TOKEN` into `.env`; `--accounts` lists the
   client accounts under the manager (ids for `brand_sites.google_ads_customer_id`). API version
@@ -164,16 +167,28 @@ Known quirks (do not re-derive):
   convert (tier A ≥5 purchases & ≥5% CVR → exact+phrase; tier B ≥2 purchases & ≥3% → exact),
   relevance-filtered (≥60% token overlap with a seed) and vocabulary-filtered (every word must
   occur in the post/brief/product titles — keeps competitor brands out); 1–2 word terms are
-  exact-only. Negatives = generic commerce list + relevant Amazon terms with ≥15 clicks and no
-  purchase + `ads.negatives`. RSA copy = author lines first, then whole (never truncated)
-  phrases from the brief; headline 1 pinned. Final URL = the post; `final_url_suffix` carries
+  exact-only; product keywords must contain a product noun (head noun of `ads.seeds`, else of
+  the target keyword; override `ads.product_nouns`). Keywords live in any other campaign of the
+  brand's account (Otis Classic's account also runs Quartile's `QT_*` direct-to-Amazon
+  campaigns) or owned by an earlier post are dropped (listed under `excluded`); policy-risk
+  terms (N2O, chargers, CBD — `scripts/lib/ads-spec.mjs`) are never bid on. Negatives =
+  generic commerce list (never "amazon" or "manual") + relevant Amazon terms with ≥15 clicks and
+  no purchase + `ads.negatives`, minus any that would block one of our keywords. RSA copy =
+  guide: author lines first, then whole (never truncated) phrases from the brief; product: led
+  by product keywords + product title; headline 1 pinned; ASCII only (`adText`). Sitelinks =
+  related posts sharing an ASIN family + product + catalog. Final URL = the post; `final_url_suffix` carries
   ValueTrack (`{campaignid}` `{adgroupid}` `{creative}` `{keyword}` …) which the site's
   paid-landing swap fills into the Amazon `google_ads` macro tag. Campaign name
   `fbs-{brand-slug}-{post-slug}` is the join key across Google Ads, GA4 (`utm_campaign`) and
   Amazon Attribution. `scripts/ads-push.mjs` sends one atomic `googleAds:mutate` (budget →
   campaign PAUSED → geo/language/negatives → ad groups → keywords → RSA → sitelink/callout
   assets) with temp ids, writes resource names back into the spec, refuses duplicates, and
-  handles `--validate-only`, `--enable`/`--pause`, `--stage=maximize_conversions|target_roas`.
+  handles `--validate-only`, `--sync` (diff live campaign → spec: keywords, negatives, ad
+  groups, RSA replace, sitelinks/callouts, budget, CPC), `--enable`/`--pause`,
+  `--stage=maximize_conversions|target_roas`. Every campaign excludes inherited account-level
+  CALL assets (no phone numbers, ever). Create / sync / enable require a non-failing
+  `ads:review` whose hash matches the spec; enable also requires approved ads, a live campaign
+  identical to the spec, and `--ack-warnings`. Shared API code: `scripts/lib/google-ads.mjs`.
   Credentials: `.env` GOOGLE_ADS_* (manager-account OAuth + developer token); client account =
   `brand_sites.google_ads_customer_id`. OAuth setup: Cloud project → OAuth consent screen
   (External, app **published to production** — an app left in Testing expires refresh tokens

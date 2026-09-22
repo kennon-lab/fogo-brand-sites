@@ -23,6 +23,7 @@
 import { listPosts, plainText, h2s as headingsOf } from './lib/posts.mjs';
 import { CLAIM_FAIL, CLAIM_WARN } from './lib/claims.mjs';
 import { validateAd, keywordIssues } from './lib/ads-copy.mjs';
+import { policyRisk } from './lib/ads-spec.mjs';
 
 const args = process.argv.slice(2);
 const brandArg = args.find((a) => a.startsWith('--brand='))?.slice('--brand='.length) ?? null;
@@ -174,6 +175,8 @@ for (const post of posts) {
     if (!k) continue;
     const issues = keywordIssues(String(k));
     if (issues.length) W.push(`keyword "${k}" is not usable as a Google keyword: ${issues.join(', ')}`);
+    const risk = policyRisk(String(k));
+    if (risk) W.push(`keyword "${k}" won't be bid on in Google Ads (policy-risk term "${risk}") — fine for SEO`);
   }
 
   // ---- claims ------------------------------------------------------------

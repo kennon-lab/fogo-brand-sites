@@ -15,6 +15,7 @@ import { createServer } from 'node:http';
 import { randomBytes, createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
+import { adsEnv, managedAccounts } from './lib/google-ads.mjs';
 
 try {
   process.loadEnvFile('.env');
@@ -22,8 +23,6 @@ try {
   // .env optional if vars are already exported
 }
 
-const API_VERSION = process.env.GOOGLE_ADS_API_VERSION ?? 'v25';
-const API_BASE = process.env.GOOGLE_ADS_API_BASE ?? 'https://googleads.googleapis.com';
 const OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const OAUTH_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const SCOPE = 'https://www.googleapis.com/auth/adwords';
@@ -48,35 +47,13 @@ function setEnvVar(name, value) {
   writeFileSync('.env', text);
 }
 
-async function accessToken() {
-  const r = await fetch(OAUTH_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN ?? '', client_id: clientId, client_secret: clientSecret }),
-  });
-  if (!r.ok) throw new Error(`OAuth token refresh ${r.status}: ${(await r.text()).slice(0, 300)}`);
-  return (await r.json()).access_token;
-}
-
 async function listAccounts() {
-  const devToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
-  const manager = (process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? '').replace(/-/g, '');
-  if (!devToken || !manager || !process.env.GOOGLE_ADS_REFRESH_TOKEN) {
-    console.error('--accounts needs GOOGLE_ADS_DEVELOPER_TOKEN, GOOGLE_ADS_LOGIN_CUSTOMER_ID and GOOGLE_ADS_REFRESH_TOKEN.');
+  const missing = adsEnv().missing;
+  if (missing.length) {
+    console.error(`--accounts needs ${missing.join(', ')}.`);
     process.exit(1);
   }
-  const token = await accessToken();
-  const r = await fetch(`${API_BASE}/${API_VERSION}/customers/${manager}/googleAds:search`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'developer-token': devToken, 'login-customer-id': manager, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      query: 'SELECT customer_client.id, customer_client.descriptive_name, customer_client.manager, customer_client.status, customer_client.level, customer_client.currency_code FROM customer_client',
-    }),
-  });
-  const text = await r.text();
-  if (!r.ok) throw new Error(`googleAds:search ${r.status}\n${text.slice(0, 4000)}`);
-  const rows = (JSON.parse(text).results ?? []).map((x) => x.customerClient);
-  for (const c of rows) {
+  for (const c of await managedAccounts()) {
     console.log(`${String(c.id).padEnd(12)} ${c.manager ? 'MANAGER' : 'client '} ${String(c.status).padEnd(10)} ${c.currencyCode ?? ''}  ${c.descriptiveName ?? ''}`);
   }
 }

@@ -19,12 +19,26 @@
 //   ad group   product   Amazon search terms that already convert for the post's
 //                        ASINs (tier A exact + phrase, tier B exact), relevance-
 //                        filtered against the brief's keywords + ads.seeds
+//              + every product keyword must contain a product noun (head noun
+//              of each ads.seeds phrase, else of the target keyword; override
+//              with ads.product_nouns) — keeps "whipping cream" out of a
+//              dispenser campaign
+//   dedupe     a keyword is dropped when (a) it is live in another campaign in
+//              the brand's Google Ads account (an agency's direct-to-Amazon
+//              campaign, say) or (b) an earlier post of the same brand already
+//              bids on it (pushed specs first, then by post date) — one
+//              account never competes with itself. Dropped terms are listed
+//              under `excluded` in the spec.
+//   policy     keywords with policy-risk terms (N2O, chargers, CBD, …) are
+//              never bid on; see lib/ads-spec.mjs
 //   negatives  generic list + relevant Amazon terms with clicks and no purchases
-//              + ads.negatives; never a term that is also a keyword
-//   RSA        author headlines/descriptions first (ads: block), then copy
-//              derived from the brief (keyword, title, summary, FAQ), validated
-//              against Google limits/policy; headline 1 pinned to the keyword
-//   assets     sitelinks (sibling posts, product page, catalog) + callouts
+//              + ads.negatives; never one that would block one of our keywords
+//   RSA        guide: author headlines/descriptions first (ads: block), then
+//              copy derived from the brief (keyword, title, summary, FAQ);
+//              product: led by the product keywords and the product title.
+//              Validated against Google limits/policy; headline 1 pinned.
+//   assets     sitelinks (related posts sharing an ASIN family, product page,
+//              catalog) + callouts
 //   URLs       final = https://www.<domain>/blog/<post>/; suffix carries
 //              ValueTrack so the site's paid-landing swap can fill the Amazon
 //              Attribution macro tag ({campaignid} {adgroupid} {creative} …)
@@ -37,6 +51,8 @@ import { join } from 'node:path';
 import { listPosts } from './lib/posts.mjs';
 import { LIMITS, adText, titleCase, sentenceCase, clauses, sentences, truncateWords, phraseThatFits, dangles, validateAd, keywordIssues } from './lib/ads-copy.mjs';
 import { plainText } from './lib/posts.mjs';
+import { adsEnv, liveKeywords } from './lib/google-ads.mjs';
+import { keywordKey, policyRisk, headNoun, hasProductNoun, negativeConflicts, specHash } from './lib/ads-spec.mjs';
 
 try {
   process.loadEnvFile('.env');
@@ -78,10 +94,12 @@ const MAX_PRODUCT_KEYWORDS = 24; // keyword entries (exact + phrase count separa
 const MAX_NEGATIVES = 40;
 // Searches with no purchase intent we can serve, or intent already headed
 // elsewhere. Deliberately NOT here: diy / homemade / how to make — the posts
-// are how-to guides, those searchers are the audience.
+// are how-to guides, those searchers are the audience; "amazon" — every CTA
+// goes to Amazon, so "… amazon" searchers are ideal; "manual" — people looking
+// for instructions are exactly who a how-to post serves.
 const GENERIC_NEGATIVES = [
-  'free', 'jobs', 'job', 'career', 'careers', 'wholesale', 'alibaba', 'aliexpress', 'walmart', 'ebay', 'amazon',
-  'reddit', 'youtube', 'pdf', 'manual', 'recall', 'lawsuit', 'repair', 'replacement parts', 'coupon', 'promo code',
+  'free', 'jobs', 'job', 'career', 'careers', 'wholesale', 'alibaba', 'aliexpress', 'walmart', 'ebay',
+  'reddit', 'youtube', 'pdf', 'recall', 'lawsuit', 'repair', 'replacement parts', 'coupon', 'promo code',
 ];
 const STOPWORDS = new Set([
   'a', 'an', 'and', 'the', 'to', 'of', 'for', 'with', 'in', 'on', 'at', 'by', 'from', 'how', 'what', 'why', 'when',
@@ -172,22 +190,26 @@ async function mineTerms(store, asins, seeds, brandWords, vocabulary) {
 }
 
 // ---- Ad copy -----------------------------------------------------------------------
-function buildAd({ post, brand, primaryProduct }) {
-  const fm = post.fm;
-  const ads = fm.ads ?? {};
-  const kw = titleCase(fm.target_keyword);
+// Candidates are used whole or not at all — no truncation anywhere in ad copy.
+function copyCollector() {
   const headlines = [];
   const descriptions = [];
-  // Candidates are used whole or not at all — no truncation anywhere in ad copy.
   const key = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const addH = (h) => {
-    const t = adText(h);
+    const t = adText(h ?? '');
     if (t.length >= 5 && t.length <= LIMITS.headline && !headlines.some((x) => key(x) === key(t))) headlines.push(t);
   };
   const addD = (d) => {
-    const t = adText(d);
+    const t = adText(d ?? '');
     if (t.length <= LIMITS.description && t.length >= 40 && !descriptions.some((x) => key(x) === key(t))) descriptions.push(t);
   };
+  return { headlines, descriptions, addH, addD };
+}
+
+function buildAd({ post, brand }) {
+  const fm = post.fm;
+  const ads = fm.ads ?? {};
+  const { headlines, descriptions, addH, addD } = copyCollector();
 
   // 1. Author copy wins and goes first (headline 1 is pinned to position 1).
   for (const h of ads.headlines ?? []) addH(h);
@@ -198,6 +220,7 @@ function buildAd({ post, brand, primaryProduct }) {
   const kwHead = phraseThatFits(fm.target_keyword, LIMITS.headline);
   if (kwHead) addH(kwHead);
   for (const s of fm.secondary_keywords ?? []) {
+    if (policyRisk(s)) continue; // not bid on, so not a headline either
     const h = phraseThatFits(s, LIMITS.headline);
     if (h) addH(h);
   }
@@ -237,7 +260,43 @@ function buildAd({ post, brand, primaryProduct }) {
   return ad;
 }
 
-function sitelinksFor({ post, siblings, brand, primaryProduct, pdpHref }) {
+/**
+ * The product ad group's RSA: shoppers searched a product, so the ad leads
+ * with that product (its keywords, then the product title) and falls back on
+ * the guide's copy to fill the remaining slots. Headline 1 (pinned) is the
+ * top product keyword.
+ */
+function buildProductAd({ brand, primaryProduct, productKw, productNouns, guideAd }) {
+  const { headlines, descriptions, addH, addD } = copyCollector();
+  const exact = productKw.filter((k) => k.match === 'EXACT').map((k) => k.text);
+  for (const k of exact.slice(0, 6)) addH(phraseThatFits(k, LIMITS.headline));
+  addH(`Official ${brand.brand} Site`);
+  const brandPrefix = new RegExp(`^${brand.brand.replace(/[^a-z0-9 ]/gi, '')}\\s+`, 'i');
+  for (const c of clauses(primaryProduct?.display_title ?? '')) {
+    const t = c.replace(brandPrefix, '');
+    // Only title fragments that name the product ("Swing Top Glass Bottles,
+    // 16 Oz"), not pack details ("Set of 6", "Plastic Caps").
+    if (/^[A-Za-z0-9]/.test(t) && t.split(' ').length >= 2 && !dangles(t) && hasProductNoun(t, productNouns)) addH(titleCase(t));
+  }
+  addH('Sold on Amazon');
+  addH('Ships From Amazon');
+  for (const h of guideAd.headlines.slice(1)) addH(h);
+
+  const product = exact[0] ?? '';
+  addD(`${brand.brand} ${product} from the official brand site. Order on Amazon with Prime shipping.`);
+  addD(`${brand.brand} ${product}. Order on Amazon with Prime shipping.`);
+  addD(`Compare sizes and styles, read the ${brand.brand} guide, then order on Amazon.`);
+  for (const d of guideAd.descriptions) addD(d);
+
+  return {
+    ...guideAd,
+    headlines: headlines.slice(0, LIMITS.headlinesMax),
+    descriptions: descriptions.slice(0, LIMITS.descriptionsMax),
+    pinned: { headline_1: headlines[0] ?? null },
+  };
+}
+
+function sitelinksFor({ siblings, brand, primaryProduct, pdpHref }) {
   const links = [];
   for (const s of siblings.slice(0, 4)) {
     const text = s.fm.ads?.sitelink ?? phraseThatFits(s.fm.target_keyword, LIMITS.sitelinkText) ?? '';
@@ -285,11 +344,31 @@ for (const brand of brandRows) {
   };
   const brandWords = brand.brand.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
 
-  for (const post of posts) {
+  // Keywords already live elsewhere in the brand's Google Ads account (an
+  // agency's campaigns, other brand-site campaigns). Bidding on the same query
+  // twice in one account only splits the auction against ourselves.
+  let accountKeywords = null;
+  const customerId = brand.google_ads_customer_id;
+  if (customerId && adsEnv().missing.length === 0) {
+    try {
+      accountKeywords = await liveKeywords(customerId);
+    } catch (err) {
+      console.warn(`  warning: could not read live keywords from Google Ads (${String(err.message).split('\n')[0]}) — account overlap not checked; ads:review will.`);
+    }
+  } else {
+    console.warn(`  warning: ${customerId ? 'GOOGLE_ADS_* credentials missing' : 'no google_ads_customer_id'} — account overlap not checked; ads:review will.`);
+  }
+
+  // Pass 1: candidates for every post (all posts, so --post still dedupes
+  // against its siblings).
+  const drafts = [];
+  for (const post of allPosts) {
     const fm = post.fm;
     if (!fm.target_keyword) {
-      console.error(`  ${post.slug}: no target_keyword — run npm run check:blog.`);
-      problems++;
+      if (posts.includes(post)) {
+        console.error(`  ${post.slug}: no target_keyword — run npm run check:blog.`);
+        problems++;
+      }
       continue;
     }
     const ads = fm.ads ?? {};
@@ -306,40 +385,102 @@ for (const brand of brandRows) {
         ].join(' ')
       )
     );
-
+    const productNouns = uniq(
+      (ads.product_nouns?.length ? ads.product_nouns : ads.seeds?.length ? ads.seeds : [fm.target_keyword]).map((p) => headNoun(p)).filter(Boolean)
+    );
     const mined = await mineTerms(brand.store, asins, seeds, brandWords, vocabulary);
 
-    // Keywords. Brief keywords are the "guide" ad group; mined winners the
+    // Brief keywords are the "guide" ad group; seeds + mined winners the
     // "product" ad group. Anything the brief already names is not duplicated.
-    const guideKw = uniq([fm.target_keyword, ...(fm.secondary_keywords ?? [])].map(cleanKeyword)).filter((k) => keywordIssues(k).length === 0);
-    const seedKw = uniq((ads.seeds ?? []).map(cleanKeyword)).filter((k) => keywordIssues(k).length === 0 && !guideKw.includes(k));
+    const excluded = [];
+    const exclude = (e) => excluded.some((x) => x.text === e.text && x.group === e.group) || excluded.push(e);
+    const usable = (k, group) => {
+      const risk = policyRisk(k);
+      if (risk) exclude({ text: k, group, reason: `policy-risk term "${risk}"` });
+      else if (group === 'product' && !hasProductNoun(k, productNouns)) exclude({ text: k, group, reason: `no product noun (${productNouns.join(', ')})` });
+      return !risk && (group !== 'product' || hasProductNoun(k, productNouns));
+    };
+    const guideKw = uniq([fm.target_keyword, ...(fm.secondary_keywords ?? [])].map(cleanKeyword)).filter((k) => keywordIssues(k).length === 0 && usable(k, 'guide'));
+    const seedKw = uniq((ads.seeds ?? []).map(cleanKeyword)).filter((k) => keywordIssues(k).length === 0 && !guideKw.includes(k) && usable(k, 'product'));
+    const productCandidates = [
+      ...seedKw.map((k) => ({ text: k, tier: 'seed', source: 'brief-seed' })),
+      ...mined.tierA.filter((r) => usable(r.term, 'product')).map((r) => ({ text: r.term, tier: 'A', source: 'amazon-tier-a', purchases: r.purchases, cvr: +r.cvr.toFixed(3) })),
+      ...mined.tierB.filter((r) => usable(r.term, 'product')).map((r) => ({ text: r.term, tier: 'B', source: 'amazon-tier-b', purchases: r.purchases, cvr: +r.cvr.toFixed(3) })),
+    ];
+
+    const dir = join(OUT_DIR, brand.slug);
+    const file = join(dir, `${post.slug}.json`);
+    const prev = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
+    drafts.push({ post, fm, ads, asins, primaryAsin, primaryProduct, productNouns, mined, guideKw, productCandidates, excluded, exclude, file, dir, prev });
+  }
+
+  // Pass 2: a keyword belongs to one post. Pushed campaigns keep theirs; then
+  // older posts win; ties by slug.
+  drafts.sort((a, b) => Number(Boolean(b.prev?.google?.campaign)) - Number(Boolean(a.prev?.google?.campaign)) || String(a.fm.date).localeCompare(String(b.fm.date)) || a.post.slug.localeCompare(b.post.slug));
+  const claimed = new Map(); // keywordKey → post slug
+  for (const d of drafts) {
+    const campaignName = `fbs-${brand.slug}-${d.post.slug}`;
+    const liveElsewhere = new Map(
+      (accountKeywords ?? []).filter((k) => k.campaign !== campaignName).map((k) => [keywordKey(k.text), k.campaign])
+    );
+    const mine = new Set();
+    const free = (text, group) => {
+      const key = keywordKey(text);
+      if (mine.has(key)) return false; // same query already in this campaign (seed + mined term)
+      if (liveElsewhere.has(key)) {
+        d.exclude({ text, group, reason: `live in campaign "${liveElsewhere.get(key)}"` });
+        return false;
+      }
+      if (claimed.has(key) && claimed.get(key) !== d.post.slug) {
+        d.exclude({ text, group, reason: `already bid on by post "${claimed.get(key)}"` });
+        return false;
+      }
+      claimed.set(key, d.post.slug);
+      mine.add(key);
+      return true;
+    };
     // Phrase match only for terms specific enough to stay on topic (3+ words);
     // one- and two-word terms ("cat scratch", "glass bottles") run exact-only.
     const withPhrase = (k) => k.split(' ').length >= 3;
     const pair = (text, extra = {}) => (withPhrase(text) ? [{ text, match: 'EXACT', ...extra }, { text, match: 'PHRASE', ...extra }] : [{ text, match: 'EXACT', ...extra }]);
-    const guide = guideKw.flatMap((k) => pair(k, { source: 'brief' }));
-    const taken = new Set(guideKw);
-    const productKw = [];
-    for (const k of seedKw) {
-      productKw.push(...pair(k, { source: 'brief-seed' }));
-      taken.add(k);
+    d.guide = d.guideKw.filter((k) => free(k, 'guide')).flatMap((k) => pair(k, { source: 'brief' }));
+    d.productKw = [];
+    for (const c of d.productCandidates) {
+      if (!free(c.text, 'product')) continue;
+      const { tier, text, ...extra } = c;
+      if (tier === 'B') {
+        if (d.productKw.length < MAX_PRODUCT_KEYWORDS) d.productKw.push({ text, match: 'EXACT', ...extra });
+      } else d.productKw.push(...pair(text, extra));
     }
-    for (const r of mined.tierA) if (!taken.has(r.term)) productKw.push(...pair(r.term, { source: 'amazon-tier-a', purchases: r.purchases, cvr: +r.cvr.toFixed(3) }));
-    for (const r of mined.tierB) if (!taken.has(r.term) && productKw.length < MAX_PRODUCT_KEYWORDS) productKw.push({ text: r.term, match: 'EXACT', source: 'amazon-tier-b', purchases: r.purchases, cvr: +r.cvr.toFixed(3) });
-    const keywordTexts = new Set([...guide, ...productKw].map((k) => k.text));
+  }
 
-    const negatives = uniq([
+  // Pass 3: negatives, ads, spec — written for the requested posts only.
+  for (const d of drafts) {
+    if (!posts.includes(d.post)) continue;
+    const { post, fm, ads, asins, primaryAsin, primaryProduct, mined, guide, productKw, excluded, file, dir, prev } = d;
+    if (guide.length === 0) {
+      console.error(`  ${post.slug}: every guide keyword was excluded (${excluded.filter((e) => e.group === 'guide').map((e) => `${e.text}: ${e.reason}`).join('; ')}) — revise the brief.`);
+      problems++;
+      continue;
+    }
+    const keywords = [...guide, ...productKw];
+    const negativeTexts = uniq([
       ...GENERIC_NEGATIVES,
       ...mined.negatives.map((r) => r.term),
       ...(ads.negatives ?? []).map(cleanKeyword),
-    ]).filter((n) => n && !keywordTexts.has(n) && keywordIssues(n).length === 0);
+    ]).filter((n) => n && keywordIssues(n).length === 0);
+    const negatives = negativeTexts
+      .map((text) => ({ text, match: 'PHRASE' }))
+      .filter((n) => negativeConflicts([n], keywords).length === 0);
 
     // Ad + assets.
-    const ad = buildAd({ post, brand, primaryProduct });
-    const siblings = allPosts.filter((p) => p.slug !== post.slug);
+    const ad = buildAd({ post, brand });
+    const siblingFamilies = new Set(asins);
+    const related = allPosts.filter((p) => p.slug !== post.slug && (p.fm.related_asins ?? []).flatMap(familyOf).some((a) => siblingFamilies.has(a)));
     const pdpHref = primaryProduct ? `/products/${primaryProduct.asin}/` : null;
-    ad.sitelinks = sitelinksFor({ post, siblings, brand, primaryProduct, pdpHref });
-    const copyProblems = validateAd(ad);
+    ad.sitelinks = sitelinksFor({ siblings: related, brand, primaryProduct, pdpHref });
+    const productAd = productKw.length > 0 ? buildProductAd({ brand, primaryProduct, productKw, productNouns: d.productNouns, guideAd: ad }) : null;
+    const copyProblems = [...validateAd(ad), ...(productAd ? validateAd(productAd).map((c) => ({ ...c, where: `product ${c.where}` })) : [])];
     if (copyProblems.length > 0) {
       console.error(`  ${post.slug}: ad copy problems:`);
       for (const c of copyProblems) console.error(`    ${c.where} "${c.text}": ${c.issues.join(', ')}`);
@@ -354,7 +495,7 @@ for (const brand of brandRows) {
       generated: localDate(),
       brand: { slug: brand.slug, name: brand.brand, domain: brand.domain, store: brand.store },
       google: { customer_id: brand.google_ads_customer_id ?? null, campaign: null, ad_groups: {}, pushed: null },
-      source: { post: post.path, target_keyword: fm.target_keyword, search_intent: fm.search_intent ?? 'informational', asins, days: DAYS, min_clicks: MIN_CLICKS },
+      source: { post: post.path, target_keyword: fm.target_keyword, search_intent: fm.search_intent ?? 'informational', asins, primary_asin: primaryAsin, days: DAYS, min_clicks: MIN_CLICKS },
       campaign: {
         name: campaignName,
         status: 'PAUSED', // a human flips it live after reviewing the spec
@@ -373,12 +514,13 @@ for (const brand of brandRows) {
         final_url_suffix:
           'utm_source=google&utm_medium=cpc&utm_campaign={_campaign}&utm_content={adgroupid}&utm_term={keyword}&campaignid={campaignid}&adgroupid={adgroupid}&creative={creative}&keyword={keyword}&matchtype={matchtype}&targetid={targetid}&device={device}&network={network}',
         custom_parameters: { campaign: campaignName },
-        negatives: negatives.map((text) => ({ text, match: 'PHRASE' })),
+        negatives,
       },
       ad_groups: [
         { name: 'guide', keywords: guide, ad: { ...ad, final_url: finalUrl } },
-        ...(productKw.length > 0 ? [{ name: 'product', keywords: productKw, ad: { ...ad, final_url: finalUrl } }] : []),
+        ...(productAd ? [{ name: 'product', keywords: productKw, ad: { ...productAd, final_url: finalUrl } }] : []),
       ],
+      excluded,
       mined: {
         relevant_terms: mined.rows.length,
         tier_a: mined.tierA.map((r) => ({ term: r.term, clicks: r.clicks, purchases: r.purchases, cvr: +r.cvr.toFixed(3), cpc: +r.cpc.toFixed(2) })),
@@ -387,22 +529,22 @@ for (const brand of brandRows) {
       },
     };
 
-    const dir = join(OUT_DIR, brand.slug);
     mkdirSync(dir, { recursive: true });
-    const file = join(dir, `${post.slug}.json`);
     // A pushed spec keeps its Google resource names and live status/bidding
-    // (ads-push.mjs owns those) so a regenerate never orphans the campaign.
-    const prev = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
+    // (ads-push.mjs owns those) so a regenerate never orphans the campaign; a
+    // review survives only if the reviewed content is unchanged.
     if (prev?.google?.campaign) {
       spec.google = { ...prev.google, customer_id: prev.google.customer_id ?? spec.google.customer_id };
       spec.campaign.status = prev.campaign?.status ?? spec.campaign.status;
       spec.campaign.bidding = prev.campaign?.bidding ?? spec.campaign.bidding;
     }
+    if (prev?.review && prev.review.hash === specHash(spec)) spec.review = prev.review;
     writeFileSync(file, `${JSON.stringify(spec, null, 2)}\n`);
     written++;
     console.log(
-      `  ${post.slug}\n    campaign ${campaignName}\n    guide ${guide.length} keyword(s), product ${productKw.length} keyword(s) from ${mined.rows.length} relevant Amazon term(s), ${negatives.length} negative(s)\n    ${ad.headlines.length} headlines, ${ad.descriptions.length} descriptions, ${ad.sitelinks.length} sitelinks → ${file}`
+      `  ${post.slug}\n    campaign ${campaignName}\n    guide ${guide.length} keyword(s), product ${productKw.length} keyword(s) from ${mined.rows.length} relevant Amazon term(s), ${negatives.length} negative(s), ${excluded.length} excluded\n    ${ad.headlines.length} headlines, ${ad.descriptions.length} descriptions, ${ad.sitelinks.length} sitelinks → ${file}`
     );
+    for (const e of excluded) console.log(`      excluded ${e.group} "${e.text}": ${e.reason}`);
   }
 }
 

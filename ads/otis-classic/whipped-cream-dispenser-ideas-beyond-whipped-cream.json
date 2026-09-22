@@ -21,6 +21,7 @@
       "B06WVD2K6N",
       "B01DZ2HZ2U"
     ],
+    "primary_asin": "B06WVD2K6N",
     "days": 90,
     "min_clicks": 10
   },
@@ -113,10 +114,6 @@
         "match": "PHRASE"
       },
       {
-        "text": "amazon",
-        "match": "PHRASE"
-      },
-      {
         "text": "reddit",
         "match": "PHRASE"
       },
@@ -126,10 +123,6 @@
       },
       {
         "text": "pdf",
-        "match": "PHRASE"
-      },
-      {
-        "text": "manual",
         "match": "PHRASE"
       },
       {
@@ -271,12 +264,6 @@
             "line2": "Shake and clean"
           },
           {
-            "text": "Kombucha Fizz Guide",
-            "url": "https://www.otisclassic.com/blog/kombucha-second-fermentation-guide/",
-            "line1": "Kombucha second fermentation",
-            "line2": "How to bottle it in swing top"
-          },
-          {
             "text": "See the Product",
             "url": "https://www.otisclassic.com/products/B06WVD2K6N/",
             "line1": "Otis Classic Professional Whipped",
@@ -291,139 +278,38 @@
         ],
         "final_url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/"
       }
+    }
+  ],
+  "excluded": [
+    {
+      "text": "whipping cream",
+      "group": "product",
+      "reason": "no product noun (dispenser)"
     },
     {
-      "name": "product",
-      "keywords": [
-        {
-          "text": "whipped cream dispenser",
-          "match": "EXACT",
-          "source": "brief-seed"
-        },
-        {
-          "text": "whipped cream dispenser",
-          "match": "PHRASE",
-          "source": "brief-seed"
-        },
-        {
-          "text": "whipped cream dispenser stainless steel",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 29,
-          "cvr": 0.061
-        },
-        {
-          "text": "whipped cream dispenser stainless steel",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 29,
-          "cvr": 0.061
-        },
-        {
-          "text": "stainless steel whipped cream dispenser",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 23,
-          "cvr": 0.102
-        },
-        {
-          "text": "stainless steel whipped cream dispenser",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 23,
-          "cvr": 0.102
-        },
-        {
-          "text": "professional whipped cream dispenser",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 6,
-          "cvr": 0.071
-        },
-        {
-          "text": "professional whipped cream dispenser",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 6,
-          "cvr": 0.071
-        },
-        {
-          "text": "whipping cream",
-          "match": "EXACT",
-          "source": "amazon-tier-b",
-          "purchases": 2,
-          "cvr": 0.111
-        },
-        {
-          "text": "whipping cream dispenser",
-          "match": "EXACT",
-          "source": "amazon-tier-b",
-          "purchases": 2,
-          "cvr": 0.095
-        }
-      ],
-      "ad": {
-        "headlines": [
-          "5 Cream Dispenser Ideas",
-          "Mousse, Cold Foam, Infusions",
-          "Chocolate Mousse in Minutes",
-          "Coffee-Shop Cold Foam at Home",
-          "Rapid Cocktail Infusions",
-          "Savory Foams for Soups",
-          "Whipped Cream Dispenser",
-          "Whipped Cream Dispenser Uses",
-          "Cold Foam at Home",
-          "Beyond Whipped Cream",
-          "Otis Classic Official Guide",
-          "Otis Classic Guide",
-          "Step-by-Step Instructions",
-          "Read the Full Guide",
-          "Sold on Amazon"
-        ],
-        "descriptions": [
-          "Flavored creams, quick mousse, cold foam, infusions and savory foams. One tool, five uses.",
-          "What a whipped cream dispenser can do beyond whipped cream, with ratios and the one rule.",
-          "The one rule: everything that goes in must be strained completely smooth."
-        ],
-        "pinned": {
-          "headline_1": "5 Cream Dispenser Ideas"
-        },
-        "path1": "blog",
-        "path2": "dispenser-ideas",
-        "callouts": [
-          "Official Brand Site",
-          "Sold on Amazon",
-          "Recipes Included",
-          "Stainless Steel Dispenser"
-        ],
-        "sitelinks": [
-          {
-            "text": "Dispenser Beginner Guide",
-            "url": "https://www.otisclassic.com/blog/how-to-use-a-whipped-cream-dispenser/",
-            "line1": "How to use a whipped cream",
-            "line2": "Shake and clean"
-          },
-          {
-            "text": "Kombucha Fizz Guide",
-            "url": "https://www.otisclassic.com/blog/kombucha-second-fermentation-guide/",
-            "line1": "Kombucha second fermentation",
-            "line2": "How to bottle it in swing top"
-          },
-          {
-            "text": "See the Product",
-            "url": "https://www.otisclassic.com/products/B06WVD2K6N/",
-            "line1": "Otis Classic Professional Whipped",
-            "line2": "Sold and shipped by Amazon"
-          },
-          {
-            "text": "All Products",
-            "url": "https://www.otisclassic.com/products/",
-            "line1": "The full Otis Classic catalog",
-            "line2": "Every item links to Amazon"
-          }
-        ],
-        "final_url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/"
-      }
+      "text": "whipped cream dispenser",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B01DZ2HZ2U\""
+    },
+    {
+      "text": "whipped cream dispenser stainless steel",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B01DZ2HZ2U\""
+    },
+    {
+      "text": "stainless steel whipped cream dispenser",
+      "group": "product",
+      "reason": "already bid on by post \"how-to-use-a-whipped-cream-dispenser\""
+    },
+    {
+      "text": "professional whipped cream dispenser",
+      "group": "product",
+      "reason": "already bid on by post \"how-to-use-a-whipped-cream-dispenser\""
+    },
+    {
+      "text": "whipping cream dispenser",
+      "group": "product",
+      "reason": "already bid on by post \"how-to-use-a-whipped-cream-dispenser\""
     }
   ],
   "mined": {
@@ -495,6 +381,18 @@
         "clicks": 33,
         "cost": 17.1
       }
+    ]
+  },
+  "review": {
+    "date": "2026-09-22",
+    "hash": "a5c3a74279e7d4e5",
+    "status": "warn",
+    "errors": [],
+    "warnings": [
+      "2 other campaign(s) live in this account (QT_GTA_KW_B01DZ2HZ2U, QT_GTA_KW_B0G7Y80MGW) — confirm with their owner (e.g. the agency) before launching",
+      "no amazon_click conversion action in the account — this campaign will report 0 conversions in Google Ads and cannot move past maximize-clicks bidding; import GA4 amazon_click",
+      "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
+      "brand has no google_analytics_id — no GA4 on the site, so no amazon_click events to import as conversions"
     ]
   }
 }

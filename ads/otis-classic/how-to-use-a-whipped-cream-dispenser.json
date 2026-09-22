@@ -21,6 +21,7 @@
       "B01DZ2HZ2U",
       "B06WVD2K6N"
     ],
+    "primary_asin": "B01DZ2HZ2U",
     "days": 90,
     "min_clicks": 10
   },
@@ -113,10 +114,6 @@
         "match": "PHRASE"
       },
       {
-        "text": "amazon",
-        "match": "PHRASE"
-      },
-      {
         "text": "reddit",
         "match": "PHRASE"
       },
@@ -126,10 +123,6 @@
       },
       {
         "text": "pdf",
-        "match": "PHRASE"
-      },
-      {
-        "text": "manual",
         "match": "PHRASE"
       },
       {
@@ -209,16 +202,6 @@
           "source": "brief"
         },
         {
-          "text": "n2o cream charger",
-          "match": "EXACT",
-          "source": "brief"
-        },
-        {
-          "text": "n2o cream charger",
-          "match": "PHRASE",
-          "source": "brief"
-        },
-        {
           "text": "whipped cream dispenser not working",
           "match": "EXACT",
           "source": "brief"
@@ -239,13 +222,13 @@
           "Store It up to a Week",
           "Use a Whipped Cream Dispenser",
           "Fill a Whipped Cream Dispenser",
-          "N2O Cream Charger",
           "A Beginner's Guide",
           "Otis Classic Official Guide",
           "Otis Classic Guide",
           "Step-by-Step Instructions",
           "Read the Full Guide",
-          "Sold on Amazon"
+          "Sold on Amazon",
+          "Ships From Amazon"
         ],
         "descriptions": [
           "Cold heavy cream, one N2O charger, four to six shakes. The full beginner's guide.",
@@ -265,12 +248,6 @@
           "Stainless Steel Dispenser"
         ],
         "sitelinks": [
-          {
-            "text": "Kombucha Fizz Guide",
-            "url": "https://www.otisclassic.com/blog/kombucha-second-fermentation-guide/",
-            "line1": "Kombucha second fermentation",
-            "line2": "How to bottle it in swing top"
-          },
           {
             "text": "5 Dispenser Ideas",
             "url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/",
@@ -297,34 +274,6 @@
       "name": "product",
       "keywords": [
         {
-          "text": "whipped cream dispenser",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 136,
-          "cvr": 0.083
-        },
-        {
-          "text": "whipped cream dispenser",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 136,
-          "cvr": 0.083
-        },
-        {
-          "text": "whipped cream dispenser stainless steel",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 29,
-          "cvr": 0.061
-        },
-        {
-          "text": "whipped cream dispenser stainless steel",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 29,
-          "cvr": 0.061
-        },
-        {
           "text": "stainless steel whipped cream dispenser",
           "match": "EXACT",
           "source": "amazon-tier-a",
@@ -379,13 +328,6 @@
           "source": "amazon-tier-a",
           "purchases": 6,
           "cvr": 0.071
-        },
-        {
-          "text": "whipping cream",
-          "match": "EXACT",
-          "source": "amazon-tier-b",
-          "purchases": 2,
-          "cvr": 0.111
         },
         {
           "text": "whipping cream dispenser",
@@ -393,18 +335,15 @@
           "source": "amazon-tier-b",
           "purchases": 2,
           "cvr": 0.095
-        },
-        {
-          "text": "whipped cream charger",
-          "match": "EXACT",
-          "source": "amazon-tier-b",
-          "purchases": 2,
-          "cvr": 0.048
         }
       ],
       "ad": {
         "headlines": [
-          "Whipped Cream Dispenser Guide",
+          "Whip Cream Dispenser",
+          "Whipping Cream Dispenser",
+          "Official Otis Classic Site",
+          "Sold on Amazon",
+          "Ships From Amazon",
           "Fill, Charge, Shake, Serve",
           "Fresh Whipped Cream in 60 Sec",
           "Fix Runny or Stiff Cream",
@@ -412,22 +351,18 @@
           "Store It up to a Week",
           "Use a Whipped Cream Dispenser",
           "Fill a Whipped Cream Dispenser",
-          "N2O Cream Charger",
           "A Beginner's Guide",
           "Otis Classic Official Guide",
-          "Otis Classic Guide",
-          "Step-by-Step Instructions",
-          "Read the Full Guide",
-          "Sold on Amazon"
+          "Otis Classic Guide"
         ],
         "descriptions": [
+          "Otis Classic stainless steel whipped cream dispenser. Order on Amazon with Prime shipping.",
+          "Compare sizes and styles, read the Otis Classic guide, then order on Amazon.",
           "Cold heavy cream, one N2O charger, four to six shakes. The full beginner's guide.",
-          "Learn to fill, charge, dispense and clean a whipped cream dispenser, plus quick fixes.",
-          "Release all the pressure before opening it to clean.",
-          "One 8 g N2O charger per pint (500 ml) of cream."
+          "Learn to fill, charge, dispense and clean a whipped cream dispenser, plus quick fixes."
         ],
         "pinned": {
-          "headline_1": "Whipped Cream Dispenser Guide"
+          "headline_1": "Whip Cream Dispenser"
         },
         "path1": "blog",
         "path2": "dispenser-guide",
@@ -438,12 +373,6 @@
           "Stainless Steel Dispenser"
         ],
         "sitelinks": [
-          {
-            "text": "Kombucha Fizz Guide",
-            "url": "https://www.otisclassic.com/blog/kombucha-second-fermentation-guide/",
-            "line1": "Kombucha second fermentation",
-            "line2": "How to bottle it in swing top"
-          },
           {
             "text": "5 Dispenser Ideas",
             "url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/",
@@ -465,6 +394,33 @@
         ],
         "final_url": "https://www.otisclassic.com/blog/how-to-use-a-whipped-cream-dispenser/"
       }
+    }
+  ],
+  "excluded": [
+    {
+      "text": "n2o cream charger",
+      "group": "guide",
+      "reason": "policy-risk term \"n2o\""
+    },
+    {
+      "text": "whipping cream",
+      "group": "product",
+      "reason": "no product noun (dispenser)"
+    },
+    {
+      "text": "whipped cream charger",
+      "group": "product",
+      "reason": "policy-risk term \"cream charger\""
+    },
+    {
+      "text": "whipped cream dispenser",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B01DZ2HZ2U\""
+    },
+    {
+      "text": "whipped cream dispenser stainless steel",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B01DZ2HZ2U\""
     }
   ],
   "mined": {
@@ -557,6 +513,25 @@
         "clicks": 33,
         "cost": 17.1
       }
+    ]
+  },
+  "review": {
+    "date": "2026-09-22",
+    "hash": "7eb454418e3634af",
+    "status": "warn",
+    "errors": [],
+    "warnings": [
+      "2 other campaign(s) live in this account (QT_GTA_KW_B01DZ2HZ2U, QT_GTA_KW_B0G7Y80MGW) — confirm with their owner (e.g. the agency) before launching",
+      "no amazon_click conversion action in the account — this campaign will report 0 conversions in Google Ads and cannot move past maximize-clicks bidding; import GA4 amazon_click",
+      "the account pays more than our $1.5 CPC ceiling on: \"whip cream dispenser\" $1.87 — expect low impression share there",
+      "guide ad copy mentions \"Charger\" (\"Which Charger to Use\") — policy-sensitive; watch the ad review",
+      "guide ad copy mentions \"N2O\" (\"Cold heavy cream, one N2O charger, four to six shakes. The full beginner's guide.\") — policy-sensitive; watch the ad review",
+      "guide ad copy mentions \"N2O\" (\"One 8 g N2O charger per pint (500 ml) of cream.\") — policy-sensitive; watch the ad review",
+      "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
+      "product ad copy mentions \"Charger\" (\"Which Charger to Use\") — policy-sensitive; watch the ad review",
+      "product ad copy mentions \"N2O\" (\"Cold heavy cream, one N2O charger, four to six shakes. The full beginner's guide.\") — policy-sensitive; watch the ad review",
+      "product ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
+      "brand has no google_analytics_id — no GA4 on the site, so no amazon_click events to import as conversions"
     ]
   }
 }

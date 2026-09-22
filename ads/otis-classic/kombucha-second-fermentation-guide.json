@@ -11,10 +11,11 @@
     "customer_id": "6291008270",
     "campaign": "customers/6291008270/campaigns/24283874779",
     "ad_groups": {
-      "guide": "customers/6291008270/adGroups/204285248390",
-      "product": "customers/6291008270/adGroups/203515365074"
+      "product": "customers/6291008270/adGroups/203515365074",
+      "guide": "customers/6291008270/adGroups/204285248390"
     },
-    "pushed": "9/22/2026, 1:37:30 PM"
+    "pushed": "9/22/2026, 1:37:30 PM",
+    "synced": "9/22/2026, 2:59:22 PM"
   },
   "source": {
     "post": "src\\content\\brands\\otis-classic\\blog\\kombucha-second-fermentation-guide.md",
@@ -25,6 +26,7 @@
       "B01LB1862A",
       "B076PKTRXV"
     ],
+    "primary_asin": "B01LB1862A",
     "days": 90,
     "min_clicks": 10
   },
@@ -117,10 +119,6 @@
         "match": "PHRASE"
       },
       {
-        "text": "amazon",
-        "match": "PHRASE"
-      },
-      {
         "text": "reddit",
         "match": "PHRASE"
       },
@@ -130,10 +128,6 @@
       },
       {
         "text": "pdf",
-        "match": "PHRASE"
-      },
-      {
-        "text": "manual",
         "match": "PHRASE"
       },
       {
@@ -244,18 +238,6 @@
         ],
         "sitelinks": [
           {
-            "text": "Dispenser Beginner Guide",
-            "url": "https://www.otisclassic.com/blog/how-to-use-a-whipped-cream-dispenser/",
-            "line1": "How to use a whipped cream",
-            "line2": "Shake and clean"
-          },
-          {
-            "text": "5 Dispenser Ideas",
-            "url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/",
-            "line1": "Five things to make with a whipped",
-            "line2": "Mousse in minutes"
-          },
-          {
             "text": "See the Product",
             "url": "https://www.otisclassic.com/products/B01LB1862A/",
             "line1": "Otis Classic Swing Top Glass",
@@ -275,21 +257,6 @@
       "name": "product",
       "keywords": [
         {
-          "text": "swing top bottles",
-          "match": "EXACT",
-          "source": "brief-seed"
-        },
-        {
-          "text": "swing top bottles",
-          "match": "PHRASE",
-          "source": "brief-seed"
-        },
-        {
-          "text": "kombucha bottles",
-          "match": "EXACT",
-          "source": "brief-seed"
-        },
-        {
           "text": "flip top bottles",
           "match": "EXACT",
           "source": "brief-seed"
@@ -298,62 +265,6 @@
           "text": "flip top bottles",
           "match": "PHRASE",
           "source": "brief-seed"
-        },
-        {
-          "text": "swing top glass bottles",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 81,
-          "cvr": 0.091
-        },
-        {
-          "text": "swing top glass bottles",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 81,
-          "cvr": 0.091
-        },
-        {
-          "text": "kombucha bottles 16 oz",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 22,
-          "cvr": 0.293
-        },
-        {
-          "text": "kombucha bottles 16 oz",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 22,
-          "cvr": 0.293
-        },
-        {
-          "text": "flip top bottles 16 oz",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 16,
-          "cvr": 0.186
-        },
-        {
-          "text": "flip top bottles 16 oz",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 16,
-          "cvr": 0.186
-        },
-        {
-          "text": "16 oz swing top glass bottles",
-          "match": "EXACT",
-          "source": "amazon-tier-a",
-          "purchases": 12,
-          "cvr": 0.146
-        },
-        {
-          "text": "16 oz swing top glass bottles",
-          "match": "PHRASE",
-          "source": "amazon-tier-a",
-          "purchases": 12,
-          "cvr": 0.146
         },
         {
           "text": "bottles for kombucha",
@@ -438,34 +349,62 @@
           "source": "amazon-tier-a",
           "purchases": 5,
           "cvr": 0.152
+        },
+        {
+          "text": "pressure rated swing top bottles",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 3,
+          "cvr": 0.25
+        },
+        {
+          "text": "glass bottles for kombucha",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 2,
+          "cvr": 0.154
+        },
+        {
+          "text": "glass swing top bottles",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 2,
+          "cvr": 0.056
+        },
+        {
+          "text": "amber swing top bottles",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 2,
+          "cvr": 0.05
         }
       ],
       "ad": {
         "headlines": [
-          "Kombucha Second Fermentation",
+          "Flip Top Bottles",
+          "Bottles for Kombucha",
+          "Swing Top Bottles 16 Oz",
+          "Flip Top Bottles for Kombucha",
+          "Swing Top Beer Bottles",
+          "Glass Flip Top Bottles",
+          "Official Otis Classic Site",
+          "Swing Top Glass Bottles, 16 Oz",
+          "Sold on Amazon",
+          "Ships From Amazon",
           "Get Flavor and Fizz in F2",
           "Bottle Kombucha the Right Way",
           "2 to 4 Days to Perfect Fizz",
           "Avoid Gushers and Flat Brews",
-          "Pressure-Rated Swing Tops",
-          "Kombucha Bottling",
-          "Swing Top Bottles for Kombucha",
-          "Kombucha F2",
-          "Otis Classic Official Guide",
-          "Otis Classic Guide",
-          "Step-by-Step Instructions",
-          "Read the Full Guide",
-          "Sold on Amazon",
-          "Ships From Amazon"
+          "Pressure-Rated Swing Tops"
         ],
         "descriptions": [
+          "Otis Classic flip top bottles. Order on Amazon with Prime shipping.",
+          "Compare sizes and styles, read the Otis Classic guide, then order on Amazon.",
           "Bottle with 10 to 20 percent fruit, leave an inch of headspace, seal and wait 2 to 4 days.",
-          "How long to ferment, which bottles are safe, flavor combos to start with, no gushers.",
-          "Chill and open one bottle at day two to check the fizz and avoid gushers.",
-          "Kombucha second fermentation is where homemade kombucha gets its flavor and fizz."
+          "How long to ferment, which bottles are safe, flavor combos to start with, no gushers."
         ],
         "pinned": {
-          "headline_1": "Kombucha Second Fermentation"
+          "headline_1": "Flip Top Bottles"
         },
         "path1": "blog",
         "path2": "kombucha-fizz",
@@ -476,18 +415,6 @@
           "Pressure-Rated Bottles"
         ],
         "sitelinks": [
-          {
-            "text": "Dispenser Beginner Guide",
-            "url": "https://www.otisclassic.com/blog/how-to-use-a-whipped-cream-dispenser/",
-            "line1": "How to use a whipped cream",
-            "line2": "Shake and clean"
-          },
-          {
-            "text": "5 Dispenser Ideas",
-            "url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/",
-            "line1": "Five things to make with a whipped",
-            "line2": "Mousse in minutes"
-          },
           {
             "text": "See the Product",
             "url": "https://www.otisclassic.com/products/B01LB1862A/",
@@ -503,6 +430,48 @@
         ],
         "final_url": "https://www.otisclassic.com/blog/kombucha-second-fermentation-guide/"
       }
+    }
+  ],
+  "excluded": [
+    {
+      "text": "swing top bottles",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
+    },
+    {
+      "text": "kombucha bottles",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
+    },
+    {
+      "text": "swing top glass bottles",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
+    },
+    {
+      "text": "kombucha bottles 16 oz",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
+    },
+    {
+      "text": "flip top bottles 16 oz",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
+    },
+    {
+      "text": "16 oz swing top glass bottles",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
+    },
+    {
+      "text": "swing top glass bottles 16 oz",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
+    },
+    {
+      "text": "flip top glass bottles",
+      "group": "product",
+      "reason": "live in campaign \"QT_GTA_KW_B0G7Y80MGW\""
     }
   ],
   "mined": {
@@ -645,5 +614,20 @@
       }
     ],
     "negatives": []
+  },
+  "review": {
+    "date": "2026-09-22",
+    "hash": "a880bdf70c26a001",
+    "status": "warn",
+    "errors": [],
+    "warnings": [
+      "2 other campaign(s) live in this account (QT_GTA_KW_B01DZ2HZ2U, QT_GTA_KW_B0G7Y80MGW) — confirm with their owner (e.g. the agency) before launching",
+      "no amazon_click conversion action in the account — this campaign will report 0 conversions in Google Ads and cannot move past maximize-clicks bidding; import GA4 amazon_click",
+      "the account pays more than our $1.5 CPC ceiling on: \"flip top bottles\" $1.69, \"glass swing top bottles\" $1.94 — expect low impression share there",
+      "ads not approved yet: product UNKNOWN, guide UNKNOWN (enable is blocked until they are)",
+      "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
+      "product ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
+      "brand has no google_analytics_id — no GA4 on the site, so no amazon_click events to import as conversions"
+    ]
   }
 }

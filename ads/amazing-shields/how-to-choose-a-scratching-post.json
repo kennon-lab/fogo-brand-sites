@@ -1,0 +1,432 @@
+{
+  "version": 1,
+  "generated": "2026-09-21",
+  "brand": {
+    "slug": "amazing-shields",
+    "name": "Stelucca Amazing Shields",
+    "domain": "amazingshields.com",
+    "store": "Stelucca"
+  },
+  "google": {
+    "customer_id": null,
+    "campaign": null,
+    "ad_groups": {},
+    "pushed": null
+  },
+  "source": {
+    "post": "src\\content\\brands\\amazing-shields\\blog\\how-to-choose-a-scratching-post.md",
+    "target_keyword": "how to choose a scratching post",
+    "search_intent": "informational",
+    "asins": [
+      "B07DT83CBV",
+      "B07JNSZT13",
+      "B0BN6RV6L4",
+      "B0BN6T3265"
+    ],
+    "days": 90,
+    "min_clicks": 10
+  },
+  "campaign": {
+    "name": "fbs-amazing-shields-how-to-choose-a-scratching-post",
+    "status": "PAUSED",
+    "channel": "SEARCH",
+    "networks": {
+      "google_search": true,
+      "search_partners": false,
+      "display": false
+    },
+    "geo": [
+      {
+        "id": 2840,
+        "name": "United States"
+      }
+    ],
+    "languages": [
+      {
+        "id": 1000,
+        "name": "English"
+      }
+    ],
+    "budget_daily_usd": 10,
+    "bidding": {
+      "stage": "maximize_clicks",
+      "cpc_ceiling_usd": 1.5
+    },
+    "stages": [
+      {
+        "stage": "maximize_clicks",
+        "when": "launch",
+        "note": "CPC ceiling; gathers click data for 2 weeks"
+      },
+      {
+        "stage": "maximize_conversions",
+        "when": ">= 30 amazon_click conversions in 30 days",
+        "note": "GA4 amazon_click imported as a conversion"
+      },
+      {
+        "stage": "target_roas",
+        "when": "Attribution purchase upload live and >= 15 purchases in 30 days",
+        "note": "value = attributed Amazon sales"
+      }
+    ],
+    "final_url_suffix": "utm_source=google&utm_medium=cpc&utm_campaign={_campaign}&utm_content={adgroupid}&utm_term={keyword}&campaignid={campaignid}&adgroupid={adgroupid}&creative={creative}&keyword={keyword}&matchtype={matchtype}&targetid={targetid}&device={device}&network={network}",
+    "custom_parameters": {
+      "campaign": "fbs-amazing-shields-how-to-choose-a-scratching-post"
+    },
+    "negatives": [
+      {
+        "text": "free",
+        "match": "PHRASE"
+      },
+      {
+        "text": "jobs",
+        "match": "PHRASE"
+      },
+      {
+        "text": "job",
+        "match": "PHRASE"
+      },
+      {
+        "text": "career",
+        "match": "PHRASE"
+      },
+      {
+        "text": "careers",
+        "match": "PHRASE"
+      },
+      {
+        "text": "wholesale",
+        "match": "PHRASE"
+      },
+      {
+        "text": "alibaba",
+        "match": "PHRASE"
+      },
+      {
+        "text": "aliexpress",
+        "match": "PHRASE"
+      },
+      {
+        "text": "walmart",
+        "match": "PHRASE"
+      },
+      {
+        "text": "ebay",
+        "match": "PHRASE"
+      },
+      {
+        "text": "amazon",
+        "match": "PHRASE"
+      },
+      {
+        "text": "reddit",
+        "match": "PHRASE"
+      },
+      {
+        "text": "youtube",
+        "match": "PHRASE"
+      },
+      {
+        "text": "pdf",
+        "match": "PHRASE"
+      },
+      {
+        "text": "manual",
+        "match": "PHRASE"
+      },
+      {
+        "text": "recall",
+        "match": "PHRASE"
+      },
+      {
+        "text": "lawsuit",
+        "match": "PHRASE"
+      },
+      {
+        "text": "repair",
+        "match": "PHRASE"
+      },
+      {
+        "text": "replacement parts",
+        "match": "PHRASE"
+      },
+      {
+        "text": "coupon",
+        "match": "PHRASE"
+      },
+      {
+        "text": "promo code",
+        "match": "PHRASE"
+      }
+    ]
+  },
+  "ad_groups": [
+    {
+      "name": "guide",
+      "keywords": [
+        {
+          "text": "how to choose a scratching post",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "how to choose a scratching post",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "best scratching post for cats",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "best scratching post for cats",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "cat scratching post height",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "cat scratching post height",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "sisal scratching post",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "sisal scratching post",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "where to put a cat scratching post",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "where to put a cat scratching post",
+          "match": "PHRASE",
+          "source": "brief"
+        }
+      ],
+      "ad": {
+        "headlines": [
+          "Choose a Scratching Post",
+          "A Post Your Cat Will Use",
+          "Height, Base and Material",
+          "Where to Put the Post",
+          "Sisal vs Cardboard vs Carpet",
+          "Stop Couch Scratching",
+          "Best Scratching Post for Cats",
+          "Cat Scratching Post Height",
+          "Sisal Scratching Post",
+          "Stelucca Amazing Shields Guide",
+          "Step-by-Step Instructions",
+          "Read the Full Guide",
+          "Sold on Amazon",
+          "Ships From Amazon"
+        ],
+        "descriptions": [
+          "At least 30 inches tall, a heavy base, sisal or cardboard, placed beside the sofa.",
+          "Why cats ignore most posts and how to pick one they will actually use.",
+          "Cover the old spot with a clear shield so the post becomes the better option."
+        ],
+        "pinned": {
+          "headline_1": "Choose a Scratching Post"
+        },
+        "path1": "blog",
+        "path2": "scratching-post",
+        "callouts": [
+          "Official Brand Site",
+          "Sold on Amazon",
+          "Vet-Free Advice",
+          "Furniture Protection Tips"
+        ],
+        "sitelinks": [
+          {
+            "text": "Install Guide",
+            "url": "https://www.amazingshields.com/blog/how-to-install-cat-scratch-furniture-protectors/",
+            "line1": "How to install cat scratch",
+            "line2": "Which fabrics work"
+          },
+          {
+            "text": "Why Cats Scratch",
+            "url": "https://www.amazingshields.com/blog/why-do-cats-scratch-furniture/",
+            "line1": "Why do cats scratch furniture?",
+            "line2": "It's how they care for their claws"
+          },
+          {
+            "text": "See the Product",
+            "url": "https://www.amazingshields.com/products/B0BN6RV6L4/",
+            "line1": "Stelucca Amazing Shields Cat",
+            "line2": "Sold and shipped by Amazon"
+          },
+          {
+            "text": "All Products",
+            "url": "https://www.amazingshields.com/products/",
+            "line1": "The full Stelucca Amazing Shields",
+            "line2": "Every item links to Amazon"
+          }
+        ],
+        "final_url": "https://www.amazingshields.com/blog/how-to-choose-a-scratching-post/"
+      }
+    },
+    {
+      "name": "product",
+      "keywords": [
+        {
+          "text": "furniture protectors from cats scratching",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 23,
+          "cvr": 0.12
+        },
+        {
+          "text": "furniture protectors from cats scratching",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 23,
+          "cvr": 0.12
+        },
+        {
+          "text": "sofa scratch protector for cats",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 4,
+          "cvr": 0.182
+        },
+        {
+          "text": "couch scratch protector from cats",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 4,
+          "cvr": 0.16
+        },
+        {
+          "text": "couch cover for cats scratching",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 3,
+          "cvr": 0.111
+        },
+        {
+          "text": "scratch pad for cats",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 3,
+          "cvr": 0.086
+        }
+      ],
+      "ad": {
+        "headlines": [
+          "Choose a Scratching Post",
+          "A Post Your Cat Will Use",
+          "Height, Base and Material",
+          "Where to Put the Post",
+          "Sisal vs Cardboard vs Carpet",
+          "Stop Couch Scratching",
+          "Best Scratching Post for Cats",
+          "Cat Scratching Post Height",
+          "Sisal Scratching Post",
+          "Stelucca Amazing Shields Guide",
+          "Step-by-Step Instructions",
+          "Read the Full Guide",
+          "Sold on Amazon",
+          "Ships From Amazon"
+        ],
+        "descriptions": [
+          "At least 30 inches tall, a heavy base, sisal or cardboard, placed beside the sofa.",
+          "Why cats ignore most posts and how to pick one they will actually use.",
+          "Cover the old spot with a clear shield so the post becomes the better option."
+        ],
+        "pinned": {
+          "headline_1": "Choose a Scratching Post"
+        },
+        "path1": "blog",
+        "path2": "scratching-post",
+        "callouts": [
+          "Official Brand Site",
+          "Sold on Amazon",
+          "Vet-Free Advice",
+          "Furniture Protection Tips"
+        ],
+        "sitelinks": [
+          {
+            "text": "Install Guide",
+            "url": "https://www.amazingshields.com/blog/how-to-install-cat-scratch-furniture-protectors/",
+            "line1": "How to install cat scratch",
+            "line2": "Which fabrics work"
+          },
+          {
+            "text": "Why Cats Scratch",
+            "url": "https://www.amazingshields.com/blog/why-do-cats-scratch-furniture/",
+            "line1": "Why do cats scratch furniture?",
+            "line2": "It's how they care for their claws"
+          },
+          {
+            "text": "See the Product",
+            "url": "https://www.amazingshields.com/products/B0BN6RV6L4/",
+            "line1": "Stelucca Amazing Shields Cat",
+            "line2": "Sold and shipped by Amazon"
+          },
+          {
+            "text": "All Products",
+            "url": "https://www.amazingshields.com/products/",
+            "line1": "The full Stelucca Amazing Shields",
+            "line2": "Every item links to Amazon"
+          }
+        ],
+        "final_url": "https://www.amazingshields.com/blog/how-to-choose-a-scratching-post/"
+      }
+    }
+  ],
+  "mined": {
+    "relevant_terms": 54,
+    "tier_a": [
+      {
+        "term": "furniture protectors from cats scratching",
+        "clicks": 191,
+        "purchases": 23,
+        "cvr": 0.12,
+        "cpc": 1.46
+      }
+    ],
+    "tier_b": [
+      {
+        "term": "sofa scratch protector for cats",
+        "clicks": 22,
+        "purchases": 4,
+        "cvr": 0.182,
+        "cpc": 1.47
+      },
+      {
+        "term": "couch scratch protector from cats",
+        "clicks": 25,
+        "purchases": 4,
+        "cvr": 0.16,
+        "cpc": 1.54
+      },
+      {
+        "term": "couch cover for cats scratching",
+        "clicks": 27,
+        "purchases": 3,
+        "cvr": 0.111,
+        "cpc": 1.61
+      },
+      {
+        "term": "scratch pad for cats",
+        "clicks": 35,
+        "purchases": 3,
+        "cvr": 0.086,
+        "cpc": 1.05
+      }
+    ],
+    "negatives": []
+  }
+}

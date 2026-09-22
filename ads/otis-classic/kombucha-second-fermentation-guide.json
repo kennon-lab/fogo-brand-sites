@@ -1,0 +1,639 @@
+{
+  "version": 1,
+  "generated": "2026-09-21",
+  "brand": {
+    "slug": "otis-classic",
+    "name": "Otis Classic",
+    "domain": "otisclassic.com",
+    "store": "Stylever"
+  },
+  "google": {
+    "customer_id": null,
+    "campaign": null,
+    "ad_groups": {},
+    "pushed": null
+  },
+  "source": {
+    "post": "src\\content\\brands\\otis-classic\\blog\\kombucha-second-fermentation-guide.md",
+    "target_keyword": "kombucha second fermentation",
+    "search_intent": "informational",
+    "asins": [
+      "B01DM1J6I0",
+      "B01LB1862A",
+      "B076PKTRXV"
+    ],
+    "days": 90,
+    "min_clicks": 10
+  },
+  "campaign": {
+    "name": "fbs-otis-classic-kombucha-second-fermentation-guide",
+    "status": "PAUSED",
+    "channel": "SEARCH",
+    "networks": {
+      "google_search": true,
+      "search_partners": false,
+      "display": false
+    },
+    "geo": [
+      {
+        "id": 2840,
+        "name": "United States"
+      }
+    ],
+    "languages": [
+      {
+        "id": 1000,
+        "name": "English"
+      }
+    ],
+    "budget_daily_usd": 10,
+    "bidding": {
+      "stage": "maximize_clicks",
+      "cpc_ceiling_usd": 1.5
+    },
+    "stages": [
+      {
+        "stage": "maximize_clicks",
+        "when": "launch",
+        "note": "CPC ceiling; gathers click data for 2 weeks"
+      },
+      {
+        "stage": "maximize_conversions",
+        "when": ">= 30 amazon_click conversions in 30 days",
+        "note": "GA4 amazon_click imported as a conversion"
+      },
+      {
+        "stage": "target_roas",
+        "when": "Attribution purchase upload live and >= 15 purchases in 30 days",
+        "note": "value = attributed Amazon sales"
+      }
+    ],
+    "final_url_suffix": "utm_source=google&utm_medium=cpc&utm_campaign={_campaign}&utm_content={adgroupid}&utm_term={keyword}&campaignid={campaignid}&adgroupid={adgroupid}&creative={creative}&keyword={keyword}&matchtype={matchtype}&targetid={targetid}&device={device}&network={network}",
+    "custom_parameters": {
+      "campaign": "fbs-otis-classic-kombucha-second-fermentation-guide"
+    },
+    "negatives": [
+      {
+        "text": "free",
+        "match": "PHRASE"
+      },
+      {
+        "text": "jobs",
+        "match": "PHRASE"
+      },
+      {
+        "text": "job",
+        "match": "PHRASE"
+      },
+      {
+        "text": "career",
+        "match": "PHRASE"
+      },
+      {
+        "text": "careers",
+        "match": "PHRASE"
+      },
+      {
+        "text": "wholesale",
+        "match": "PHRASE"
+      },
+      {
+        "text": "alibaba",
+        "match": "PHRASE"
+      },
+      {
+        "text": "aliexpress",
+        "match": "PHRASE"
+      },
+      {
+        "text": "walmart",
+        "match": "PHRASE"
+      },
+      {
+        "text": "ebay",
+        "match": "PHRASE"
+      },
+      {
+        "text": "amazon",
+        "match": "PHRASE"
+      },
+      {
+        "text": "reddit",
+        "match": "PHRASE"
+      },
+      {
+        "text": "youtube",
+        "match": "PHRASE"
+      },
+      {
+        "text": "pdf",
+        "match": "PHRASE"
+      },
+      {
+        "text": "manual",
+        "match": "PHRASE"
+      },
+      {
+        "text": "recall",
+        "match": "PHRASE"
+      },
+      {
+        "text": "lawsuit",
+        "match": "PHRASE"
+      },
+      {
+        "text": "repair",
+        "match": "PHRASE"
+      },
+      {
+        "text": "replacement parts",
+        "match": "PHRASE"
+      },
+      {
+        "text": "coupon",
+        "match": "PHRASE"
+      },
+      {
+        "text": "promo code",
+        "match": "PHRASE"
+      }
+    ]
+  },
+  "ad_groups": [
+    {
+      "name": "guide",
+      "keywords": [
+        {
+          "text": "kombucha second fermentation",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "kombucha second fermentation",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "how long to second ferment kombucha",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "how long to second ferment kombucha",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "kombucha bottling",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "swing top bottles for kombucha",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "swing top bottles for kombucha",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "kombucha f2",
+          "match": "EXACT",
+          "source": "brief"
+        }
+      ],
+      "ad": {
+        "headlines": [
+          "Kombucha Second Fermentation",
+          "Get Flavor and Fizz in F2",
+          "Bottle Kombucha the Right Way",
+          "2 to 4 Days to Perfect Fizz",
+          "Avoid Gushers and Flat Brews",
+          "Pressure-Rated Swing Tops",
+          "Kombucha Bottling",
+          "Swing Top Bottles for Kombucha",
+          "Kombucha F2",
+          "Otis Classic Official Guide",
+          "Otis Classic Guide",
+          "Step-by-Step Instructions",
+          "Read the Full Guide",
+          "Sold on Amazon",
+          "Ships From Amazon"
+        ],
+        "descriptions": [
+          "Bottle with 10 to 20 percent fruit, leave an inch of headspace, seal and wait 2 to 4 days.",
+          "How long to ferment, which bottles are safe, flavor combos to start with, no gushers.",
+          "Chill and open one bottle at day two to check the fizz and avoid gushers.",
+          "Kombucha second fermentation is where homemade kombucha gets its flavor and fizz."
+        ],
+        "pinned": {
+          "headline_1": "Kombucha Second Fermentation"
+        },
+        "path1": "blog",
+        "path2": "kombucha-fizz",
+        "callouts": [
+          "Official Brand Site",
+          "Sold on Amazon",
+          "Flavor Ideas Included",
+          "Pressure-Rated Bottles"
+        ],
+        "sitelinks": [
+          {
+            "text": "Dispenser Beginner Guide",
+            "url": "https://www.otisclassic.com/blog/how-to-use-a-whipped-cream-dispenser/",
+            "line1": "How to use a whipped cream",
+            "line2": "Shake and clean"
+          },
+          {
+            "text": "5 Dispenser Ideas",
+            "url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/",
+            "line1": "Five things to make with a whipped",
+            "line2": "Mousse in minutes"
+          },
+          {
+            "text": "See the Product",
+            "url": "https://www.otisclassic.com/products/B01LB1862A/",
+            "line1": "Otis Classic Swing Top Glass",
+            "line2": "Sold and shipped by Amazon"
+          },
+          {
+            "text": "All Products",
+            "url": "https://www.otisclassic.com/products/",
+            "line1": "The full Otis Classic catalog",
+            "line2": "Every item links to Amazon"
+          }
+        ],
+        "final_url": "https://www.otisclassic.com/blog/kombucha-second-fermentation-guide/"
+      }
+    },
+    {
+      "name": "product",
+      "keywords": [
+        {
+          "text": "swing top bottles",
+          "match": "EXACT",
+          "source": "brief-seed"
+        },
+        {
+          "text": "swing top bottles",
+          "match": "PHRASE",
+          "source": "brief-seed"
+        },
+        {
+          "text": "kombucha bottles",
+          "match": "EXACT",
+          "source": "brief-seed"
+        },
+        {
+          "text": "flip top bottles",
+          "match": "EXACT",
+          "source": "brief-seed"
+        },
+        {
+          "text": "flip top bottles",
+          "match": "PHRASE",
+          "source": "brief-seed"
+        },
+        {
+          "text": "swing top glass bottles",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 81,
+          "cvr": 0.092
+        },
+        {
+          "text": "swing top glass bottles",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 81,
+          "cvr": 0.092
+        },
+        {
+          "text": "kombucha bottles 16 oz",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 22,
+          "cvr": 0.31
+        },
+        {
+          "text": "kombucha bottles 16 oz",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 22,
+          "cvr": 0.31
+        },
+        {
+          "text": "flip top bottles 16 oz",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 15,
+          "cvr": 0.176
+        },
+        {
+          "text": "flip top bottles 16 oz",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 15,
+          "cvr": 0.176
+        },
+        {
+          "text": "16 oz swing top glass bottles",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 12,
+          "cvr": 0.146
+        },
+        {
+          "text": "16 oz swing top glass bottles",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 12,
+          "cvr": 0.146
+        },
+        {
+          "text": "bottles for kombucha",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 9,
+          "cvr": 0.321
+        },
+        {
+          "text": "bottles for kombucha",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 9,
+          "cvr": 0.321
+        },
+        {
+          "text": "swing top bottles 16 oz",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.2
+        },
+        {
+          "text": "swing top bottles 16 oz",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.2
+        },
+        {
+          "text": "flip top bottles for kombucha",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.333
+        },
+        {
+          "text": "flip top bottles for kombucha",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.333
+        },
+        {
+          "text": "swing top beer bottles",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.171
+        },
+        {
+          "text": "swing top beer bottles",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.171
+        },
+        {
+          "text": "glass flip top bottles",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.125
+        },
+        {
+          "text": "glass flip top bottles",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.125
+        },
+        {
+          "text": "swing top glass bottles 16 oz",
+          "match": "EXACT",
+          "source": "amazon-tier-b",
+          "purchases": 4,
+          "cvr": 0.235
+        }
+      ],
+      "ad": {
+        "headlines": [
+          "Kombucha Second Fermentation",
+          "Get Flavor and Fizz in F2",
+          "Bottle Kombucha the Right Way",
+          "2 to 4 Days to Perfect Fizz",
+          "Avoid Gushers and Flat Brews",
+          "Pressure-Rated Swing Tops",
+          "Kombucha Bottling",
+          "Swing Top Bottles for Kombucha",
+          "Kombucha F2",
+          "Otis Classic Official Guide",
+          "Otis Classic Guide",
+          "Step-by-Step Instructions",
+          "Read the Full Guide",
+          "Sold on Amazon",
+          "Ships From Amazon"
+        ],
+        "descriptions": [
+          "Bottle with 10 to 20 percent fruit, leave an inch of headspace, seal and wait 2 to 4 days.",
+          "How long to ferment, which bottles are safe, flavor combos to start with, no gushers.",
+          "Chill and open one bottle at day two to check the fizz and avoid gushers.",
+          "Kombucha second fermentation is where homemade kombucha gets its flavor and fizz."
+        ],
+        "pinned": {
+          "headline_1": "Kombucha Second Fermentation"
+        },
+        "path1": "blog",
+        "path2": "kombucha-fizz",
+        "callouts": [
+          "Official Brand Site",
+          "Sold on Amazon",
+          "Flavor Ideas Included",
+          "Pressure-Rated Bottles"
+        ],
+        "sitelinks": [
+          {
+            "text": "Dispenser Beginner Guide",
+            "url": "https://www.otisclassic.com/blog/how-to-use-a-whipped-cream-dispenser/",
+            "line1": "How to use a whipped cream",
+            "line2": "Shake and clean"
+          },
+          {
+            "text": "5 Dispenser Ideas",
+            "url": "https://www.otisclassic.com/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/",
+            "line1": "Five things to make with a whipped",
+            "line2": "Mousse in minutes"
+          },
+          {
+            "text": "See the Product",
+            "url": "https://www.otisclassic.com/products/B01LB1862A/",
+            "line1": "Otis Classic Swing Top Glass",
+            "line2": "Sold and shipped by Amazon"
+          },
+          {
+            "text": "All Products",
+            "url": "https://www.otisclassic.com/products/",
+            "line1": "The full Otis Classic catalog",
+            "line2": "Every item links to Amazon"
+          }
+        ],
+        "final_url": "https://www.otisclassic.com/blog/kombucha-second-fermentation-guide/"
+      }
+    }
+  ],
+  "mined": {
+    "relevant_terms": 203,
+    "tier_a": [
+      {
+        "term": "swing top glass bottles",
+        "clicks": 879,
+        "purchases": 81,
+        "cvr": 0.092,
+        "cpc": 0.85
+      },
+      {
+        "term": "kombucha bottles",
+        "clicks": 380,
+        "purchases": 69,
+        "cvr": 0.182,
+        "cpc": 1.42
+      },
+      {
+        "term": "swing top bottles",
+        "clicks": 492,
+        "purchases": 52,
+        "cvr": 0.106,
+        "cpc": 0.79
+      },
+      {
+        "term": "kombucha bottles 16 oz",
+        "clicks": 71,
+        "purchases": 22,
+        "cvr": 0.31,
+        "cpc": 1.49
+      },
+      {
+        "term": "flip top bottles 16 oz",
+        "clicks": 85,
+        "purchases": 15,
+        "cvr": 0.176,
+        "cpc": 1.19
+      },
+      {
+        "term": "16 oz swing top glass bottles",
+        "clicks": 82,
+        "purchases": 12,
+        "cvr": 0.146,
+        "cpc": 1.01
+      },
+      {
+        "term": "flip top bottles",
+        "clicks": 125,
+        "purchases": 10,
+        "cvr": 0.08,
+        "cpc": 0.88
+      },
+      {
+        "term": "bottles for kombucha",
+        "clicks": 28,
+        "purchases": 9,
+        "cvr": 0.321,
+        "cpc": 1.51
+      },
+      {
+        "term": "swing top bottles 16 oz",
+        "clicks": 40,
+        "purchases": 8,
+        "cvr": 0.2,
+        "cpc": 1.36
+      },
+      {
+        "term": "flip top bottles for kombucha",
+        "clicks": 21,
+        "purchases": 7,
+        "cvr": 0.333,
+        "cpc": 1.43
+      },
+      {
+        "term": "swing top beer bottles",
+        "clicks": 41,
+        "purchases": 7,
+        "cvr": 0.171,
+        "cpc": 1.47
+      },
+      {
+        "term": "glass flip top bottles",
+        "clicks": 48,
+        "purchases": 6,
+        "cvr": 0.125,
+        "cpc": 1.27
+      }
+    ],
+    "tier_b": [
+      {
+        "term": "swing top glass bottles 16 oz",
+        "clicks": 17,
+        "purchases": 4,
+        "cvr": 0.235,
+        "cpc": 1.13
+      },
+      {
+        "term": "16 oz flip top glass bottles",
+        "clicks": 31,
+        "purchases": 4,
+        "cvr": 0.129,
+        "cpc": 0.94
+      },
+      {
+        "term": "pressure rated swing top bottles",
+        "clicks": 12,
+        "purchases": 3,
+        "cvr": 0.25,
+        "cpc": 1.31
+      },
+      {
+        "term": "glass bottles for kombucha",
+        "clicks": 13,
+        "purchases": 2,
+        "cvr": 0.154,
+        "cpc": 1.24
+      },
+      {
+        "term": "glass swing top bottles",
+        "clicks": 36,
+        "purchases": 2,
+        "cvr": 0.056,
+        "cpc": 1.16
+      },
+      {
+        "term": "flip top glass bottles",
+        "clicks": 37,
+        "purchases": 2,
+        "cvr": 0.054,
+        "cpc": 1.4
+      },
+      {
+        "term": "amber swing top bottles",
+        "clicks": 40,
+        "purchases": 2,
+        "cvr": 0.05,
+        "cpc": 0.64
+      }
+    ],
+    "negatives": []
+  }
+}

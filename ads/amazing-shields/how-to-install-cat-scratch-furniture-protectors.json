@@ -1,0 +1,1249 @@
+{
+  "version": 1,
+  "generated": "2026-09-21",
+  "brand": {
+    "slug": "amazing-shields",
+    "name": "Stelucca Amazing Shields",
+    "domain": "amazingshields.com",
+    "store": "Stelucca"
+  },
+  "google": {
+    "customer_id": null,
+    "campaign": null,
+    "ad_groups": {},
+    "pushed": null
+  },
+  "source": {
+    "post": "src\\content\\brands\\amazing-shields\\blog\\how-to-install-cat-scratch-furniture-protectors.md",
+    "target_keyword": "how to install cat scratch furniture protectors",
+    "search_intent": "commercial",
+    "asins": [
+      "B07DT83CBV",
+      "B07JNSZT13",
+      "B0BN6RV6L4",
+      "B0BN6T3265"
+    ],
+    "days": 90,
+    "min_clicks": 10
+  },
+  "campaign": {
+    "name": "fbs-amazing-shields-how-to-install-cat-scratch-furniture-protectors",
+    "status": "PAUSED",
+    "channel": "SEARCH",
+    "networks": {
+      "google_search": true,
+      "search_partners": false,
+      "display": false
+    },
+    "geo": [
+      {
+        "id": 2840,
+        "name": "United States"
+      }
+    ],
+    "languages": [
+      {
+        "id": 1000,
+        "name": "English"
+      }
+    ],
+    "budget_daily_usd": 10,
+    "bidding": {
+      "stage": "maximize_clicks",
+      "cpc_ceiling_usd": 1.5
+    },
+    "stages": [
+      {
+        "stage": "maximize_clicks",
+        "when": "launch",
+        "note": "CPC ceiling; gathers click data for 2 weeks"
+      },
+      {
+        "stage": "maximize_conversions",
+        "when": ">= 30 amazon_click conversions in 30 days",
+        "note": "GA4 amazon_click imported as a conversion"
+      },
+      {
+        "stage": "target_roas",
+        "when": "Attribution purchase upload live and >= 15 purchases in 30 days",
+        "note": "value = attributed Amazon sales"
+      }
+    ],
+    "final_url_suffix": "utm_source=google&utm_medium=cpc&utm_campaign={_campaign}&utm_content={adgroupid}&utm_term={keyword}&campaignid={campaignid}&adgroupid={adgroupid}&creative={creative}&keyword={keyword}&matchtype={matchtype}&targetid={targetid}&device={device}&network={network}",
+    "custom_parameters": {
+      "campaign": "fbs-amazing-shields-how-to-install-cat-scratch-furniture-protectors"
+    },
+    "negatives": [
+      {
+        "text": "free",
+        "match": "PHRASE"
+      },
+      {
+        "text": "jobs",
+        "match": "PHRASE"
+      },
+      {
+        "text": "job",
+        "match": "PHRASE"
+      },
+      {
+        "text": "career",
+        "match": "PHRASE"
+      },
+      {
+        "text": "careers",
+        "match": "PHRASE"
+      },
+      {
+        "text": "wholesale",
+        "match": "PHRASE"
+      },
+      {
+        "text": "alibaba",
+        "match": "PHRASE"
+      },
+      {
+        "text": "aliexpress",
+        "match": "PHRASE"
+      },
+      {
+        "text": "walmart",
+        "match": "PHRASE"
+      },
+      {
+        "text": "ebay",
+        "match": "PHRASE"
+      },
+      {
+        "text": "amazon",
+        "match": "PHRASE"
+      },
+      {
+        "text": "reddit",
+        "match": "PHRASE"
+      },
+      {
+        "text": "youtube",
+        "match": "PHRASE"
+      },
+      {
+        "text": "pdf",
+        "match": "PHRASE"
+      },
+      {
+        "text": "manual",
+        "match": "PHRASE"
+      },
+      {
+        "text": "recall",
+        "match": "PHRASE"
+      },
+      {
+        "text": "lawsuit",
+        "match": "PHRASE"
+      },
+      {
+        "text": "repair",
+        "match": "PHRASE"
+      },
+      {
+        "text": "replacement parts",
+        "match": "PHRASE"
+      },
+      {
+        "text": "coupon",
+        "match": "PHRASE"
+      },
+      {
+        "text": "promo code",
+        "match": "PHRASE"
+      },
+      {
+        "text": "cat scratch for couch",
+        "match": "PHRASE"
+      },
+      {
+        "text": "cat scratch leather furniture protector",
+        "match": "PHRASE"
+      }
+    ]
+  },
+  "ad_groups": [
+    {
+      "name": "guide",
+      "keywords": [
+        {
+          "text": "how to install cat scratch furniture protectors",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "how to install cat scratch furniture protectors",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "cat scratch furniture protector",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "cat scratch furniture protector",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "cat couch protector",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "cat couch protector",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "furniture protectors from cats",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "furniture protectors from cats",
+          "match": "PHRASE",
+          "source": "brief"
+        },
+        {
+          "text": "clear couch protector for cats",
+          "match": "EXACT",
+          "source": "brief"
+        },
+        {
+          "text": "clear couch protector for cats",
+          "match": "PHRASE",
+          "source": "brief"
+        }
+      ],
+      "ad": {
+        "headlines": [
+          "Cat Scratch Protectors Guide",
+          "Install Them So They Stay Put",
+          "Clear Shields for Sofas",
+          "Which Fabrics Work",
+          "Cut, Peel, Press, Pin",
+          "Stop Couch Scratching",
+          "Cat Couch Protector",
+          "Furniture Protectors From Cats",
+          "Clear Couch Protector for Cats",
+          "Test on a Hidden Spot",
+          "They Hold on Woven Upholstery",
+          "Stelucca Amazing Shields Guide",
+          "Step-by-Step Instructions",
+          "Read the Full Guide",
+          "Sold on Amazon"
+        ],
+        "descriptions": [
+          "Test a hidden spot, vacuum, cut rounded corners, press from the center out, add pins.",
+          "Step-by-step installation for clear cat scratch protectors and the fabrics they hold on.",
+          "They hold on woven upholstery; skip leather, velvet and microfiber.",
+          "Wipe them with a soft, damp cloth while they're on the furniture."
+        ],
+        "pinned": {
+          "headline_1": "Cat Scratch Protectors Guide"
+        },
+        "path1": "blog",
+        "path2": "install-guide",
+        "callouts": [
+          "Official Brand Site",
+          "Sold on Amazon",
+          "Clear and Flexible",
+          "Twist Pins Included"
+        ],
+        "sitelinks": [
+          {
+            "text": "Scratching Post Guide",
+            "url": "https://www.amazingshields.com/blog/how-to-choose-a-scratching-post/",
+            "line1": "How to choose a scratching post",
+            "line2": "The right height"
+          },
+          {
+            "text": "Why Cats Scratch",
+            "url": "https://www.amazingshields.com/blog/why-do-cats-scratch-furniture/",
+            "line1": "Why do cats scratch furniture?",
+            "line2": "It's how they care for their claws"
+          },
+          {
+            "text": "See the Product",
+            "url": "https://www.amazingshields.com/products/B07JNSZT13/",
+            "line1": "Stelucca Amazing Shields Cat",
+            "line2": "Sold and shipped by Amazon"
+          },
+          {
+            "text": "All Products",
+            "url": "https://www.amazingshields.com/products/",
+            "line1": "The full Stelucca Amazing Shields",
+            "line2": "Every item links to Amazon"
+          }
+        ],
+        "final_url": "https://www.amazingshields.com/blog/how-to-install-cat-scratch-furniture-protectors/"
+      }
+    },
+    {
+      "name": "product",
+      "keywords": [
+        {
+          "text": "couch protector from cats",
+          "match": "EXACT",
+          "source": "brief-seed"
+        },
+        {
+          "text": "couch protector from cats",
+          "match": "PHRASE",
+          "source": "brief-seed"
+        },
+        {
+          "text": "couch cat scratch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 197,
+          "cvr": 0.198
+        },
+        {
+          "text": "couch cat scratch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 197,
+          "cvr": 0.198
+        },
+        {
+          "text": "cat furniture protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 101,
+          "cvr": 0.167
+        },
+        {
+          "text": "cat furniture protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 101,
+          "cvr": 0.167
+        },
+        {
+          "text": "cat scratch protector for couch",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 55,
+          "cvr": 0.195
+        },
+        {
+          "text": "cat scratch protector for couch",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 55,
+          "cvr": 0.195
+        },
+        {
+          "text": "couch scratch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 34,
+          "cvr": 0.18
+        },
+        {
+          "text": "couch scratch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 34,
+          "cvr": 0.18
+        },
+        {
+          "text": "cat scratch couch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 32,
+          "cvr": 0.179
+        },
+        {
+          "text": "cat scratch couch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 32,
+          "cvr": 0.179
+        },
+        {
+          "text": "couch corner protectors for cats",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 24,
+          "cvr": 0.255
+        },
+        {
+          "text": "couch corner protectors for cats",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 24,
+          "cvr": 0.255
+        },
+        {
+          "text": "furniture protectors from cats scratching",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 23,
+          "cvr": 0.12
+        },
+        {
+          "text": "furniture protectors from cats scratching",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 23,
+          "cvr": 0.12
+        },
+        {
+          "text": "sofa cat scratch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 18,
+          "cvr": 0.243
+        },
+        {
+          "text": "sofa cat scratch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 18,
+          "cvr": 0.243
+        },
+        {
+          "text": "furniture cat scratch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 16,
+          "cvr": 0.193
+        },
+        {
+          "text": "furniture cat scratch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 16,
+          "cvr": 0.193
+        },
+        {
+          "text": "sofa protector for cats",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 16,
+          "cvr": 0.137
+        },
+        {
+          "text": "sofa protector for cats",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 16,
+          "cvr": 0.137
+        },
+        {
+          "text": "scratch protectors for furniture",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 13,
+          "cvr": 0.171
+        },
+        {
+          "text": "scratch protectors for furniture",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 13,
+          "cvr": 0.171
+        },
+        {
+          "text": "couch cat scratcher",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 13,
+          "cvr": 0.116
+        },
+        {
+          "text": "couch cat scratcher",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 13,
+          "cvr": 0.116
+        },
+        {
+          "text": "furniture protectors",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 12,
+          "cvr": 0.218
+        },
+        {
+          "text": "cat sofa protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 10,
+          "cvr": 0.161
+        },
+        {
+          "text": "cat sofa protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 10,
+          "cvr": 0.161
+        },
+        {
+          "text": "cat scratch furniture protector for leather",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 9,
+          "cvr": 0.12
+        },
+        {
+          "text": "cat scratch furniture protector for leather",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 9,
+          "cvr": 0.12
+        },
+        {
+          "text": "couch cover for cats",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.163
+        },
+        {
+          "text": "couch cover for cats",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.163
+        },
+        {
+          "text": "cat scratch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.123
+        },
+        {
+          "text": "cat scratch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.123
+        },
+        {
+          "text": "cat scratcher for couch",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.092
+        },
+        {
+          "text": "cat scratcher for couch",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 8,
+          "cvr": 0.092
+        },
+        {
+          "text": "cat couch corner protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.269
+        },
+        {
+          "text": "cat couch corner protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.269
+        },
+        {
+          "text": "cat scratcher furniture protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.259
+        },
+        {
+          "text": "cat scratcher furniture protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.259
+        },
+        {
+          "text": "couch cat protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.25
+        },
+        {
+          "text": "couch cat protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.25
+        },
+        {
+          "text": "cat scratcher couch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.179
+        },
+        {
+          "text": "cat scratcher couch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.179
+        },
+        {
+          "text": "clear cat scratch furniture protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.137
+        },
+        {
+          "text": "clear cat scratch furniture protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 7,
+          "cvr": 0.137
+        },
+        {
+          "text": "cat scratching couch protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.261
+        },
+        {
+          "text": "cat scratching couch protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.261
+        },
+        {
+          "text": "cat scratching furniture protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.182
+        },
+        {
+          "text": "cat scratching furniture protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.182
+        },
+        {
+          "text": "cat scratch sofa protector",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.13
+        },
+        {
+          "text": "cat scratch sofa protector",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 6,
+          "cvr": 0.13
+        },
+        {
+          "text": "clear furniture protector cats",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.5
+        },
+        {
+          "text": "clear furniture protector cats",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.5
+        },
+        {
+          "text": "clear couch protector from cats",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.238
+        },
+        {
+          "text": "clear couch protector from cats",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.238
+        },
+        {
+          "text": "couch corner cat scratcher",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.077
+        },
+        {
+          "text": "couch corner cat scratcher",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.077
+        },
+        {
+          "text": "cat scratcher couch",
+          "match": "EXACT",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.052
+        },
+        {
+          "text": "cat scratcher couch",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.052
+        }
+      ],
+      "ad": {
+        "headlines": [
+          "Cat Scratch Protectors Guide",
+          "Install Them So They Stay Put",
+          "Clear Shields for Sofas",
+          "Which Fabrics Work",
+          "Cut, Peel, Press, Pin",
+          "Stop Couch Scratching",
+          "Cat Couch Protector",
+          "Furniture Protectors From Cats",
+          "Clear Couch Protector for Cats",
+          "Test on a Hidden Spot",
+          "They Hold on Woven Upholstery",
+          "Stelucca Amazing Shields Guide",
+          "Step-by-Step Instructions",
+          "Read the Full Guide",
+          "Sold on Amazon"
+        ],
+        "descriptions": [
+          "Test a hidden spot, vacuum, cut rounded corners, press from the center out, add pins.",
+          "Step-by-step installation for clear cat scratch protectors and the fabrics they hold on.",
+          "They hold on woven upholstery; skip leather, velvet and microfiber.",
+          "Wipe them with a soft, damp cloth while they're on the furniture."
+        ],
+        "pinned": {
+          "headline_1": "Cat Scratch Protectors Guide"
+        },
+        "path1": "blog",
+        "path2": "install-guide",
+        "callouts": [
+          "Official Brand Site",
+          "Sold on Amazon",
+          "Clear and Flexible",
+          "Twist Pins Included"
+        ],
+        "sitelinks": [
+          {
+            "text": "Scratching Post Guide",
+            "url": "https://www.amazingshields.com/blog/how-to-choose-a-scratching-post/",
+            "line1": "How to choose a scratching post",
+            "line2": "The right height"
+          },
+          {
+            "text": "Why Cats Scratch",
+            "url": "https://www.amazingshields.com/blog/why-do-cats-scratch-furniture/",
+            "line1": "Why do cats scratch furniture?",
+            "line2": "It's how they care for their claws"
+          },
+          {
+            "text": "See the Product",
+            "url": "https://www.amazingshields.com/products/B07JNSZT13/",
+            "line1": "Stelucca Amazing Shields Cat",
+            "line2": "Sold and shipped by Amazon"
+          },
+          {
+            "text": "All Products",
+            "url": "https://www.amazingshields.com/products/",
+            "line1": "The full Stelucca Amazing Shields",
+            "line2": "Every item links to Amazon"
+          }
+        ],
+        "final_url": "https://www.amazingshields.com/blog/how-to-install-cat-scratch-furniture-protectors/"
+      }
+    }
+  ],
+  "mined": {
+    "relevant_terms": 678,
+    "tier_a": [
+      {
+        "term": "cat scratch furniture protector",
+        "clicks": 1940,
+        "purchases": 353,
+        "cvr": 0.182,
+        "cpc": 1.83
+      },
+      {
+        "term": "couch cat scratch protector",
+        "clicks": 996,
+        "purchases": 197,
+        "cvr": 0.198,
+        "cpc": 1.7
+      },
+      {
+        "term": "cat furniture protector",
+        "clicks": 604,
+        "purchases": 101,
+        "cvr": 0.167,
+        "cpc": 1.67
+      },
+      {
+        "term": "cat couch protector",
+        "clicks": 437,
+        "purchases": 92,
+        "cvr": 0.211,
+        "cpc": 1.66
+      },
+      {
+        "term": "furniture protectors from cats",
+        "clicks": 462,
+        "purchases": 71,
+        "cvr": 0.154,
+        "cpc": 1.54
+      },
+      {
+        "term": "cat scratch protector for couch",
+        "clicks": 282,
+        "purchases": 55,
+        "cvr": 0.195,
+        "cpc": 1.86
+      },
+      {
+        "term": "couch scratch protector",
+        "clicks": 189,
+        "purchases": 34,
+        "cvr": 0.18,
+        "cpc": 1.57
+      },
+      {
+        "term": "cat scratch couch protector",
+        "clicks": 179,
+        "purchases": 32,
+        "cvr": 0.179,
+        "cpc": 1.57
+      },
+      {
+        "term": "couch corner protectors for cats",
+        "clicks": 94,
+        "purchases": 24,
+        "cvr": 0.255,
+        "cpc": 1.66
+      },
+      {
+        "term": "furniture protectors from cats scratching",
+        "clicks": 191,
+        "purchases": 23,
+        "cvr": 0.12,
+        "cpc": 1.46
+      },
+      {
+        "term": "sofa cat scratch protector",
+        "clicks": 74,
+        "purchases": 18,
+        "cvr": 0.243,
+        "cpc": 1.46
+      },
+      {
+        "term": "furniture cat scratch protector",
+        "clicks": 83,
+        "purchases": 16,
+        "cvr": 0.193,
+        "cpc": 1.83
+      },
+      {
+        "term": "sofa protector for cats",
+        "clicks": 117,
+        "purchases": 16,
+        "cvr": 0.137,
+        "cpc": 1.89
+      },
+      {
+        "term": "scratch protectors for furniture",
+        "clicks": 76,
+        "purchases": 13,
+        "cvr": 0.171,
+        "cpc": 1.64
+      },
+      {
+        "term": "couch cat scratcher",
+        "clicks": 112,
+        "purchases": 13,
+        "cvr": 0.116,
+        "cpc": 1.37
+      },
+      {
+        "term": "furniture protectors",
+        "clicks": 55,
+        "purchases": 12,
+        "cvr": 0.218,
+        "cpc": 1.65
+      },
+      {
+        "term": "cat sofa protector",
+        "clicks": 62,
+        "purchases": 10,
+        "cvr": 0.161,
+        "cpc": 1.91
+      },
+      {
+        "term": "cat scratch furniture protector for leather",
+        "clicks": 75,
+        "purchases": 9,
+        "cvr": 0.12,
+        "cpc": 1.84
+      },
+      {
+        "term": "couch cover for cats",
+        "clicks": 49,
+        "purchases": 8,
+        "cvr": 0.163,
+        "cpc": 1.41
+      },
+      {
+        "term": "cat scratch protector",
+        "clicks": 65,
+        "purchases": 8,
+        "cvr": 0.123,
+        "cpc": 1.68
+      },
+      {
+        "term": "cat scratcher for couch",
+        "clicks": 87,
+        "purchases": 8,
+        "cvr": 0.092,
+        "cpc": 1.1
+      },
+      {
+        "term": "cat couch corner protector",
+        "clicks": 26,
+        "purchases": 7,
+        "cvr": 0.269,
+        "cpc": 1.6
+      },
+      {
+        "term": "cat scratcher furniture protector",
+        "clicks": 27,
+        "purchases": 7,
+        "cvr": 0.259,
+        "cpc": 1.7
+      },
+      {
+        "term": "couch cat protector",
+        "clicks": 28,
+        "purchases": 7,
+        "cvr": 0.25,
+        "cpc": 1.59
+      },
+      {
+        "term": "cat scratcher couch protector",
+        "clicks": 39,
+        "purchases": 7,
+        "cvr": 0.179,
+        "cpc": 1.65
+      },
+      {
+        "term": "clear cat scratch furniture protector",
+        "clicks": 51,
+        "purchases": 7,
+        "cvr": 0.137,
+        "cpc": 1.69
+      },
+      {
+        "term": "cat scratching couch protector",
+        "clicks": 23,
+        "purchases": 6,
+        "cvr": 0.261,
+        "cpc": 1.78
+      },
+      {
+        "term": "cat scratching furniture protector",
+        "clicks": 33,
+        "purchases": 6,
+        "cvr": 0.182,
+        "cpc": 1.86
+      },
+      {
+        "term": "cat scratch sofa protector",
+        "clicks": 46,
+        "purchases": 6,
+        "cvr": 0.13,
+        "cpc": 1.42
+      },
+      {
+        "term": "clear furniture protector cats",
+        "clicks": 10,
+        "purchases": 5,
+        "cvr": 0.5,
+        "cpc": 1.77
+      },
+      {
+        "term": "clear couch protector from cats",
+        "clicks": 21,
+        "purchases": 5,
+        "cvr": 0.238,
+        "cpc": 1.99
+      },
+      {
+        "term": "couch corner cat scratcher",
+        "clicks": 65,
+        "purchases": 5,
+        "cvr": 0.077,
+        "cpc": 1.43
+      },
+      {
+        "term": "cat scratcher couch",
+        "clicks": 96,
+        "purchases": 5,
+        "cvr": 0.052,
+        "cpc": 1.15
+      }
+    ],
+    "tier_b": [
+      {
+        "term": "clear furniture protector",
+        "clicks": 19,
+        "purchases": 4,
+        "cvr": 0.211,
+        "cpc": 1.74
+      },
+      {
+        "term": "sofa scratch protector for cats",
+        "clicks": 22,
+        "purchases": 4,
+        "cvr": 0.182,
+        "cpc": 1.47
+      },
+      {
+        "term": "couch scratch protector from cats",
+        "clicks": 25,
+        "purchases": 4,
+        "cvr": 0.16,
+        "cpc": 1.54
+      },
+      {
+        "term": "corner couch cat scratcher",
+        "clicks": 31,
+        "purchases": 4,
+        "cvr": 0.129,
+        "cpc": 1.25
+      },
+      {
+        "term": "cat scratch couch",
+        "clicks": 50,
+        "purchases": 4,
+        "cvr": 0.08,
+        "cpc": 1.27
+      },
+      {
+        "term": "couch arm covers for cats",
+        "clicks": 58,
+        "purchases": 4,
+        "cvr": 0.069,
+        "cpc": 1.24
+      },
+      {
+        "term": "couch protector cat",
+        "clicks": 10,
+        "purchases": 3,
+        "cvr": 0.3,
+        "cpc": 1.51
+      },
+      {
+        "term": "cat couch cover",
+        "clicks": 11,
+        "purchases": 3,
+        "cvr": 0.273,
+        "cpc": 1.27
+      },
+      {
+        "term": "corner couch protector for cats",
+        "clicks": 11,
+        "purchases": 3,
+        "cvr": 0.273,
+        "cpc": 1.71
+      },
+      {
+        "term": "chair cat scratch protector",
+        "clicks": 11,
+        "purchases": 3,
+        "cvr": 0.273,
+        "cpc": 1.55
+      },
+      {
+        "term": "furniture covers for cats",
+        "clicks": 11,
+        "purchases": 3,
+        "cvr": 0.273,
+        "cpc": 1.49
+      },
+      {
+        "term": "cat couch protectors",
+        "clicks": 12,
+        "purchases": 3,
+        "cvr": 0.25,
+        "cpc": 1.7
+      },
+      {
+        "term": "couch protector cat scratch",
+        "clicks": 12,
+        "purchases": 3,
+        "cvr": 0.25,
+        "cpc": 1.62
+      },
+      {
+        "term": "furniture protector",
+        "clicks": 15,
+        "purchases": 3,
+        "cvr": 0.2,
+        "cpc": 1.42
+      },
+      {
+        "term": "couch cat scratch protector corner",
+        "clicks": 20,
+        "purchases": 3,
+        "cvr": 0.15,
+        "cpc": 1.47
+      },
+      {
+        "term": "cat protector for couch",
+        "clicks": 21,
+        "purchases": 3,
+        "cvr": 0.143,
+        "cpc": 1.56
+      },
+      {
+        "term": "leather cat scratch protector",
+        "clicks": 22,
+        "purchases": 3,
+        "cvr": 0.136,
+        "cpc": 1.48
+      },
+      {
+        "term": "leather furniture protectors from cats",
+        "clicks": 23,
+        "purchases": 3,
+        "cvr": 0.13,
+        "cpc": 1.64
+      },
+      {
+        "term": "cat couch scratcher protector",
+        "clicks": 25,
+        "purchases": 3,
+        "cvr": 0.12,
+        "cpc": 1.58
+      },
+      {
+        "term": "couch cover for cats scratching",
+        "clicks": 27,
+        "purchases": 3,
+        "cvr": 0.111,
+        "cpc": 1.61
+      },
+      {
+        "term": "cat scratcher for couch corner",
+        "clicks": 30,
+        "purchases": 3,
+        "cvr": 0.1,
+        "cpc": 1.38
+      },
+      {
+        "term": "cat scratch furniture protector corner",
+        "clicks": 38,
+        "purchases": 3,
+        "cvr": 0.079,
+        "cpc": 1.66
+      },
+      {
+        "term": "cat couch scratcher",
+        "clicks": 38,
+        "purchases": 3,
+        "cvr": 0.079,
+        "cpc": 1.43
+      },
+      {
+        "term": "couch protectors from cats",
+        "clicks": 45,
+        "purchases": 3,
+        "cvr": 0.067,
+        "cpc": 1.47
+      },
+      {
+        "term": "cat scratch protectors for furniture",
+        "clicks": 11,
+        "purchases": 2,
+        "cvr": 0.182,
+        "cpc": 2.33
+      },
+      {
+        "term": "couch arm cat scratch protector",
+        "clicks": 11,
+        "purchases": 2,
+        "cvr": 0.182,
+        "cpc": 1.3
+      },
+      {
+        "term": "cat scratchers for couch",
+        "clicks": 11,
+        "purchases": 2,
+        "cvr": 0.182,
+        "cpc": 1.18
+      },
+      {
+        "term": "furniture protector from cats",
+        "clicks": 12,
+        "purchases": 2,
+        "cvr": 0.167,
+        "cpc": 1.86
+      },
+      {
+        "term": "cat scratcher protector for couch",
+        "clicks": 13,
+        "purchases": 2,
+        "cvr": 0.154,
+        "cpc": 1.45
+      },
+      {
+        "term": "couch corner cat scratch protector",
+        "clicks": 15,
+        "purchases": 2,
+        "cvr": 0.133,
+        "cpc": 1.53
+      },
+      {
+        "term": "cat scratch couch corner protector",
+        "clicks": 20,
+        "purchases": 2,
+        "cvr": 0.1,
+        "cpc": 1.37
+      }
+    ],
+    "negatives": [
+      {
+        "term": "cat scratch for couch",
+        "clicks": 20,
+        "cost": 26.78
+      },
+      {
+        "term": "cat scratch leather furniture protector",
+        "clicks": 15,
+        "cost": 23.76
+      }
+    ]
+  }
+}

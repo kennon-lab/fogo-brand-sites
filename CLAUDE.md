@@ -20,6 +20,7 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
 - `npm run ads:campaigns -- --brand=<slug>|all [--post=<slug>] [--days=90]` — write Google Ads
   campaign specs to `ads/<brand>/<post>.json` from each post's search brief + Amazon search terms
+- `npm run ads:auth` — one-time Google OAuth flow (loopback) that prints the refresh token for `.env`
 - `npm run ads:push -- --spec=ads/<brand>/<post>.json [--dry-run|--validate-only|--enable|--pause|--stage=…]`
   — create / update that campaign through the Google Ads API (see "Google Ads campaigns")
 - `npm run attribution-report -- --brand=<slug>|all [--days=90] [--dry-run]` — pull the Attribution
@@ -171,7 +172,12 @@ Known quirks (do not re-derive):
   assets) with temp ids, writes resource names back into the spec, refuses duplicates, and
   handles `--validate-only`, `--enable`/`--pause`, `--stage=maximize_conversions|target_roas`.
   Credentials: `.env` GOOGLE_ADS_* (manager-account OAuth + developer token); client account =
-  `brand_sites.google_ads_customer_id`. Bidding progression: maximize clicks (CPC ceiling) →
+  `brand_sites.google_ads_customer_id`. OAuth setup: Cloud project → OAuth consent screen
+  (External, app **published to production** — an app left in Testing expires refresh tokens
+  after 7 days; unverified is fine for our own use) → Desktop-app OAuth client → `npm run
+  ads:auth` signed in as the manager-account user → paste the printed refresh token. Explorer
+  access (2,880 ops/day on production accounts) is enough at our volume; Basic needs OAuth
+  brand verification and is only worth it if a feature is gated or volume grows. Bidding progression: maximize clicks (CPC ceiling) →
   maximize conversions once GA4 `amazon_click` is imported as a conversion → target ROAS once
   Attribution purchases are uploaded. Never enable a campaign from a script without a human
   having read the spec.

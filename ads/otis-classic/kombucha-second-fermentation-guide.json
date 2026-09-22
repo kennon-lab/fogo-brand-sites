@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-21",
+  "generated": "2026-09-22",
   "brand": {
     "slug": "otis-classic",
     "name": "Otis Classic",
@@ -8,10 +8,13 @@
     "store": "Stylever"
   },
   "google": {
-    "customer_id": null,
-    "campaign": null,
-    "ad_groups": {},
-    "pushed": null
+    "customer_id": "6291008270",
+    "campaign": "customers/6291008270/campaigns/24283874779",
+    "ad_groups": {
+      "guide": "customers/6291008270/adGroups/204285248390",
+      "product": "customers/6291008270/adGroups/203515365074"
+    },
+    "pushed": "9/22/2026, 1:37:30 PM"
   },
   "source": {
     "post": "src\\content\\brands\\otis-classic\\blog\\kombucha-second-fermentation-guide.md",
@@ -301,42 +304,42 @@
           "match": "EXACT",
           "source": "amazon-tier-a",
           "purchases": 81,
-          "cvr": 0.092
+          "cvr": 0.091
         },
         {
           "text": "swing top glass bottles",
           "match": "PHRASE",
           "source": "amazon-tier-a",
           "purchases": 81,
-          "cvr": 0.092
+          "cvr": 0.091
         },
         {
           "text": "kombucha bottles 16 oz",
           "match": "EXACT",
           "source": "amazon-tier-a",
           "purchases": 22,
-          "cvr": 0.31
+          "cvr": 0.293
         },
         {
           "text": "kombucha bottles 16 oz",
           "match": "PHRASE",
           "source": "amazon-tier-a",
           "purchases": 22,
-          "cvr": 0.31
+          "cvr": 0.293
         },
         {
           "text": "flip top bottles 16 oz",
           "match": "EXACT",
           "source": "amazon-tier-a",
-          "purchases": 15,
-          "cvr": 0.176
+          "purchases": 16,
+          "cvr": 0.186
         },
         {
           "text": "flip top bottles 16 oz",
           "match": "PHRASE",
           "source": "amazon-tier-a",
-          "purchases": 15,
-          "cvr": 0.176
+          "purchases": 16,
+          "cvr": 0.186
         },
         {
           "text": "16 oz swing top glass bottles",
@@ -423,11 +426,18 @@
           "cvr": 0.125
         },
         {
-          "text": "swing top glass bottles 16 oz",
+          "text": "16 oz flip top glass bottles",
           "match": "EXACT",
-          "source": "amazon-tier-b",
-          "purchases": 4,
-          "cvr": 0.235
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.152
+        },
+        {
+          "text": "16 oz flip top glass bottles",
+          "match": "PHRASE",
+          "source": "amazon-tier-a",
+          "purchases": 5,
+          "cvr": 0.152
         }
       ],
       "ad": {
@@ -496,42 +506,42 @@
     }
   ],
   "mined": {
-    "relevant_terms": 203,
+    "relevant_terms": 197,
     "tier_a": [
       {
         "term": "swing top glass bottles",
-        "clicks": 879,
+        "clicks": 894,
         "purchases": 81,
-        "cvr": 0.092,
+        "cvr": 0.091,
         "cpc": 0.85
       },
       {
         "term": "kombucha bottles",
-        "clicks": 380,
-        "purchases": 69,
-        "cvr": 0.182,
+        "clicks": 381,
+        "purchases": 70,
+        "cvr": 0.184,
         "cpc": 1.42
       },
       {
         "term": "swing top bottles",
-        "clicks": 492,
+        "clicks": 497,
         "purchases": 52,
-        "cvr": 0.106,
+        "cvr": 0.105,
         "cpc": 0.79
       },
       {
         "term": "kombucha bottles 16 oz",
-        "clicks": 71,
+        "clicks": 75,
         "purchases": 22,
-        "cvr": 0.31,
+        "cvr": 0.293,
         "cpc": 1.49
       },
       {
         "term": "flip top bottles 16 oz",
-        "clicks": 85,
-        "purchases": 15,
-        "cvr": 0.176,
-        "cpc": 1.19
+        "clicks": 86,
+        "purchases": 16,
+        "cvr": 0.186,
+        "cpc": 1.2
       },
       {
         "term": "16 oz swing top glass bottles",
@@ -542,9 +552,9 @@
       },
       {
         "term": "flip top bottles",
-        "clicks": 125,
+        "clicks": 126,
         "purchases": 10,
-        "cvr": 0.08,
+        "cvr": 0.079,
         "cpc": 0.88
       },
       {
@@ -581,6 +591,13 @@
         "purchases": 6,
         "cvr": 0.125,
         "cpc": 1.27
+      },
+      {
+        "term": "16 oz flip top glass bottles",
+        "clicks": 33,
+        "purchases": 5,
+        "cvr": 0.152,
+        "cpc": 0.96
       }
     ],
     "tier_b": [
@@ -590,13 +607,6 @@
         "purchases": 4,
         "cvr": 0.235,
         "cpc": 1.13
-      },
-      {
-        "term": "16 oz flip top glass bottles",
-        "clicks": 31,
-        "purchases": 4,
-        "cvr": 0.129,
-        "cpc": 0.94
       },
       {
         "term": "pressure rated swing top bottles",

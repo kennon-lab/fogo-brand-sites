@@ -20,9 +20,12 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
 - `npm run ads:campaigns -- --brand=<slug>|all [--post=<slug>] [--days=90]` — write Google Ads
   campaign specs to `ads/<brand>/<post>.json` from each post's search brief + Amazon search terms
-- `npm run ads:auth` — one-time Google OAuth flow (loopback) that prints the refresh token for `.env`
 - `npm run ads:push -- --spec=ads/<brand>/<post>.json [--dry-run|--validate-only|--enable|--pause|--stage=…]`
   — create / update that campaign through the Google Ads API (see "Google Ads campaigns")
+- `npm run ads:auth [-- --accounts]` — one-time loopback OAuth (Desktop client in Cloud project
+  404956388162) that writes `GOOGLE_ADS_REFRESH_TOKEN` into `.env`; `--accounts` lists the
+  client accounts under the manager (ids for `brand_sites.google_ads_customer_id`). API version
+  defaults to v25 (v20/v21 are sunset); override with `GOOGLE_ADS_API_VERSION`.
 - `npm run attribution-report -- --brand=<slug>|all [--days=90] [--dry-run]` — pull the Attribution
   PERFORMANCE/PRODUCTS reports and sync every campaign with traffic (Google Ads → Amazon listing
   ads, creator links, console tags — i.e. everything NOT from the site) into
@@ -175,7 +178,7 @@ Known quirks (do not re-derive):
   `brand_sites.google_ads_customer_id`. OAuth setup: Cloud project → OAuth consent screen
   (External, app **published to production** — an app left in Testing expires refresh tokens
   after 7 days; unverified is fine for our own use) → Desktop-app OAuth client → `npm run
-  ads:auth` signed in as the manager-account user → paste the printed refresh token. Explorer
+  ads:auth` signed in as the manager-account user (writes the refresh token into `.env`). Explorer
   access (2,880 ops/day on production accounts) is enough at our volume; Basic needs OAuth
   brand verification and is only worth it if a feature is gated or volume grows. Bidding progression: maximize clicks (CPC ceiling) →
   maximize conversions once GA4 `amazon_click` is imported as a conversion → target ROAS once

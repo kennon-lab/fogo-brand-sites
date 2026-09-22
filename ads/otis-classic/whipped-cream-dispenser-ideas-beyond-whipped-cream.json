@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-21",
+  "generated": "2026-09-22",
   "brand": {
     "slug": "otis-classic",
     "name": "Otis Classic",
@@ -8,7 +8,7 @@
     "store": "Stylever"
   },
   "google": {
-    "customer_id": null,
+    "customer_id": "6291008270",
     "campaign": null,
     "ad_groups": {},
     "pushed": null
@@ -310,49 +310,49 @@
           "match": "EXACT",
           "source": "amazon-tier-a",
           "purchases": 29,
-          "cvr": 0.062
+          "cvr": 0.061
         },
         {
           "text": "whipped cream dispenser stainless steel",
           "match": "PHRASE",
           "source": "amazon-tier-a",
           "purchases": 29,
-          "cvr": 0.062
+          "cvr": 0.061
         },
         {
           "text": "stainless steel whipped cream dispenser",
           "match": "EXACT",
           "source": "amazon-tier-a",
           "purchases": 23,
-          "cvr": 0.105
+          "cvr": 0.102
         },
         {
           "text": "stainless steel whipped cream dispenser",
           "match": "PHRASE",
           "source": "amazon-tier-a",
           "purchases": 23,
-          "cvr": 0.105
+          "cvr": 0.102
         },
         {
           "text": "professional whipped cream dispenser",
           "match": "EXACT",
           "source": "amazon-tier-a",
           "purchases": 6,
-          "cvr": 0.072
+          "cvr": 0.071
         },
         {
           "text": "professional whipped cream dispenser",
           "match": "PHRASE",
           "source": "amazon-tier-a",
           "purchases": 6,
-          "cvr": 0.072
+          "cvr": 0.071
         },
         {
           "text": "whipping cream",
           "match": "EXACT",
           "source": "amazon-tier-b",
           "purchases": 2,
-          "cvr": 0.118
+          "cvr": 0.111
         },
         {
           "text": "whipping cream dispenser",
@@ -427,43 +427,43 @@
     }
   ],
   "mined": {
-    "relevant_terms": 427,
+    "relevant_terms": 426,
     "tier_a": [
       {
         "term": "whipped cream dispenser",
-        "clicks": 1623,
-        "purchases": 137,
-        "cvr": 0.084,
-        "cpc": 1.78
+        "clicks": 1642,
+        "purchases": 136,
+        "cvr": 0.083,
+        "cpc": 1.77
       },
       {
         "term": "whipped cream dispenser stainless steel",
-        "clicks": 469,
+        "clicks": 479,
         "purchases": 29,
-        "cvr": 0.062,
-        "cpc": 1.51
+        "cvr": 0.061,
+        "cpc": 1.5
       },
       {
         "term": "stainless steel whipped cream dispenser",
-        "clicks": 219,
+        "clicks": 225,
         "purchases": 23,
-        "cvr": 0.105,
-        "cpc": 1.95
+        "cvr": 0.102,
+        "cpc": 1.93
       },
       {
         "term": "professional whipped cream dispenser",
-        "clicks": 83,
+        "clicks": 85,
         "purchases": 6,
-        "cvr": 0.072,
-        "cpc": 1.78
+        "cvr": 0.071,
+        "cpc": 1.77
       }
     ],
     "tier_b": [
       {
         "term": "whipping cream",
-        "clicks": 17,
+        "clicks": 18,
         "purchases": 2,
-        "cvr": 0.118,
+        "cvr": 0.111,
         "cpc": 0.63
       },
       {
@@ -477,8 +477,8 @@
     "negatives": [
       {
         "term": "whipped cream dispenser isi",
-        "clicks": 25,
-        "cost": 44.82
+        "clicks": 26,
+        "cost": 45.78
       },
       {
         "term": "whipped cream dispenser with charger",
@@ -492,8 +492,8 @@
       },
       {
         "term": "whipped cream can",
-        "clicks": 32,
-        "cost": 16.74
+        "clicks": 33,
+        "cost": 17.1
       }
     ]
   }

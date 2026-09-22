@@ -14,7 +14,7 @@
     "attribution-report": "node scripts/attribution-report.mjs",
     "ads:campaigns": "node scripts/ads-campaigns.mjs",
     "ads:push": "node scripts/ads-push.mjs",
-    "ads:auth": "node scripts/google-oauth.mjs"
+    "ads:auth": "node scripts/ads-auth.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",

@@ -30,7 +30,7 @@ try {
   // .env optional if vars are already exported
 }
 
-const API_VERSION = process.env.GOOGLE_ADS_API_VERSION ?? 'v20';
+const API_VERSION = process.env.GOOGLE_ADS_API_VERSION ?? 'v25';
 const API_BASE = process.env.GOOGLE_ADS_API_BASE ?? 'https://googleads.googleapis.com';
 const OAUTH_TOKEN_URL = process.env.GOOGLE_OAUTH_TOKEN_URL ?? 'https://oauth2.googleapis.com/token';
 

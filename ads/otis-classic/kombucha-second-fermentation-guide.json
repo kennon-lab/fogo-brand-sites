@@ -626,8 +626,7 @@
       "the account pays more than our $1.5 CPC ceiling on: \"flip top bottles\" $1.69, \"glass swing top bottles\" $1.94 — expect low impression share there",
       "ads not approved yet: product UNKNOWN, guide UNKNOWN (enable is blocked until they are)",
       "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
-      "product ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
-      "brand has no google_analytics_id — no GA4 on the site, so no amazon_click events to import as conversions"
+      "product ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged"
     ]
   }
 }

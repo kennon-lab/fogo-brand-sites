@@ -1,7 +1,8 @@
 // One-time OAuth for the Google Ads API: runs the installed-app (loopback)
 // consent flow for the Desktop OAuth client in .env and writes the refresh
 // token back into .env as GOOGLE_ADS_REFRESH_TOKEN, so the token never has to
-// be copied by hand. Sign in as a user with access to the FOGO manager account.
+// be copied by hand. Sign in as a user with access to the FOGO manager account
+// (and admin on the GA4 account, which scripts/ga-setup.mjs uses).
 //
 // Usage:
 //   npm run ads:auth                 consent in the browser → refresh token into .env
@@ -25,7 +26,8 @@ try {
 
 const OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const OAUTH_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const SCOPE = 'https://www.googleapis.com/auth/adwords';
+// Google Ads + GA4 admin (scripts/ga-setup.mjs) share one refresh token.
+const SCOPE = ['https://www.googleapis.com/auth/adwords', 'https://www.googleapis.com/auth/analytics.edit'].join(' ');
 
 const clientId = process.env.GOOGLE_ADS_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_ADS_CLIENT_SECRET;

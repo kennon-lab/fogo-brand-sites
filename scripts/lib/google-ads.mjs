@@ -33,7 +33,8 @@ export function adsEnv() {
 }
 
 let cachedToken = null;
-async function accessToken() {
+/** OAuth access token for the shared refresh token (Ads + GA4 admin scopes). */
+export async function accessToken() {
   if (cachedToken && cachedToken.expires > Date.now() + 60_000) return cachedToken.value;
   const env = adsEnv();
   const r = await fetch(OAUTH_TOKEN_URL(), {

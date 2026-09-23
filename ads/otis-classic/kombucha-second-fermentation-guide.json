@@ -32,7 +32,7 @@
   },
   "campaign": {
     "name": "fbs-otis-classic-kombucha-second-fermentation-guide",
-    "status": "PAUSED",
+    "status": "ENABLED",
     "channel": "SEARCH",
     "networks": {
       "google_search": true,

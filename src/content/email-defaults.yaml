@@ -1,0 +1,9 @@
+# Portfolio-wide sender identity for brand-site email (EMAIL_CAPTURE_SCOPE_v1.md §4.5).
+# Every marketing email footer renders:
+#   "<Brand> is a brand of <legal_name>, <mailing_address>."
+# CAN-SPAM requires the sender's valid physical postal address: a street address,
+# USPS PO box, or registered commercial mail-receiving agency (CMRA) address.
+# A brand owned by a different entity overrides these via bronze.brand_sites.legal_name /
+# mailing_address. check-emails fails the build while either value is empty.
+legal_name: ""        # TODO(owner): legal entity name
+mailing_address: ""   # TODO(owner): one line, e.g. "PO Box 123, City, ST 12345"

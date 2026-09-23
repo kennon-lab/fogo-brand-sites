@@ -1,0 +1,69 @@
+# Otis Classic signup drip. Spec: EMAIL_CAPTURE_SCOPE_v1.md (§6, §7.3).
+# DRAFT: copy is written for review; nothing here is wired up or sent yet.
+#
+# Step files (<track>/<n>-<name>.md) hold subject / preheader / stream / cta
+# plus a markdown body. Timing lives here only, never in the step files.
+#
+# Link conventions inside step bodies and `cta.href`:
+#   /blog/…, /products/…         site link; the renderer appends
+#                                utm_source=email&utm_medium=drip&utm_campaign=fbs-otis-classic-{track}&utm_content={step}
+#   amazon:<ASIN>                resolved at build to the `email` channel Attribution tag for that
+#                                ASIN (fallback: brand_site tag, then plain amazon.com/dp link)
+#   {{lead_magnet_url}}          this track's PDF; {{lead_magnet_url:<key>}} for a specific one
+#   {{track_link:<track>}}       signed /api/track link (general welcome only)
+#   {{confirm_url}}              double opt-in link (confirm email only)
+# The footer (why you got this, sender line, mailing address, unsubscribe via
+# Postmark's {{{ pm:unsubscribe }}}) is added by the template, not by step files.
+
+brand: otis-classic
+from_name: "Otis Classic"
+from_local: hello            # hello@otisclassic.com; the reply-to must be a monitored inbox
+confirm: _confirm.md         # transactional ("outbound") stream; never carries marketing
+
+lead_magnets:
+  dispenser:
+    title: "Whipped Cream Dispenser Cheat Sheet"
+    source: downloads/whipped-cream-dispenser-cheat-sheet.html
+    path: /downloads/otis-classic-whipped-cream-dispenser-cheat-sheet.pdf
+  bottles:
+    title: "Second Fermentation Flavor Chart"
+    source: downloads/second-fermentation-flavor-chart.html
+    path: /downloads/otis-classic-second-fermentation-flavor-chart.pdf
+
+# day = days after the subscriber confirms. Sends go out in the daily cron window.
+tracks:
+  dispenser:
+    lead_magnets: [dispenser]
+    steps:
+      - { file: dispenser/1-welcome.md, day: 0 }
+      - { file: dispenser/2-fixes.md, day: 2 }
+      - { file: dispenser/3-beyond-whipped-cream.md, day: 5 }
+      - { file: dispenser/4-standard-vs-professional.md, day: 9 }
+      - { file: dispenser/5-swing-top-bottles.md, day: 14 }
+
+  bottles:
+    lead_magnets: [bottles]
+    steps:
+      - { file: bottles/1-welcome.md, day: 0 }
+      - { file: bottles/2-fizz-without-gushers.md, day: 2 }
+      - { file: bottles/3-gaskets-and-uses.md, day: 5 }
+      - { file: bottles/4-choosing-a-set.md, day: 9 }
+      - { file: bottles/5-rapid-infusions.md, day: 14 }
+
+  general:
+    lead_magnets: [dispenser, bottles]
+    steps:
+      - { file: general/1-welcome.md, day: 0 }
+    # A click on a {{track_link}} moves the subscriber into that track at
+    # `start_step`. Remaining steps keep their day gaps, measured from the click.
+    on_choice:
+      dispenser: { track: dispenser, start_step: 2 }
+      bottles: { track: bottles, start_step: 2 }
+    # No choice by day 5: send one content email from each line, then graduate.
+    fallback:
+      - { file: dispenser/3-beyond-whipped-cream.md, day: 5 }
+      - { file: bottles/3-gaskets-and-uses.md, day: 9 }
+
+# After the last step: stay subscribed, no further drip. P2 "Kitchen Notes"
+# (new-post emails) goes to everyone graduated and still active.
+graduate: kitchen-notes

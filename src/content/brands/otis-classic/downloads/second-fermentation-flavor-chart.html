@@ -1,0 +1,163 @@
+<!doctype html>
+<!-- Lead magnet (DRAFT): rendered to /downloads/otis-classic-second-fermentation-flavor-chart.pdf.
+     One US Letter page. Method and amounts mirror /blog/kombucha-second-fermentation-guide/;
+     per-flavor amounts are starting points inside that post's 10–20% rule. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Second Fermentation Flavor Chart | Otis Classic</title>
+<link rel="stylesheet" href="../../../../../node_modules/@fontsource/fira-sans/400.css">
+<link rel="stylesheet" href="../../../../../node_modules/@fontsource/fira-sans/600.css">
+<link rel="stylesheet" href="../../../../../node_modules/@fontsource/fira-sans/800.css">
+<link rel="stylesheet" href="../../../../../node_modules/@fontsource/fira-sans-condensed/600.css">
+<link rel="stylesheet" href="../../../../../node_modules/@fontsource/fira-sans-condensed/800.css">
+<style>
+  :root {
+    --teal: #86BDC2;
+    --teal-tint: #E6F1F2;
+    --teal-deep: #3F7F86;
+    --ink: #373131;
+    --mute: #6B6464;
+    --line: #D8D2D0;
+    --paper: #FFFFFF;
+    --fast: #373131;
+    --med: #86BDC2;
+  }
+  @page { size: letter; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 8.5in; height: 11in; overflow: hidden; position: relative;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Fira Sans', system-ui, sans-serif; font-size: 8.9pt; line-height: 1.32;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .top { background: var(--ink); color: #fff; padding: 0.26in 0.5in 0.22in; display: flex; justify-content: space-between; align-items: flex-end; }
+  .brand { font-family: 'Fira Sans Condensed', sans-serif; font-weight: 800; letter-spacing: 0.14em; font-size: 10pt; color: var(--teal); text-transform: uppercase; }
+  h1 { font-family: 'Fira Sans Condensed', sans-serif; font-weight: 800; font-size: 23pt; line-height: 1.02; margin: 4pt 0 0; }
+  .sub { color: #CFC9C7; font-size: 9.2pt; margin-top: 5pt; }
+  .tag { text-align: right; font-size: 8.4pt; color: #CFC9C7; line-height: 1.35; }
+  .tag b { color: #fff; font-weight: 600; display: block; font-size: 9.2pt; }
+  main { padding: 0.2in 0.5in 0; }
+  h2 { font-family: 'Fira Sans Condensed', sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10.2pt; color: var(--teal-deep); margin: 0 0 6pt; padding-bottom: 3pt; border-bottom: 1.5pt solid var(--teal); }
+  b, strong { font-weight: 600; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.26in; margin-bottom: 0.13in; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7pt; margin-bottom: 0.13in; }
+  .stat { background: var(--teal-tint); border-radius: 6pt; padding: 8pt 9pt 7pt; }
+  .stat .big { font-family: 'Fira Sans Condensed', sans-serif; font-weight: 800; font-size: 17pt; line-height: 1; }
+  .stat .lbl { font-size: 7.6pt; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal-deep); margin: 2pt 0 3pt; }
+  .stat p { margin: 0; font-size: 8.4pt; line-height: 1.3; }
+  ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; padding-left: 22pt; margin-bottom: 3pt; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: -0.5pt; width: 15pt; height: 15pt; border-radius: 50%; background: var(--teal); color: var(--ink); font-family: 'Fira Sans Condensed', sans-serif; font-weight: 800; font-size: 9pt; display: flex; align-items: center; justify-content: center; }
+  ul.checks { list-style: none; margin: 0; padding: 0; }
+  ul.checks li { position: relative; padding-left: 17pt; margin-bottom: 4pt; }
+  ul.checks li::before { content: ''; position: absolute; left: 0; top: 1.5pt; width: 9pt; height: 9pt; border: 1.2pt solid var(--ink); border-radius: 2pt; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+  th { text-align: left; font-family: 'Fira Sans Condensed', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 7.8pt; color: var(--mute); padding: 0 6pt 3pt 0; border-bottom: 0.75pt solid var(--line); }
+  td { padding: 3pt 6pt 3pt 0; border-bottom: 0.75pt solid var(--line); vertical-align: top; }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+  .pill { display: inline-block; font-family: 'Fira Sans Condensed', sans-serif; font-weight: 600; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.06em; padding: 1pt 6pt; border-radius: 8pt; }
+  .pill.fast { background: var(--fast); color: #fff; }
+  .pill.med { background: var(--med); color: var(--ink); }
+  td.n { white-space: nowrap; font-family: 'Fira Sans Condensed', sans-serif; font-weight: 600; }
+  .note { font-size: 8pt; color: var(--mute); margin: 4pt 0 0; }
+  .log td { height: 18pt; border-bottom: 0.75pt solid var(--line); }
+  .log th:nth-child(1) { width: 14%; } .log th:nth-child(2) { width: 30%; } .log th:nth-child(3) { width: 12%; } .log th:nth-child(4) { width: 12%; }
+  .flat p { margin: 0 0 4pt; }
+  .foot { position: absolute; left: 0.5in; right: 0.5in; bottom: 0.3in; display: flex; justify-content: space-between; align-items: flex-end; font-size: 7.8pt; color: var(--mute); border-top: 0.75pt solid var(--line); padding-top: 6pt; }
+  .foot .safety { max-width: 5.2in; }
+  .foot .site { font-family: 'Fira Sans Condensed', sans-serif; font-weight: 800; font-size: 10pt; color: var(--ink); letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+  <header class="top">
+    <div>
+      <div class="brand">Otis Classic</div>
+      <h1>Second Fermentation Flavor Chart</h1>
+      <div class="sub">For 16 oz swing-top bottles. Print it and keep it where you brew.</div>
+    </div>
+    <div class="tag"><b>Flavor · Bottle · Wait · Chill</b>For kombucha, water kefir<br>and homemade sodas</div>
+  </header>
+
+  <main>
+    <div class="stats">
+      <div class="stat"><div class="big">10–20%</div><div class="lbl">Flavoring</div><p>2–3 tbsp fruit or purée, or up to ¼ cup juice per 16 oz</p></div>
+      <div class="stat"><div class="big">~1 in</div><div class="lbl">Headspace</div><p>Less fizz with more; no room for pressure with less</p></div>
+      <div class="stat"><div class="big">2–4 days</div><div class="lbl">Room temp</div><p>Out of direct sun. Warmer rooms go faster</p></div>
+      <div class="stat"><div class="big">Chill first</div><div class="lbl">Then open</div><p>Several hours in the fridge before drinking</p></div>
+    </div>
+
+    <section style="margin-bottom:0.13in">
+      <h2>Flavor starting points (per 16 oz bottle)</h2>
+      <table>
+        <thead><tr><th>Flavor</th><th>Add to the bottle</th><th>Speed</th><th>Check at</th></tr></thead>
+        <tbody>
+          <tr><td>Ginger + lemon</td><td>1 tbsp grated fresh ginger + 1 tbsp lemon juice</td><td><span class="pill fast">Fast</span></td><td class="n">Day 2</td></tr>
+          <tr><td>Mango</td><td>2 tbsp mango purée</td><td><span class="pill fast">Fast</span></td><td class="n">Day 2</td></tr>
+          <tr><td>Pineapple</td><td>2–3 tbsp crushed pineapple, or ¼ cup pineapple juice</td><td><span class="pill fast">Fast</span></td><td class="n">Day 2</td></tr>
+          <tr><td>Raspberry + mint</td><td>2–3 tbsp mashed raspberries + 2–3 mint leaves</td><td><span class="pill med">Typical</span></td><td class="n">Day 2–3</td></tr>
+          <tr><td>Strawberry + basil</td><td>2–3 tbsp chopped strawberries + 1–2 basil leaves</td><td><span class="pill med">Typical</span></td><td class="n">Day 2–3</td></tr>
+          <tr><td>Peach + vanilla</td><td>2–3 tbsp peach purée + ¼ tsp vanilla extract</td><td><span class="pill med">Typical</span></td><td class="n">Day 2–3</td></tr>
+          <tr><td>Blueberry + lavender</td><td>2–3 tbsp mashed blueberries + a small pinch of dried culinary lavender</td><td><span class="pill med">Typical</span></td><td class="n">Day 3</td></tr>
+          <tr><td>Apple + cinnamon</td><td>¼ cup apple juice + ½ cinnamon stick</td><td><span class="pill med">Typical</span></td><td class="n">Day 3</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Herbs and spices add flavor but almost no sugar, so pair them with fruit or juice for fizz. Warm kitchens run faster. Always chill and test one bottle first.</p>
+    </section>
+
+    <div class="row">
+      <section>
+        <h2>The routine</h2>
+        <ol class="steps">
+          <li><b>Save your starter.</b> Set the SCOBY aside in about two cups of kombucha for the next batch.</li>
+          <li><b>Flavor the bottles.</b> Use the chart above, at 10–20% of the bottle.</li>
+          <li><b>Fill.</b> Stir, then funnel the kombucha in, leaving about an inch of headspace.</li>
+          <li><b>Seal and wait.</b> Clamp the tops shut. Room temperature, out of sun, for 2–4 days.</li>
+          <li><b>Test one.</b> After two days, chill one bottle and open it. Fizzy enough? Fridge the rest.</li>
+          <li><b>Refrigerate.</b> Cold slows fermentation and settles the carbonation in.</li>
+        </ol>
+      </section>
+      <section>
+        <h2>Gusher-proof checklist</h2>
+        <ul class="checks">
+          <li>Thick, <b>round</b> bottles made for carbonation, with no chips or cracks</li>
+          <li>Gaskets soft and seated flat all the way around</li>
+          <li>A reminder set for day 2. Forgotten bottles cause most gushers</li>
+          <li>Fast fruits (mango, pineapple, ginger) checked early</li>
+          <li>Unsure? Burp each bottle briefly once a day</li>
+          <li>Bottles fermenting in a cabinet or cooler, not on an open shelf</li>
+          <li>Chilled before opening, opened over the sink, hand on the cap</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="row" style="grid-template-columns: 0.34fr 0.66fr;">
+      <section class="flat">
+        <h2>Flat?</h2>
+        <p><b>Tired gasket</b>: the most common cause. Replace it.</p>
+        <p><b>Cool room</b>: find a warmer spot or give it another day.</p>
+        <p><b>Too little sugar</b>: add a bit more fruit or juice.</p>
+        <p><b>Too much headspace</b>: fill to about an inch.</p>
+      </section>
+      <section>
+        <h2>Batch log</h2>
+        <table class="log">
+          <thead><tr><th>Bottled</th><th>Flavor &amp; amount</th><th>Days out</th><th>Fizz 1–5</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div class="safety"><b>Safety:</b> carbonation builds pressure. Use only bottles made for carbonated drinks, don't leave fermenting bottles unattended for long, and always chill before opening. Discard any batch with fuzzy mold.</div>
+    <div class="site">otisclassic.com</div>
+  </footer>
+</body>
+</html>

@@ -1,11 +1,21 @@
 # EMAIL_CAPTURE_SCOPE_v1.md
 **Otis Classic (otisclassic.com): email capture and signup drip campaign**
-Scope for a Claude Code implementation. Version 1.0, 2026-09-23. Pilot brand: `otis-classic`. It is built to be
-portfolio-generic, so turning it on for another brand means adding content, not code.
+Scope for a Claude Code implementation. Version 1.1, 2026-09-23 (decisions recorded, copy drafted).
+Pilot brand: `otis-classic`. It is built to be portfolio-generic, so turning it on for another brand means
+adding content, not code.
 
 This builds out the P1 line in `BRAND_SITES_SCOPE_v1.md` §5.2 ("Email capture form (Postmark or simple
 provider): customer-ownership beachhead without commerce") and the open question in
 `XTREME_SITE_V2_SCOPE.md` §7.4 ("likely a Supabase table + … sends later").
+
+### Decision log
+| # | Decision | Date |
+|---|---|---|
+| D1 | **Postmark** for sending. The list lives in Supabase, and Postmark manages unsubscribes (§4.1) | 2026-09-23 |
+| D2 | Signup incentive: **free printable guide**, one per track (§4.3). Drafts are in the repo | 2026-09-23 |
+| D3 | **One shared mailing address and legal sender line for every brand**, with an optional per-brand override (§4.5). Address still to be supplied | 2026-09-23 |
+| D4 | **Vercel Pro** (§4.6) | 2026-09-23 |
+| D5 | Claude drafts all emails and PDFs for owner edit. Drafts are in `src/content/brands/otis-classic/{emails,downloads}/` | 2026-09-23 |
 
 ---
 
@@ -22,7 +32,7 @@ domain, and we can reach them again at no cost for every new post, product, or s
   content is useful to these buyers, not just promotion.
 - Traffic is already arriving and is intent-rich: three live blog posts, Google Ads campaigns landing on those
   posts, and GA4 already on the brand row.
-- The drip reuses the blog's content engine. Every email can point at an existing post or PDP.
+- The drip reuses the blog's content engine. Every email points at an existing post or PDP.
 
 **Objective:** capture emails on otisclassic.com with double opt-in, then run each subscriber through a short,
 interest-matched welcome sequence. The sequence's job matches the site's job: build confidence, then send the
@@ -40,8 +50,8 @@ conversion to import. It is a better Maximize Conversions signal than `amazon_cl
 |---|---|---|---|
 | Capture | Signups ÷ sessions (all placements) | 1.0–2.5% (blog higher, PDP lower) | GA4 `email_signup` / sessions |
 | List quality | Confirm rate (double opt-in) | ≥ 60% | `bronze.email_subscribers` |
-| Engagement | Drip click rate per email | ≥ 4% (median across the sequence) | ESP click events |
-| Deliverability | Bounce / spam-complaint rate | < 2% / < 0.1% | ESP webhooks |
+| Engagement | Drip click rate per email | ≥ 4% (median across the sequence) | Postmark click events |
+| Deliverability | Bounce / spam-complaint rate | < 2% / < 0.1% (Gmail's hard ceiling is 0.3%) | Postmark webhooks |
 | Revenue | Email-channel Attribution clicks → purchases → BRB | Trend; first read at day 30 | `attribution-report` (channel `email`) |
 | Blended | Otis TACoS | Flat-to-down (per measurement philosophy) | Dashboard |
 
@@ -51,11 +61,11 @@ Open rates are reported but are not a goal, because Apple Mail Privacy Protectio
 
 ## 3. Non-goals (v1)
 
-1. No on-site accounts, preference center, or login. The only self-service is unsubscribe.
+1. No on-site accounts or preference center. Unsubscribe is Postmark's hosted one-click flow.
 2. No purchase-triggered flows. We have no order data, and **Amazon buyer data (Buyer-Seller Messaging, order
    reports) must never be imported into this list**, because that violates Amazon's policy.
 3. No review solicitation of any kind in emails. Incentivized or conditional review requests violate Amazon's
-   policy, and the drip copy gate (§7.4) blocks the word "review" in CTAs.
+   policy, and the gate (§7.4) blocks review asks.
 4. No SMS.
 5. No exit-intent modal in v1 (P2). It hurts Core Web Vitals and annoys paid landings.
 6. No new Supabase Edge Functions. Per `CLAUDE.md`, those belong to the dashboard repo. Everything runs as Vercel
@@ -63,38 +73,46 @@ Open rates are reported but are not a goal, because Apple Mail Privacy Protectio
 
 ---
 
-## 4. Key decisions (recommendation first)
+## 4. Decisions
 
-### 4.1 ESP / sending model: **owned list in Supabase + Postmark for sending (recommended)** vs Klaviyo
-
-| | Owned: Supabase + Postmark (recommended) | Klaviyo |
-|---|---|---|
-| Source of truth | `bronze.email_subscribers` (ours, joinable to Attribution data) | Klaviyo profiles (export to see them) |
-| Multi-brand (≈27) | One table keyed by `brand_slug`. One Postmark server per brand, each on its own domain | One account per brand in practice (sender and domain branding are account-level), each billed per contact |
-| Klaviyo's main advantage | n/a | Purchase-event flows and segmentation. We have **no purchase events** (Amazon), so most of it goes unused |
-| Content | Markdown in repo, gated like the blog (`check-emails`), reviewed in PRs | WYSIWYG in Klaviyo, outside the repo's gates |
-| Cost at pilot scale | Postmark ~$15/mo per 10k emails (shared across brands) | Free to 250 contacts, then per-contact per account |
-| Build effort | Higher: we build scheduler, unsubscribe, and webhooks (≈3–4 days total) | Lower: form embed + flow builder (≈1 day) |
-| Runtime requests | Same-origin `/api/*` only | Klaviyo JS/API from the browser (third-party request) |
-
-The owned model fits this repo's grain: content in markdown, content gates, one template for N brands, and data in
-`bronze.*`. Postmark is the provider already named in the v1 scope. It keeps transactional mail (the confirm email)
-and marketing mail (the drip) on separate message streams, so a drip complaint never delays confirmations. Resend
-is an equivalent swap behind the same `scripts/lib/email-send.mjs` interface.
+### 4.1 Sending: **Postmark (DECIDED)**, list of record in Supabase
+- **Two message streams per brand server.** `outbound` (transactional) carries only the double-opt-in confirm
+  email. `broadcast` carries every drip email and all later marketing. A drip complaint never delays a confirm.
+- **Unsubscribe is Postmark-managed on the broadcast stream.** Postmark requires an unsubscribe link on every
+  broadcast message. It inserts it at our `{{{ pm:unsubscribe }}}` placeholder (or appends one if the placeholder
+  is missing). It adds RFC 8058 one-click `List-Unsubscribe` / `List-Unsubscribe-Post` headers and suppresses the
+  address on that stream automatically. So even a bug in our scheduler **cannot** mail someone who opted out,
+  because Postmark refuses the send. We build **no unsubscribe endpoint**. We only mirror the change into our table
+  through the `SubscriptionChange` webhook, so the scheduler stops queuing them and the dashboard counts are right.
+- **Postmark's permission policy matches ours:** explicit opt-in only, no purchased or imported lists, and no
+  "agreed to the ToS" contacts.
+- One Postmark account, one **server per brand**, and one verified sending domain per brand
+  (`otisclassic.com`). Keeping this per brand means one brand's reputation can't hurt another's.
+- Klaviyo was considered and rejected. It allows one sending domain per account, so that's 27 paid accounts,
+  and its value is purchase-event segmentation, which we can't use.
 
 ### 4.2 Double opt-in: **yes**
 A brand-new sending domain with single opt-in and bot signups is the fastest way into the spam folder. The confirm
-step also gives us a consent record: timestamp, IP hash, and the exact consent text shown.
+step also gives us a consent record: timestamp, IP hash, source page, and the exact consent text shown.
+**No broadcast email is ever sent to a subscriber whose `confirmed_at` is null.** This is enforced in the scheduler
+query and covered by an acceptance test (§8).
 
-### 4.3 Incentive: **a free printable guide (recommended)** vs Amazon promo code vs none
-- Recommended: one PDF per track, rendered from repo content. "Whipped Cream Dispenser Cheat Sheet" covers fill
-  line, one charger per 500 ml, shake count, and ratios for cold foam, mousse, and infusions. "Second Fermentation
-  Flavor Chart" covers fruit and sugar per 16 oz bottle, days to carbonate, and burping schedule. It costs nothing
-  and fits the instructional content.
-- Option: an Amazon **Social Media Promo Code** (a percentage off, redeemed on Amazon). It lifts signups but
-  trains discount-seeking, and it needs a code per ASIN managed in Seller Central. Revisit in P2 as an A/B test.
+### 4.3 Incentive: **free printable guide (DECIDED)**
+One PDF per track, each one US Letter page in the brand palette:
+- `src/content/brands/otis-classic/downloads/whipped-cream-dispenser-cheat-sheet.html` →
+  `/downloads/otis-classic-whipped-cream-dispenser-cheat-sheet.pdf`. Covers the routine, the three rules, recipe
+  ratios, fixes, clean and store, and safety.
+- `src/content/brands/otis-classic/downloads/second-fermentation-flavor-chart.html` →
+  `/downloads/otis-classic-second-fermentation-flavor-chart.pdf`. Covers the key numbers, eight flavor starting
+  points, the routine, a gusher-proof checklist, flat fixes, and a batch log.
 
-### 4.4 Where the endpoint runs: **Vercel Functions in root `api/` (recommended)**
+The HTML is the source and the PDF is rendered from it. Draft PDFs are committed next to the sources for review.
+In Phase 2, `npm run emails:pdf` (a dev-only Playwright script, since the Vercel build has no browser) re-renders
+them, and the build copies the brand's `downloads/*.pdf` into `dist/downloads/`. The PDFs are public URLs and not
+gated. The value of the signup is the sequence, not the file. The Amazon promo code idea is parked for a P2 A/B
+test.
+
+### 4.4 Where the endpoint runs: **Vercel Functions in root `api/`**
 `astro.config.mjs` is `output: 'static'` and every brand is its own Vercel project. A root `api/` directory deploys
 as Node functions next to the static `dist/` without touching the Astro build or `vercel.json`'s `outputDirectory`.
 **Spike first (½ hr):** confirm Vercel picks up `api/` under the `astro` framework preset. If it doesn't, the
@@ -102,7 +120,36 @@ fallback is `@astrojs/vercel` with per-route `export const prerender = false`, w
 it's a bigger diff.
 
 This keeps the v1 acceptance criterion **"no request to `*.supabase.co` from the deployed site"** true: the
-browser only calls same-origin `/api/subscribe`, and Supabase is called server-side with the secret key.
+browser only calls same-origin `/api/*`, and Supabase is called server-side with the secret key.
+
+### 4.5 Sender identity & mailing address: **shared across brands (DECIDED)**
+CAN-SPAM requires *the sender's* valid physical postal address. The sender is the legal entity behind every brand,
+so one address serves all of them. A street address, a USPS PO box, or a registered commercial mail-receiving
+agency (CMRA) address all qualify. Every email footer carries one line that names the brand, the entity and the
+address:
+
+> You're receiving this because you signed up at otisclassic.com. Otis Classic is a brand of
+> {legal_name}, {mailing_address}. {{{ pm:unsubscribe }}}
+
+- **Portfolio default:** `src/content/email-defaults.yaml` holds `legal_name` and `mailing_address`, set once.
+- **Per-brand override:** nullable `bronze.brand_sites.mailing_address` and `legal_name`, used only if a brand is
+  ever owned by a different entity.
+- The gate (§7.4) fails the build if a brand has `emails/` content and no resolvable address, so **nothing can
+  ship with a placeholder address**.
+- Naming the parent entity keeps "who is this from" honest across 27 brand names on one address. It is the same
+  entity a recipient would find in any complaint lookup.
+
+### 4.6 Hosting plan: **Vercel Pro (DECIDED)**
+- **Pro is required regardless of email.** Vercel's Hobby plan is limited to personal, non-commercial use, and
+  these sites exist to earn Brand Referral Bonus, so every brand project should sit on a Pro team.
+- Pro is billed **per team member seat (~$20/mo), not per project**, and includes a usage credit. All ~27 brand
+  projects can live on one Pro team. Static sites plus a few function calls a day stay well inside the included
+  usage at our traffic. Watch the usage page after the first month.
+- Crons: Pro allows per-minute schedules (Hobby is once per day). We keep a **daily** drip cron anyway, since day
+  granularity is right for a welcome series, but Pro lets us run the confirm-email retry and webhook-backlog sweeps
+  hourly.
+- Keep `SUPABASE_SERVICE_ROLE_KEY` and `POSTMARK_SERVER_TOKEN` as **Sensitive** environment variables scoped to
+  Production and Preview, and set them only on projects where `email_enabled` is true.
 
 ---
 
@@ -111,25 +158,25 @@ browser only calls same-origin `/api/subscribe`, and Supabase is called server-s
 ### 5.1 Placements (v1)
 | Placement | Where | Copy direction | Track assigned |
 |---|---|---|---|
-| **Blog inline** | After the last `cta_after_sections` card, before the FAQ | "Get the printable cheat sheet + 4 short tips emails" | From post's `primary_asin` family |
-| **Blog index** | Under the intro | Same | `general` |
-| **Footer band** | Every page, above the v1 footer | "Kitchen notes from Otis Classic — recipes, how-tos, new gear. No spam." | From page context (PDP family), else `general` |
-| **PDP** | Below the gallery/description, **never above or beside the Amazon CTA** | "New to dispensers? Get the cheat sheet." | PDP's family |
+| **Blog inline** | After the last `cta_after_sections` card, before the FAQ | "Get the free printable cheat sheet + 4 short tips emails" | From post's `primary_asin` family |
+| **Blog index** | Under the intro | "Two free kitchen guides, plus tips by email" | `general` |
+| **Footer band** | Every page, above the v1 footer | "Kitchen notes from Otis Classic: recipes, how-tos, new gear. No spam." | From page context (PDP family), else `general` |
+| **PDP** | Below the gallery/description, **never above or beside the Amazon CTA** | "New to dispensers? Get the free cheat sheet." | PDP's family |
 
 The Amazon CTA stays the primary action on every page. The form must never compete with it above the fold.
 
 ### 5.2 Form behavior
 - One field (email), a submit button, and one consent line: "Get Otis Classic recipes and tips by email.
-  Unsubscribe anytime. [Privacy]". No pre-checked boxes.
+  Unsubscribe anytime. [Privacy]". No pre-checked boxes. The consent text is versioned and stored with each signup.
 - It works with JS off: a plain `<form method="post" action="/api/subscribe">` gets a 303 redirect to
   `/subscribe/check-inbox/`. With JS on, the page does a `fetch` and shows the message inline.
 - Hidden fields: `track`, `source_type` (blog|footer|pdp|blog_index), `source_path`, plus a snapshot of
   `window.fogoPaid` (gclid and campaign params, if any), so we can attribute a signup to a Google Ads campaign.
 - Bot defense: a honeypot field, a minimum 2-second time-to-submit, a per-IP-hash rate limit (5/hour), and double
-  opt-in. Cloudflare Turnstile is left out, because it's an external script and the defenses above are enough at
-  our volume.
-- New static pages: `/subscribe/check-inbox/`, `/subscribe/confirmed/` (delivers the PDF and links to the
-  track's best post), and `/subscribe/unsubscribed/`. All three are `noindex` and excluded from the sitemap.
+  opt-in.
+- New static pages: `/subscribe/check-inbox/` and `/subscribe/confirmed/` (download buttons for the track's PDFs
+  and a link to its best post). Both are `noindex` and excluded from the sitemap. Unsubscribe uses Postmark's
+  hosted confirmation page.
 
 ### 5.3 Analytics
 GA4 events `email_signup` (on submit accepted) and `email_confirm` (on the confirmed page) carry `track`,
@@ -138,56 +185,58 @@ conversion first, then promote it once volume supports that.
 
 ---
 
-## 6. The drip campaign
+## 6. The drip campaign (copy drafted: `src/content/brands/otis-classic/emails/`)
 
 ### 6.1 Sequence structure
-The flow is: confirm, then welcome, then 4 track emails over ~14 days, then graduation to the monthly
-"Kitchen Notes" list (new posts, P2). Sends go out once a day in a 10:00 ET window. Anyone who unsubscribes,
-bounces, or complains is removed immediately.
+The flow is: confirm, then welcome, then 4 track emails over ~14 days, then graduation (stay subscribed, P2
+"Kitchen Notes" new-post emails only). Timing lives in `emails/sequences.yaml`. Sends go out once a day in a
+10:00 ET window. Anyone who unsubscribes, bounces, or complains is dropped immediately.
 
 `track` is picked at signup from context, so a visitor reading the kombucha post never gets dispenser mail first.
 Each track's day-14 email cross-sells the other line. That's the list's real cross-sell lever, because on
 Amazon these two buyer groups never meet.
 
-### 6.2 Track A: `dispenser` (whipped cream dispensers, B01DZ2HZ2U / B06WVD2K6N)
-| # | Day | Subject (draft) | Job | Links |
+### 6.2 Track `dispenser`
+| # | Day | File | Subject | Job |
 |---|---|---|---|---|
-| 0 | immediate | Confirm your email for the cheat sheet | Transactional confirm | `/api/confirm` |
-| 1 | on confirm | Your whipped cream dispenser cheat sheet | Deliver PDF; the 60-second routine | `/blog/how-to-use-a-whipped-cream-dispenser/` |
-| 2 | +2 | Runny, stiff, or sputtering? The 3 fixes | Troubleshooting + cleaning/gasket care (cuts returns and bad reviews) | same post (fixes section) |
-| 3 | +5 | Cold foam, mousse, and 10-minute infusions | Use-case expansion, so they use it more | `/blog/whipped-cream-dispenser-ideas-beyond-whipped-cream/` |
-| 4 | +9 | Standard vs Professional: which one you have and when to upgrade | Soft product CTA (gift or upgrade) | PDPs + Amazon `email` tag |
-| 5 | +14 | The other thing our kitchen runs on: swing-top bottles | Cross-sell to bottles | kombucha post + bottle family |
+| 0 | immediate | `_confirm.md` | One click to get your free guide | Transactional confirm (outbound stream) |
+| 1 | 0 | `dispenser/1-welcome.md` | Your whipped cream dispenser cheat sheet | Deliver PDF, the three rules |
+| 2 | 2 | `dispenser/2-fixes.md` | Runny, stiff, or sputtering? The quick fixes | Troubleshooting + safe opening + cleaning |
+| 3 | 5 | `dispenser/3-beyond-whipped-cream.md` | Cold foam, mousse and 2-minute cocktail infusions | Use-case expansion |
+| 4 | 9 | `dispenser/4-standard-vs-professional.md` | Standard or Professional: which dispenser is yours? | Soft product CTA (gift or upgrade) |
+| 5 | 14 | `dispenser/5-swing-top-bottles.md` | The other thing our kitchen runs on | Cross-sell to bottles, graduation |
 
-### 6.3 Track B: `bottles` (swing-top bottles, B0H89XLBKG family; mini jars B0G1NFP1DM)
-| # | Day | Subject (draft) | Job | Links |
+### 6.3 Track `bottles`
+| # | Day | File | Subject | Job |
 |---|---|---|---|---|
-| 0 | immediate | Confirm your email for the flavor chart | Transactional confirm | `/api/confirm` |
-| 1 | on confirm | Your second-fermentation flavor chart | Deliver PDF; the bottling basics | `/blog/kombucha-second-fermentation-guide/` |
-| 2 | +2 | How to get fizz without gushers | Carbonation control, burping, fridge timing | same post |
-| 3 | +5 | Gasket care + 5 things to bottle besides kombucha | Care (longevity) + uses (infused oils, limoncello, cold brew) | bottle PDP |
-| 4 | +9 | Clear or amber? Plastic or ceramic caps? | Variant guide, soft CTA to the right SKU | family PDPs + Amazon `email` tag |
-| 5 | +14 | Your bottles + a dispenser = 10-minute infusions | Cross-sell to dispensers | dispenser ideas post |
+| 1 | 0 | `bottles/1-welcome.md` | Your second fermentation flavor chart | Deliver PDF, the three numbers |
+| 2 | 2 | `bottles/2-fizz-without-gushers.md` | How to get fizz without gushers | Pressure safety + flat fixes |
+| 3 | 5 | `bottles/3-gaskets-and-uses.md` | Gasket care, plus 5 things to bottle besides kombucha | Care + uses beyond kombucha |
+| 4 | 9 | `bottles/4-choosing-a-set.md` | Clear or amber? Plastic or ceramic caps? | Variant guide, CTA to the PDP |
+| 5 | 14 | `bottles/5-rapid-infusions.md` | Bottles, meet the 2-minute cocktail infusion | Cross-sell to dispensers, graduation |
 
-### 6.4 Track C: `general` (footer/index signups with no context)
-Welcome that presents both lines ("What are you making?") with two big links. Clicking one sets `track` via
-a signed link (`/api/track?t=…&track=dispenser`) and drops them into email 2 of that track. If they click neither,
-they get Track A's email 3 and Track B's email 3 on +5 and +9, then graduate.
+### 6.4 Track `general` (footer/index signups with no context)
+`general/1-welcome.md`, "Welcome to Otis Classic. What are you making?", delivers **both** PDFs and offers two
+choice links (`{{track_link:dispenser}}` / `{{track_link:bottles}}`). A click moves the subscriber into that track
+at step 2, with the remaining day gaps measured from the click. With no click by day 5, they get
+`dispenser/3` (day 5) and `bottles/3` (day 9), then graduate.
 
 ### 6.5 Email rules
-- Every product link goes to Amazon through an **`email` channel Attribution tag**. Campaign
-  `fbs-otis-classic-email`, ad group = `{track}`, creative = `{step}-{asin}`, which is the same template-fill
-  approach `attribution-tags.mjs` already uses. Every content link goes to our site with
-  `utm_source=email&utm_medium=drip&utm_campaign=fbs-otis-classic-{track}&utm_content={step}`.
+- Every product link is written `amazon:<ASIN>` and resolved at build to the **`email` channel Attribution tag**:
+  campaign `fbs-otis-classic-email`, ad group = `{track}`, creative = `{step}-{asin}`, the same template-fill
+  approach `attribution-tags.mjs` already uses. The fallback is the `brand_site` tag, then the plain URL. Every site
+  link gets `utm_source=email&utm_medium=drip&utm_campaign=fbs-otis-classic-{track}&utm_content={step}`.
 - Plain, fast HTML: one column, brand tokens (teal #86BDC2, charcoal #373131, Fira Sans with system fallback),
   logo from the bucket, alt text on every image, and a plain-text part generated automatically.
-- Footer: why you got this, a one-click unsubscribe link, and a **physical mailing address** (required by
-  CAN-SPAM; see §9).
-- Headers: `List-Unsubscribe` (mailto + https) and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (Gmail
-  and Yahoo bulk-sender rules, RFC 8058).
-- The same claims gate as the blog: no disease/FDA/"clinically proven" claims, no N2O/charger selling (same
-  policy list as `scripts/lib/ads-spec.mjs`), no ASIN printed in text, no review asks, and no raw
-  `amazon.com` links (tags only).
+- Footer (template-level, never in step files): why you got this, the §4.5 sender line with the mailing address,
+  and `{{{ pm:unsubscribe }}}`. List-Unsubscribe headers are added by Postmark.
+- Content rules (enforced by §7.4):
+  - Honest subjects, no fake urgency.
+  - No prices, because they change after send.
+  - No health, disease or FDA claims (this matters for kombucha: no "probiotic / gut health" language).
+  - Chargers are mentioned only instructionally, never linked or sold, and never in a subject line.
+  - No printed ASINs, no raw amazon.com links, no review asks.
+- Every email invites replies ("a real person reads every reply"), so **the reply-to inbox must be monitored.**
 
 ---
 
@@ -200,18 +249,20 @@ browser (otisclassic.com, static)
                                        ├─ validate + honeypot + rate limit
                                        ├─ upsert bronze.email_subscribers (status=pending) [service key]
                                        └─ Postmark "outbound" stream: confirm email (token link)
-  GET /api/confirm?token ───────────► status=active, enqueue step 1, 303 → /subscribe/confirmed/
-  GET|POST /api/unsubscribe?token ──► status=unsubscribed (POST = one-click)
+  GET /api/confirm?token ───────────► status=active, confirmed_at=now(), 303 → /subscribe/confirmed/
+  GET /api/track?t=…&track=… ───────► general → chosen track (signed, single-use)
 Vercel Cron (daily 14:00 UTC) ──────► /api/drip-tick (CRON_SECRET)
                                        ├─ select due (subscriber, step) for BRAND_SLUG
+                                       │    WHERE status='active' AND confirmed_at IS NOT NULL
                                        ├─ render template (prebuilt JSON) → Postmark "broadcast" stream
                                        └─ insert bronze.email_sends (unique → idempotent)
+Postmark (unsubscribe link, one-click header, suppression) ── managed, per broadcast stream
 Postmark webhooks ──────────────────► /api/postmark-webhook (basic auth)
-                                       └─ bounce/complaint → status; delivery/click → email_events
+                                       ├─ SubscriptionChange → status=unsubscribed / complained
+                                       ├─ Bounce (hard) → status=bounced
+                                       └─ Delivery / Click → email_events
 ```
 Each brand's Vercel project runs its own cron, scoped by its `BRAND_SLUG`, so brands never send each other's mail.
-The Vercel **Hobby** plan allows only daily crons, which is fine for day-granularity drips. **Pro** is needed only
-if we want hourly sends.
 
 ### 7.2 Data model (additive migration, `bronze` schema, **PII: no anon access**)
 ```sql
@@ -222,11 +273,13 @@ bronze.email_subscribers (
   status text not null default 'pending'   -- pending|active|unsubscribed|bounced|complained
     check (status in ('pending','active','unsubscribed','bounced','complained')),
   track text not null default 'general',   -- dispenser|bottles|general (per-brand vocabulary)
+  track_changed_at timestamptz,            -- general → chosen track (drip days re-anchor here)
   source_type text, source_path text,
   paid_snapshot jsonb,                     -- window.fogoPaid at signup (gclid, campaignid…)
-  consent_text text not null, consent_at timestamptz not null default now(),
+  consent_text text not null, consent_version text not null,
+  consent_at timestamptz not null default now(),
   ip_hash text, user_agent text,
-  token_hash text not null,                -- sha256 of the confirm/unsub token (raw token only in email)
+  token_hash text not null,                -- sha256 of the confirm token (raw token only in the email)
   confirmed_at timestamptz, unsubscribed_at timestamptz,
   created_at timestamptz not null default now(),
   unique (brand_slug, email)
@@ -238,68 +291,87 @@ bronze.email_sends (
   unique (subscriber_id, sequence, step)
 )
 bronze.email_events (
-  id bigserial pk, provider_message_id text, subscriber_id uuid, type text,  -- delivery|open|click|bounce|spam
+  id bigserial pk, provider_message_id text, subscriber_id uuid, type text,  -- delivery|click|bounce|spam|unsubscribe
   url text, payload jsonb, occurred_at timestamptz
 )
 ```
 **RLS deviates on purpose from the bronze pattern in `CLAUDE.md`:** these three tables are **service_role
-ALL only**, with **no anon or authenticated SELECT**, because they hold personal data. There are no public
-views. The dashboard reads aggregates through a service-role RPC (`brand_site_email_stats(brand_slug)`: counts by
+ALL only**, with **no anon or authenticated SELECT**, because they hold personal data. There are no public views.
+The dashboard reads aggregates through a service-role RPC (`brand_site_email_stats(brand_slug)`: counts by
 status, track, and step, and click rates), never raw rows.
+
+Unsubscribed, bounced and complained rows are **kept** as the suppression record. Deleting a row would let the
+address be re-added. A deletion request (GDPR/CCPA-style) hard-deletes the row and keeps only
+`sha256(email)` in a `bronze.email_suppressions` table, which the subscribe endpoint checks before insert.
 
 `bronze.attribution_links` gets `channel='email'` rows through
 `npm run attribution-tags -- --brand=otis-classic --channel=email`. That needs a channel map entry, and the
 publisher is resolved with `--probe`. Amazon lists email publishers (e.g. "Email - Other"), so confirm the name
 there.
 
-### 7.3 Content (repo, markdown, gated)
+### 7.3 Content (repo; drafted)
 ```
-src/content/brands/otis-classic/emails/
-  sequences.yaml            # tracks, step order, delay_days, graduation
-  dispenser/1-welcome.md    # frontmatter: subject, preheader, delay_days, primary_asin, links
-  dispenser/2-fixes.md …
-  bottles/1-welcome.md …
-  general/1-welcome.md
-  lead-magnets/dispenser-cheat-sheet.md   # rendered to PDF at build, shipped at /downloads/…
+src/content/email-defaults.yaml              # legal_name, mailing_address (portfolio-wide; D3)
+src/content/brands/otis-classic/
+  emails/
+    sequences.yaml                           # sender, lead magnets, tracks, step timing, link conventions
+    _confirm.md                              # outbound stream
+    dispenser/1-welcome.md … 5-swing-top-bottles.md
+    bottles/1-welcome.md … 5-rapid-infusions.md
+    general/1-welcome.md
+  downloads/
+    whipped-cream-dispenser-cheat-sheet.html (+ rendered .pdf)
+    second-fermentation-flavor-chart.html    (+ rendered .pdf)
 ```
-`scripts/build-emails.mjs` runs in `npm run build`. It renders each step to HTML and text with brand tokens,
-resolves `email` Attribution tags from `bronze.attribution_links` (falling back to the `brand_site` tag, then the
-plain URL, so a missing tag never breaks a send), and writes `api/_generated/emails.<slug>.json`, which the functions
-import. A brand with no `emails/` directory builds nothing, so capture UI stays off. That's the same opt-in-by-content rule
-as the blog.
+Step frontmatter: `subject`, `preheader`, `stream` (outbound|broadcast), optional `primary_asin`, and `cta`
+`{label, href}`. The markdown body uses the link conventions documented at the top of `sequences.yaml`.
+`scripts/build-emails.mjs` runs in `npm run build`. It renders each step to HTML and text with brand tokens and the
+footer, resolves `amazon:` links, and writes `api/_generated/emails.<slug>.json`, which the functions import. A
+brand with no `emails/` directory builds nothing, so the capture UI stays off. That's the same opt-in-by-content
+rule as the blog. None of these paths match the existing content-collection globs, so the Astro collections are
+unaffected.
 
 ### 7.4 Gate: `scripts/check-emails.mjs`
-It runs next to `check-blog` and fails the build on: a missing subject, a subject over 60 chars, a missing
-preheader, the claim or N2O terms, a printed ASIN, a raw amazon.com link, a review ask, links to unbuilt site paths,
-a sequence referencing a missing step, or a brand with emails but no `email_sender` / `mailing_address` configured.
+It runs next to `check-blog` and **fails the build** when:
+- a subject is missing or over 60 characters;
+- a preheader is missing or over 90 characters;
+- a body contains the blog claim terms (disease, FDA, clinically proven, probiotic/gut-health);
+- a subject contains a charger/N₂O term (the `ads-spec.mjs` policy list);
+- a body contains a price (`$` amount), a printed ASIN, a raw amazon.com link, or review language;
+- a link points at an unbuilt site path, or a sequence references a missing step;
+- a `broadcast` step's template has no `{{{ pm:unsubscribe }}}`;
+- the sender line can't resolve a `legal_name` + `mailing_address`;
+- an `outbound` step has a marketing CTA (anything other than `{{confirm_url}}`).
 
 ### 7.5 Config
-- `bronze.brand_sites` gets new nullable columns: `email_from_name` ("Otis Classic Kitchen"),
-  `email_from_address` (`hello@otisclassic.com`), `mailing_address`, and `email_enabled` bool (a kill switch
-  for capture UI and cron).
-  `contact_email` is **currently null for Otis**, so set it (reply-to).
-- Vercel env (Otis project only): `SUPABASE_SERVICE_ROLE_KEY` (`sb_secret_…`, server-only, never `PUBLIC_`),
+- `src/content/email-defaults.yaml`: `legal_name`, `mailing_address` (D3). **Pending: address from owner.**
+- `bronze.brand_sites` gets new nullable columns: `email_enabled` bool (a kill switch for capture UI and cron),
+  `email_from_name`, `email_from_address`, and the §4.5 overrides `legal_name` and `mailing_address`.
+  **`contact_email` is currently null for Otis**, so set it; it's the reply-to and must be a monitored inbox.
+- Vercel env (Otis project only, Sensitive): `SUPABASE_SERVICE_ROLE_KEY` (`sb_secret_…`, never `PUBLIC_`),
   `POSTMARK_SERVER_TOKEN`, `CRON_SECRET`, `EMAIL_TOKEN_PEPPER`, `POSTMARK_WEBHOOK_USER/PASS`.
-- DNS (Squarespace, otisclassic.com): Postmark DKIM TXT, Return-Path CNAME (`pm-bounces`), SPF include, and
-  `_dmarc` `p=none; rua=…`. Tighten to `quarantine` after 30 clean days.
+- DNS (Squarespace, otisclassic.com): Postmark DKIM TXT, Return-Path CNAME (`pm-bounces`, which aligns SPF), and
+  `_dmarc` `p=none; rua=…`. Tighten to `quarantine` after 30 clean days. This covers the Gmail, Yahoo and Outlook
+  bulk-sender authentication rules. Outlook has rejected non-compliant bulk mail since May 2025.
 
 ### 7.6 Files touched / added
 | File | Change |
 |---|---|
 | `src/components/EmailCapture.astro` | New: form + inline enhancement script, variants `inline` / `band` / `compact` |
-| `src/pages/blog/[...slug].astro`, `Footer.astro`, `products/[asin].astro` | Mount the component when `emailEnabled` |
-| `src/pages/subscribe/{check-inbox,confirmed,unsubscribed}.astro` | New, `noindex` |
+| `src/pages/blog/[...slug].astro`, `Footer.astro`, `products/[asin].astro` | Mount the component when `email_enabled` |
+| `src/pages/subscribe/{check-inbox,confirmed}.astro` | New, `noindex` |
 | `src/pages/privacy.astro` | New "Email" section (what we collect, why, retention, unsubscribe, no sale), shown when enabled |
 | `src/lib/supabase.js` | `getEmailConfig()` (brand columns only; no subscriber data at build) |
-| `api/subscribe.js`, `api/confirm.js`, `api/unsubscribe.js`, `api/track.js`, `api/drip-tick.js`, `api/postmark-webhook.js` | New Vercel Functions |
-| `scripts/lib/email-send.mjs`, `scripts/lib/email-render.mjs` | Provider wrapper + renderer (shared by functions and the build) |
+| `api/subscribe.js`, `api/confirm.js`, `api/track.js`, `api/drip-tick.js`, `api/postmark-webhook.js` | New Vercel Functions |
+| `scripts/lib/email-send.mjs`, `scripts/lib/email-render.mjs` | Postmark wrapper + renderer (shared by functions and the build) |
 | `scripts/build-emails.mjs`, `scripts/check-emails.mjs` | New build steps; added to `npm run build` |
+| `scripts/render-downloads.mjs` (`npm run emails:pdf`) | Dev-only Playwright render of `downloads/*.html` → PDF |
 | `scripts/attribution-tags.mjs` | Add `email` channel → publisher mapping |
-| `vercel.json` | `crons: [{ path: "/api/drip-tick", schedule: "0 14 * * *" }]` |
-| `sql/email_capture.sql` | Tables, RLS, stats RPC |
+| `vercel.json` | `crons`: daily `/api/drip-tick`, hourly confirm-retry sweep |
+| `sql/email_capture.sql` | Tables, RLS, suppression table, stats RPC |
 | `CLAUDE.md` | Document the feature (commands, PII RLS exception, rollout step) |
 
-`check-dist.mjs` should also assert that no built HTML or JS contains `sb_secret_` or `POSTMARK`.
+`check-dist.mjs` should also assert that no built HTML or JS contains `sb_secret_` or a Postmark token.
 
 ---
 
@@ -307,44 +379,57 @@ a sequence referencing a missing step, or a brand with emails but no `email_send
 
 | Phase | Contents | Est. |
 |---|---|---|
-| **0: Setup** (you) | Postmark account + Otis server, DNS records, mailing address, from-address, Vercel env vars, the §4 decisions | ~1 hr |
-| **1: Capture** | Spike (§4.4), migration, `EmailCapture` in 3 placements, subscribe/confirm/unsubscribe functions, confirm + welcome email, thank-you pages, privacy copy, GA events | 1.5 days |
-| **2: Drip** | Sequence content (10 emails + general welcome, drafted by Claude for your edit), lead-magnet PDFs, build/check scripts, drip-tick cron, webhooks, `email` Attribution tags | 2 days |
+| **0: Setup** (owner) | Postmark account + Otis server (outbound + broadcast streams), DNS records, **mailing address + legal name**, reply-to inbox, move brand projects to a Vercel Pro team, env vars | ~1 hr |
+| **1: Capture** | Spike (§4.4), migration, `EmailCapture` in 4 placements, subscribe/confirm functions, confirm email, thank-you pages, privacy copy, GA events | 1.5 days |
+| **2: Drip** | ~~Sequence content + PDFs~~ (**drafted**; owner edit pending), build/check/render scripts, drip-tick cron, track switch, webhooks, `email` Attribution tags | 1.5 days |
 | **3: Measure** | Stats RPC, `email` channel in `attribution-report`, Google Ads `email_signup` conversion import, day-30 read | 0.5 day |
-| **P2** | Monthly "Kitchen Notes" auto-digest from new blog posts, exit-intent (collection pages only), promo-code A/B, rollout to Amazing Shields → Xtreme Comforts → wave | per brand ≈ content only |
+| **P2** | "Kitchen Notes" new-post emails, exit-intent (collection pages only), promo-code A/B, rollout to Amazing Shields → Xtreme Comforts → wave | per brand ≈ content only |
 
 **Acceptance criteria (pilot)**
 - A signup on `/blog/kombucha-second-fermentation-guide/` creates a `pending` row with `track=bottles`, sends the
-  confirm email within 60 s, and after confirmation sends bottles email 1, then 2 two days later.
+  confirm email within 60 s, and after confirmation sends bottles email 1, then email 2 two days later.
+- A `pending` (unconfirmed) subscriber receives **nothing** on the broadcast stream, ever. This is tested by
+  seeding a pending row and running `drip-tick`.
 - Re-submitting the same email neither duplicates the row nor re-sends the confirm more than once per 10 minutes.
-- One-click unsubscribe (Gmail's button) sets `unsubscribed` and no further drip is sent. A hard bounce sets
-  `bounced`.
+  An address in `email_suppressions` gets the same "check your inbox" response but no row and no email.
+- Gmail's unsubscribe button and the footer link both unsubscribe through Postmark. The `SubscriptionChange`
+  webhook sets `unsubscribed`, and no further drip is queued. A hard bounce sets `bounced`.
 - Running `drip-tick` twice in the same day sends nothing twice (unique on `email_sends`).
+- Every broadcast email has the sender line with the mailing address and a working unsubscribe link.
 - Every Amazon link in a sent email carries the `email` Attribution tag (or a documented fallback).
 - The deployed site still makes zero runtime requests to `*.supabase.co`, and anon cannot SELECT any `email_*`
   table (verified with the publishable key).
-- A brand without `emails/` content builds byte-identical to today, apart from the unchanged footer.
+- A brand without `emails/` content builds byte-identical to today.
 
 ---
 
 ## 9. Compliance checklist
-- **CAN-SPAM:** accurate From, a non-deceptive subject, a physical postal address in every email, unsubscribe
-  that works within 10 business days (ours is instant), and honoring unsubscribes forever. We keep the row as
-  `unsubscribed` as a suppression record. Deleting it would allow re-adds.
-- **Gmail/Yahoo bulk-sender rules:** SPF + DKIM + DMARC, one-click unsubscribe, complaint rate < 0.3%.
-- **CASL / GDPR:** US-targeted, but double opt-in + a stored consent record covers express consent. Honor
-  deletion requests by hard-deleting the row and keeping a hashed email in suppression.
-- **Amazon:** no buyer data imported, no review solicitation, no off-Amazon pricing claims that contradict the
-  listing. Prices are omitted from emails, since they change after send.
-- **Privacy page:** update it before the form goes live. The current copy says we don't collect PII.
+- **CAN-SPAM:**
+  - accurate From and a non-deceptive subject;
+  - the sender line + physical postal address (§4.5) in every marketing email;
+  - a working opt-out in every marketing email (Postmark's is instant; the law allows 10 business days);
+  - opt-outs honored permanently (suppression rows kept);
+  - opt-out requires nothing beyond one click.
+- **Gmail / Yahoo / Outlook bulk-sender rules:** SPF + DKIM + DMARC (aligned), one-click unsubscribe (Postmark
+  headers), unsubscribes honored within 2 days (instant), spam complaints < 0.3%.
+- **Consent (CASL / GDPR, for non-US signups):** double opt-in + a stored, versioned consent record = express
+  consent with proof. Deletion requests are honored via hashed suppression (§7.2).
+- **Amazon:** no buyer data imported, no review solicitation, and no pricing claims that could contradict the
+  listing (no prices at all).
+- **Privacy page:** update it before the form goes live. The current copy says no personal information is
+  collected.
+- **Postmark policy:** explicit opt-in only; never import contacts from Amazon, wholesale lists, contests or
+  anywhere else.
 
 ---
 
-## 10. Open questions (need your call)
-1. **ESP:** owned Supabase + Postmark (recommended) or Klaviyo? (§4.1)
-2. **Incentive:** printable guides (recommended), an Amazon promo code, or none? (§4.3)
-3. **Sender identity:** from name/address (`hello@otisclassic.com`?), a reply-to inbox someone actually reads, and
-   the **physical mailing address** for the footer (a PO box or registered-agent address is fine).
-4. **Vercel plan** on the Otis project: Hobby (daily cron, fine) or Pro (hourly)?
-5. **Copy ownership:** should Claude draft all 11 emails and both PDFs for your edit, or do you have brand copy
-   to start from?
+## 10. Open items
+1. **Mailing address + legal entity name** for `email-defaults.yaml` (owner; blocks the first send, not the build
+   of Phases 1–2).
+2. **Sender and reply-to:** confirm `hello@otisclassic.com` as From, and which monitored inbox replies should land
+   in (also set as `brand_sites.contact_email`).
+3. **Copy review:** edit the drafts in `emails/` and `downloads/`. The facts come from the listing bullets and the
+   three live posts. Per-flavor amounts in the flavor chart are starting points within the post's 10–20% rule.
+4. **Listing inconsistency to check before email 4 ships:** the Professional dispenser (B06WVD2K6N) listing title
+   says "304 Stainless Steel", but one bullet says "Aluminum grade cream whipper". Email 4 says both models are
+   stainless steel. Confirm the material, and fix the listing bullet if it's wrong.

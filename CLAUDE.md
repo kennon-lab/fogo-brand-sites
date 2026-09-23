@@ -29,7 +29,8 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   the Analytics Admin API: finds/creates property "<Brand> (<domain>)" + web stream under the
   "FOGO Brands" GA account (408983327), 14-month retention, `amazon_click` key event (once per
   session), event dimensions asin/cta_channel/cta_position/page_type, Google Ads link, and writes
-  `brand_sites.google_analytics_id`; rebuild afterwards. Live: otis-classic (G-MEK8HE82J9).
+  `brand_sites.google_analytics_id`; rebuild afterwards. Live: otis-classic (G-MEK8HE82J9),
+  amazing-shields (G-MSNM6LX9HT; no Ads link until the Stelucca Ads account exists — re-run then).
   Importing `amazon_click` into Google Ads is UI-only (Goals → Conversions → Import → GA4).
 - `npm run ads:auth [-- --accounts]` — one-time loopback OAuth (Desktop client in Cloud project
   404956388162; scopes adwords + analytics.edit, Analytics Admin API enabled) that writes `GOOGLE_ADS_REFRESH_TOKEN` into `.env`; `--accounts` lists the

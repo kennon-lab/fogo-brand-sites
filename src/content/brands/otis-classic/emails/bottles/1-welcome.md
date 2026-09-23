@@ -20,5 +20,5 @@ The full walkthrough is in our [kombucha second fermentation guide](/blog/kombuc
 
 Over the next two weeks we'll send four short emails: how to get fizz without gushers, how to keep your bottles sealing tight, and how to choose the right set. After that, you'll only hear from us when we publish a new guide or recipe.
 
-Happy brewing,
+Happy brewing,\
 The Otis Classic kitchen

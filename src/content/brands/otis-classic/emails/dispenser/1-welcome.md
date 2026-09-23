@@ -20,5 +20,5 @@ The full walkthrough is in our [beginner's guide to using a whipped cream dispen
 
 Over the next two weeks we'll send four short emails: how to fix cream that comes out wrong, what else your dispenser can make, and how our two models differ. After that, you'll only hear from us when we publish a new guide or recipe.
 
-Happy whipping,
+Happy whipping,\
 The Otis Classic kitchen

@@ -616,15 +616,13 @@
     "negatives": []
   },
   "review": {
-    "date": "2026-09-22",
+    "date": "2026-09-23",
     "hash": "a880bdf70c26a001",
     "status": "warn",
     "errors": [],
     "warnings": [
       "2 other campaign(s) live in this account (QT_GTA_KW_B01DZ2HZ2U, QT_GTA_KW_B0G7Y80MGW) — confirm with their owner (e.g. the agency) before launching",
-      "no amazon_click conversion action in the account — this campaign will report 0 conversions in Google Ads and cannot move past maximize-clicks bidding; import GA4 amazon_click",
-      "the account pays more than our $1.5 CPC ceiling on: \"flip top bottles\" $1.69, \"glass swing top bottles\" $1.94 — expect low impression share there",
-      "ads not approved yet: product UNKNOWN, guide UNKNOWN (enable is blocked until they are)",
+      "the account pays more than our $1.5 CPC ceiling on: \"flip top bottles\" $1.70, \"glass swing top bottles\" $1.94 — expect low impression share there",
       "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
       "product ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged"
     ]

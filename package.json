@@ -16,7 +16,8 @@
     "ads:push": "node scripts/ads-push.mjs",
     "ads:auth": "node scripts/ads-auth.mjs",
     "ads:review": "node scripts/ads-review.mjs",
-    "ga:setup": "node scripts/ga-setup.mjs"
+    "ga:setup": "node scripts/ga-setup.mjs",
+    "ads:goals": "node scripts/ads-goals.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",

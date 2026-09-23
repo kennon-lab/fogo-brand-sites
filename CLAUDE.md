@@ -33,7 +33,14 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   amazing-shields (G-MSNM6LX9HT), bean-envy (G-QC6SMX79QY), tape-king (G-P7WJ67RDEX),
   xtreme-comforts (G-JB70EJYHN2) — none of these four has an Ads link yet (no customer id, or
   for xtreme-comforts the Ads account isn't under the manager yet); re-run ga:setup then.
-  Importing `amazon_click` into Google Ads is UI-only (Goals → Conversions → Import → GA4).
+  The GA4 ↔ Ads link auto-creates a HIDDEN "(web) amazon_click" conversion action in Ads.
+- `npm run ads:goals -- --brand=<slug> [--apply]` — turns that action on as OUTBOUND_CLICK
+  (secondary → primary), keeps OUTBOUND_CLICK out of the account-default goals (shared accounts:
+  Quartile's campaigns bid on PURCHASE), and sets every `fbs-<slug>-*` campaign's
+  campaign-level goal to OUTBOUND_CLICK only. Validate-only by default. Counting type is
+  immutable on GA4 imports (GA4's once-per-session applies). Applied for otis-classic
+  2026-09-23. The auto-mode classifier blocks Claude from mutating shared Ads accounts — the
+  user runs `--apply`. Re-run after pushing new campaigns (new campaigns start on PURCHASE).
 - `npm run ads:auth [-- --accounts]` — one-time loopback OAuth (Desktop client in Cloud project
   404956388162; scopes adwords + analytics.edit, Analytics Admin API enabled) that writes `GOOGLE_ADS_REFRESH_TOKEN` into `.env`; `--accounts` lists the
   client accounts under the manager (ids for `brand_sites.google_ads_customer_id`). API version

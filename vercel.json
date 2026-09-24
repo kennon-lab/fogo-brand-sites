@@ -7,5 +7,6 @@
     "api/*.js": {
       "includeFiles": "src/content/{email-defaults.yaml,brands/*/emails/**}"
     }
-  }
+  },
+  "crons": [{ "path": "/api/drip-tick", "schedule": "0 14 * * *" }]
 }

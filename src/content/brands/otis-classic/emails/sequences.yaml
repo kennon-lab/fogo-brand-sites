@@ -7,10 +7,10 @@
 # Link conventions inside step bodies and `cta.href`:
 #   /blog/…, /products/…         site link; the renderer appends
 #                                utm_source=email&utm_medium=drip&utm_campaign=fbs-otis-classic-{track}&utm_content={step}
-#   amazon:<ASIN>                resolved at build to the `email` channel Attribution tag for that
+#   amazon:<ASIN>                resolved at send time to the `email` channel Attribution tag for that
 #                                ASIN (fallback: brand_site tag, then plain amazon.com/dp link)
 #   {{lead_magnet_url}}          this track's PDF; {{lead_magnet_url:<key>}} for a specific one
-#   {{track_link:<track>}}       signed /api/track link (general welcome only)
+#   {{track_link:<track>}}       signed /subscribe/choose/<track>/ link (general welcome only)
 #   {{confirm_url}}              double opt-in link (confirm email only)
 # The footer (why you got this, sender line, mailing address, unsubscribe via
 # Postmark's {{{ pm:unsubscribe }}}) is added by the template, not by step files.
@@ -39,6 +39,7 @@ lead_magnets:
 # day = days after the subscriber confirms. Sends go out in the daily cron window.
 tracks:
   dispenser:
+    label: "whipped cream dispensers"   # shown on /subscribe/choose/<track>/
     lead_magnets: [dispenser]
     # Signups on a page about these ASINs (PDP, or a post whose primary_asin is
     # one of them) start on this track.
@@ -51,6 +52,7 @@ tracks:
       - { file: dispenser/5-swing-top-bottles.md, day: 14 }
 
   bottles:
+    label: "bottling kombucha and homemade drinks"
     lead_magnets: [bottles]
     asins: [B01LB1862A, B076PKTRXV, B01DM1J6I0, B0H89XLBKG, B073VHNCQK, B0G1NFP1DM]
     steps:
@@ -64,8 +66,9 @@ tracks:
     lead_magnets: [dispenser, bottles]
     steps:
       - { file: general/1-welcome.md, day: 0 }
-    # A click on a {{track_link}} moves the subscriber into that track at
-    # `start_step`. Remaining steps keep their day gaps, measured from the click.
+    # Choosing via a {{track_link}} (one click on /subscribe/choose/<track>/)
+    # moves the subscriber into that track at `start_step`. Remaining steps keep
+    # their day gaps, measured from the choice.
     on_choice:
       dispenser: { track: dispenser, start_step: 2 }
       bottles: { track: bottles, start_step: 2 }

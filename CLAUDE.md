@@ -18,7 +18,7 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `npm run check:blog` — blog content gate (also the first step of `npm run build`)
 - `npm run check:emails` — email content gate for every brand with `emails/` (runs in `npm run build`
   after check:blog)
-- `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads [--probe] [--dry-run] [--force]`
+- `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|brand_site_blog|email|google_ads [--probe] [--dry-run] [--force]`
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
 - `npm run ads:campaigns -- --brand=<slug>|all [--post=<slug>] [--days=90]` — write Google Ads
   campaign specs to `ads/<brand>/<post>.json` from each post's search brief + Amazon search terms
@@ -220,6 +220,18 @@ Known quirks (do not re-derive):
   `SUPABASE_SERVICE_ROLE_KEY`, `POSTMARK_SERVER_TOKEN`, `EMAIL_TOKEN_PEPPER`; `vercel.json`
   `functions.includeFiles` ships the email content to the functions. `check-dist` fails the build
   if secret key material appears in `dist/`.
+  Drip (Phase 2): `api/drip-tick.js` runs daily via Vercel Cron (`vercel.json`, 14:00 UTC,
+  production only, `Authorization: Bearer $CRON_SECRET`) and `api/confirm.js` sends the day-0
+  welcome immediately; both call `runDrip` (`api/_lib/drip.js`). What's due comes from
+  `scripts/lib/drip-schedule.mjs` (pure; day offsets from `sequences.yaml`, 12h grace, ≥20h
+  between emails, one per run). Every send is claimed first (`email_claim_send`, unique on
+  subscriber+sequence+step) so double runs never double-send; failures release the claim.
+  General-track choice links go to `/subscribe/choose/<track>/` (HMAC-signed, one click → POST
+  `/api/track`). `api/postmark-webhook.js` (basic auth) mirrors unsubscribes/bounces/complaints
+  into `bronze.email_subscribers` and logs deliveries/clicks to `bronze.email_events`. Amazon
+  links in drip mail = `email` channel Attribution tag → organic `brand_site` tag → plain URL.
+  Extra env: `CRON_SECRET`, `POSTMARK_WEBHOOK_USER`/`_PASS`, `POSTMARK_BROADCAST_STREAM`
+  (default `drip`). SQL: `sql/email_drip.sql`.
 - `toISOString().slice(0,10)` is banned in any script — use a local-date helper if dates are
   ever needed. Never generate files via PowerShell here-strings — write files directly.
 - Complete files only, no partial snippets; validate Astro/JSX parses before finishing.

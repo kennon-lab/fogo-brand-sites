@@ -4,6 +4,8 @@
 //   /subscribe/check-inbox/        after a no-JS form post (?s=1) or an error (?error=…)
 //   /subscribe/confirm/?t=…        the confirm-email link; one click POSTs to /api/confirm
 //   /subscribe/confirmed/<track>/  guide downloads (?new=1 on first confirmation)
+//   /subscribe/choose/<track>/?s=…&sig=…  "What are you making?" link from the
+//                                  general welcome; one click POSTs to /api/track
 //   /subscribe/link-expired/       bad, used-up or expired confirm link
 import Base from '../../layouts/Base.astro';
 import EmailCapture from '../../components/EmailCapture.astro';
@@ -21,6 +23,10 @@ export async function getStaticPaths() {
       params: { page: `confirmed/${track}` },
       props: { kind: 'confirmed', track },
     })),
+    ...Object.keys(config.tracks.general?.on_choice ?? {}).map((track) => ({
+      params: { page: `choose/${track}` },
+      props: { kind: 'choose', track },
+    })),
   ];
 }
 
@@ -33,7 +39,9 @@ const titles = {
   confirm: 'Confirm your email',
   'link-expired': 'This link has expired',
   confirmed: "You're in",
+  choose: 'Choose your tips',
 };
+const trackLabel = track ? config.tracks[track]?.label ?? track : '';
 ---
 
 <Base title={titles[kind]} description={`${brand.brand} email signup.`} pageType="subscribe" noindex>
@@ -81,6 +89,28 @@ const titles = {
       )
     }
     {
+      kind === 'choose' && (
+        <>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Tips for {trackLabel}?</h1>
+          <p class="mt-4 text-lg text-black/70">
+            One click and we'll tailor the next few emails to {trackLabel}.
+          </p>
+          <form method="post" action="/api/track" class="mt-8">
+            <input type="hidden" name="k" value={track} />
+            <input type="hidden" name="s" value="" />
+            <input type="hidden" name="sig" value="" />
+            <button type="submit" class="rounded-lg bg-[var(--brand)] px-6 py-3 text-lg font-bold text-[var(--ink)] hover:opacity-90">
+              Yes, send me these tips
+            </button>
+          </form>
+          <script
+            is:inline
+            set:html={`(function(){var q=new URLSearchParams(location.search),f=document.querySelector('form[action="/api/track"]');f.s.value=q.get('s')||'';f.sig.value=q.get('sig')||'';})();`}
+          />
+        </>
+      )
+    }
+    {
       kind === 'link-expired' && (
         <>
           <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">This link has expired</h1>
@@ -96,6 +126,7 @@ const titles = {
         <>
           <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">You're in</h1>
           <p class="mt-4 text-lg text-black/70">
+            <span data-switched class="hidden">Done. The next few emails will be about {trackLabel}. </span>
             Thanks for confirming. Here {magnets.length === 1 ? 'is your free guide' : 'are your free guides'}:
           </p>
           <ul class="mt-8 space-y-4">
@@ -117,7 +148,7 @@ const titles = {
           </p>
           <script
             is:inline
-            set:html={`(function(){if(new URLSearchParams(location.search).get('new')&&window.gtag)gtag('event','email_confirm',{track:${JSON.stringify(track)}});})();`}
+            set:html={`(function(){var q=new URLSearchParams(location.search);if(q.get('switched')){document.querySelector('[data-switched]').classList.remove('hidden');}if(q.get('new')&&window.gtag)gtag('event','email_confirm',{track:${JSON.stringify(track)}});})();`}
           />
         </>
       )

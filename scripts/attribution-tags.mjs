@@ -3,7 +3,7 @@
 // bronze.attribution_links, one row per (brand, asin, channel).
 //
 // Usage:
-//   node scripts/attribution-tags.mjs --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads
+//   node scripts/attribution-tags.mjs --brand=<slug>|all --channel=brand_site|brand_site_blog|email|google_ads
 //                                      [--dry-run] [--probe] [--force]
 //                                      [--advertiser=<id>] [--publisher=<id>]
 //   npm run attribution-tags -- --brand=otis-classic --channel=brand_site --dry-run
@@ -24,6 +24,10 @@
 //               `blog`, so blog-driven sales report separately. Only CTAs
 //               rendered on /blog/ pages use these (src/pages/blog/[...slug].astro
 //               swaps them in via getPaidLinks()).
+//   email       Same, but under the "Email - Other" publisher (verify the name
+//               with --probe) and ad group `email`: Amazon links in the signup
+//               drip (EMAIL_CAPTURE_SCOPE_v1.md §6.5; resolved at send time by
+//               api/_lib/drip.js via public.brand_site_paid_links).
 //   google_ads  One advertiser-level MACRO tag (Google Ads publisher) applied
 //               to every ASIN. It carries ValueTrack placeholders that the
 //               site fills client-side on paid landings (Base.astro), so the
@@ -32,7 +36,7 @@
 //
 // Naming convention (the one key every report joins on):
 //   campaign   fbs-{brand-slug}-{channel with - for _}   e.g. fbs-otis-classic-brand-site
-//   ad group   site | blog                                 (organic; Google Ads gets Google's own IDs)
+//   ad group   site | blog | email                         (organic; Google Ads gets Google's own IDs)
 //   creative   {asin}
 // bronze.attribution_links.campaign_name stores "campaign/adgroup/creative".
 //
@@ -76,8 +80,8 @@ if (!brandArg) {
   console.error('Pass --brand=<slug> or --brand=all.');
   process.exit(1);
 }
-if (!['brand_site', 'brand_site_blog', 'google_ads'].includes(channel)) {
-  console.error(`Unknown --channel=${channel} (brand_site | brand_site_blog | google_ads).`);
+if (!['brand_site', 'brand_site_blog', 'email', 'google_ads'].includes(channel)) {
+  console.error(`Unknown --channel=${channel} (brand_site | brand_site_blog | email | google_ads).`);
   process.exit(1);
 }
 
@@ -203,10 +207,11 @@ const pickByName = (items, re, label, override) => {
 };
 
 const CAMPAIGN_ID = (slug) => `fbs-${slug}-${channel.replace(/_/g, '-')}`;
-const AD_GROUP_ID = channel === 'brand_site_blog' ? 'blog' : 'site';
+const AD_GROUP_ID = channel === 'brand_site_blog' ? 'blog' : channel === 'email' ? 'email' : 'site';
 // Organic publishers as the Attribution API names them (no "Website" option
-// exists): product/catalog CTAs report under Display, blog CTAs under Blogpost.
-const ORGANIC_PUBLISHER = channel === 'brand_site_blog' ? /^blogpost/i : /^display/i;
+// exists): product/catalog CTAs report under Display, blog CTAs under Blogpost,
+// drip-email links under Email.
+const ORGANIC_PUBLISHER = channel === 'brand_site_blog' ? /^blogpost/i : channel === 'email' ? /^e-?mail/i : /^display/i;
 
 // ---- Main -------------------------------------------------------------------
 const brandRows = await rest(

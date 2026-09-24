@@ -3,7 +3,8 @@
 // which asks for one click before posting here. Confirming on a plain GET would
 // let corporate link scanners (which pre-fetch every URL in an email) confirm
 // addresses nobody actually confirmed.
-import { missingEnv, rpc, getBrand, emailEnabled, tokenHash } from './_lib/email.js';
+import { missingEnv, rpc, getBrand, emailEnabled, getContent, tokenHash, postmarkUnsuppress } from './_lib/email.js';
+import { runDrip, BROADCAST_STREAM } from './_lib/drip.js';
 
 export default async function handler(req, res) {
   const go = (location) => {
@@ -28,6 +29,17 @@ export default async function handler(req, res) {
     if (row?.result === 'confirmed' || row?.result === 'already') {
       if (row.brand_slug !== brand.slug) return go('/subscribe/link-expired/');
       const track = /^[a-z-]+$/.test(row.track ?? '') ? row.track : 'general';
+      if (row.result === 'confirmed') {
+        // Day-0 welcome right away (the daily cron retries if this fails).
+        // Never blocks the redirect: the guide is on the confirmed page anyway.
+        try {
+          if (row.was_unsubscribed) await postmarkUnsuppress(BROADCAST_STREAM(), row.email);
+          const content = getContent();
+          if (content) await runDrip({ brand, seq: content.seq, defaults: content.defaults, subscriberId: row.subscriber_id });
+        } catch (err) {
+          console.error('[confirm] welcome send', err.message);
+        }
+      }
       return go(`/subscribe/confirmed/${track}/${row.result === 'confirmed' ? '?new=1' : ''}`);
     }
     return go('/subscribe/link-expired/');
@@ -37,4 +49,4 @@ export default async function handler(req, res) {
   }
 }
 
-export const config = { maxDuration: 10 };
+export const config = { maxDuration: 20 };

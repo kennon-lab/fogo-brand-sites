@@ -43,6 +43,7 @@ async function supabase(path, init = {}) {
 }
 
 export const rpc = (name, args) => supabase(`rpc/${name}`, { method: 'POST', body: args });
+export const supabaseGet = (path) => supabase(path);
 
 let brandCache = null;
 const BRAND_TTL_MS = 5 * 60 * 1000;
@@ -92,7 +93,10 @@ export function leadMagnetVars(seq, track, origin) {
   return vars;
 }
 
-export async function postmarkSend({ from, to, replyTo, subject, html, text, stream, tag, metadata }) {
+// trackLinks: 'None' for transactional mail; the drip passes 'HtmlOnly' so
+// click rates (a scope §2 metric) are measurable. Opens stay off: Apple Mail
+// Privacy Protection makes them meaningless.
+export async function postmarkSend({ from, to, replyTo, subject, html, text, stream, tag, metadata, trackLinks = 'None' }) {
   const res = await fetch('https://api.postmarkapp.com/email', {
     method: 'POST',
     headers: {
@@ -111,12 +115,30 @@ export async function postmarkSend({ from, to, replyTo, subject, html, text, str
       Tag: tag,
       Metadata: metadata,
       TrackOpens: false,
-      TrackLinks: 'None',
+      TrackLinks: trackLinks,
     }),
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok || json.ErrorCode) throw new Error(`postmark ${res.status} ${json.ErrorCode ?? ''} ${json.Message ?? ''}`);
   return json.MessageID;
+}
+
+/** Lifts Postmark's suppression on a stream after someone who unsubscribed
+ *  signs up and confirms again. Postmark refuses for spam complaints; that's
+ *  logged and the address simply stays suppressed. */
+export async function postmarkUnsuppress(stream, email) {
+  const res = await fetch(`https://api.postmarkapp.com/message-streams/${encodeURIComponent(stream)}/suppressions/delete`, {
+    method: 'POST',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-Postmark-Server-Token': ENV.postmarkToken },
+    body: JSON.stringify({ Suppressions: [{ EmailAddress: email }] }),
+  });
+  const json = await res.json().catch(() => ({}));
+  const status = json.Suppressions?.[0]?.Status;
+  if (!res.ok || (status && status !== 'Deleted')) {
+    console.warn('[unsuppress]', res.status, status, json.Suppressions?.[0]?.Message ?? json.Message ?? '');
+    return false;
+  }
+  return true;
 }
 
 /** "Otis Classic <hello@otisclassic.com>" from the brand row + sequences.yaml. */

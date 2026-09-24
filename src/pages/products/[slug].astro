@@ -19,6 +19,8 @@ import { groupKey, variantLabel, formatPrice } from '../../lib/catalog.js';
 import { getMergedCatalog, getBlogPosts } from '../../lib/content.js';
 import { getAffiliates, getTapeCatalogIfAny } from '../../lib/tapeking.js';
 import PdpGuides from '../../components/PdpGuides.astro';
+import EmailCapture from '../../components/EmailCapture.astro';
+import { getEmailConfig } from '../../lib/email.js';
 
 // Route modes:
 // - Line-catalog brands (catalog.yaml, currently tape-king) → one page per
@@ -211,6 +213,12 @@ if (mode === 'v1') {
     },
   };
 }
+
+// Email signup band below the guides (never beside the Amazon CTA); renders
+// nothing unless capture is on. Starts people on this product's drip track.
+const emailConfig = mode === 'family' || mode === 'v1' ? await getEmailConfig() : null;
+const pdpAsins = mode === 'family' ? g.children.map((c) => c.asin) : siblings.map((s) => s.asin);
+const emailTrack = emailConfig ? emailConfig.trackFor(...pdpAsins) : 'general';
 ---
 
 {
@@ -411,6 +419,7 @@ if (mode === 'v1') {
 
       {/* Guides that feature this product (blog backlinks) */}
       <PdpGuides posts={guides} />
+      <EmailCapture variant="band" track={emailTrack} sourceType="pdp" />
 
       {/* 8 — Sticky mobile CTA */}
       <StickyCta product={stickyProduct} priceLabel={priceLabel} />
@@ -525,6 +534,7 @@ if (mode === 'v1') {
       </section>
 
       <PdpGuides posts={guides} />
+      <EmailCapture variant="band" track={emailTrack} sourceType="pdp" />
     </Base>
   )
 }

@@ -1,0 +1,126 @@
+---
+// Signup flow pages (EMAIL_CAPTURE_SCOPE_v1.md §5.2). Built only when email
+// capture is on for the brand; all are noindex and kept out of the sitemap.
+//   /subscribe/check-inbox/        after a no-JS form post (?s=1) or an error (?error=…)
+//   /subscribe/confirm/?t=…        the confirm-email link; one click POSTs to /api/confirm
+//   /subscribe/confirmed/<track>/  guide downloads (?new=1 on first confirmation)
+//   /subscribe/link-expired/       bad, used-up or expired confirm link
+import Base from '../../layouts/Base.astro';
+import EmailCapture from '../../components/EmailCapture.astro';
+import { getBrand } from '../../lib/supabase.js';
+import { getEmailConfig, leadMagnetsFor } from '../../lib/email.js';
+
+export async function getStaticPaths() {
+  const config = await getEmailConfig();
+  if (!config) return [];
+  return [
+    { params: { page: 'check-inbox' }, props: { kind: 'check-inbox' } },
+    { params: { page: 'confirm' }, props: { kind: 'confirm' } },
+    { params: { page: 'link-expired' }, props: { kind: 'link-expired' } },
+    ...Object.keys(config.tracks).map((track) => ({
+      params: { page: `confirmed/${track}` },
+      props: { kind: 'confirmed', track },
+    })),
+  ];
+}
+
+const { kind, track } = Astro.props;
+const brand = await getBrand();
+const config = await getEmailConfig();
+const magnets = kind === 'confirmed' ? leadMagnetsFor(config, track) : [];
+const titles = {
+  'check-inbox': 'Check your inbox',
+  confirm: 'Confirm your email',
+  'link-expired': 'This link has expired',
+  confirmed: "You're in",
+};
+---
+
+<Base title={titles[kind]} description={`${brand.brand} email signup.`} pageType="subscribe" noindex>
+  <section class="mx-auto max-w-2xl px-4 py-16">
+    {
+      kind === 'check-inbox' && (
+        <>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight" data-ok>Check your inbox</h1>
+          <p class="mt-4 text-lg text-black/70" data-ok>
+            We sent you a confirmation link. Click it and your free guide is yours. If it's not there in a few
+            minutes, check your spam or promotions folder.
+          </p>
+          <p class="mt-4 hidden text-lg font-semibold" data-err="email">
+            That email address didn't look right. Please go back and try again.
+          </p>
+          <p class="mt-4 hidden text-lg font-semibold" data-err="server">
+            Something went wrong on our end. Please try again in a few minutes.
+          </p>
+          <script
+            is:inline
+            set:html={`(function(){var q=new URLSearchParams(location.search),e=q.get('error');if(e){document.querySelectorAll('[data-ok]').forEach(function(n){n.style.display='none'});var m=document.querySelector('[data-err="'+e+'"]')||document.querySelector('[data-err="server"]');m.classList.remove('hidden');}else if(q.get('s')&&window.gtag){gtag('event','email_signup',{source_type:'no_js'});}})();`}
+          />
+        </>
+      )
+    }
+    {
+      kind === 'confirm' && (
+        <>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">One last click</h1>
+          <p class="mt-4 text-lg text-black/70">Confirm your email and we'll take you straight to your free guide.</p>
+          <form method="post" action="/api/confirm" class="mt-8">
+            <input type="hidden" name="t" value="" />
+            <button type="submit" class="rounded-lg bg-[var(--brand)] px-6 py-3 text-lg font-bold text-[var(--ink)] hover:opacity-90">
+              Yes, confirm my email
+            </button>
+          </form>
+          <script
+            is:inline
+            set:html={`(function(){var t=new URLSearchParams(location.search).get('t')||'';document.querySelector('form[action="/api/confirm"] input[name=t]').value=t;})();`}
+          />
+          <noscript>
+            <p class="mt-6 text-black/70">This page needs JavaScript to read your confirmation link.</p>
+          </noscript>
+        </>
+      )
+    }
+    {
+      kind === 'link-expired' && (
+        <>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">This link has expired</h1>
+          <p class="mt-4 text-lg text-black/70">
+            Confirmation links work for 7 days. Sign up again below and we'll send you a fresh one.
+          </p>
+          <EmailCapture variant="inline" track="general" sourceType="link_expired" />
+        </>
+      )
+    }
+    {
+      kind === 'confirmed' && (
+        <>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">You're in</h1>
+          <p class="mt-4 text-lg text-black/70">
+            Thanks for confirming. Here {magnets.length === 1 ? 'is your free guide' : 'are your free guides'}:
+          </p>
+          <ul class="mt-8 space-y-4">
+            {magnets.map((m) => (
+              <li>
+                <a
+                  href={m.path}
+                  download
+                  class="flex items-center justify-between gap-4 rounded-2xl border border-black/10 bg-[var(--surface)] p-5 font-bold no-underline shadow-sm hover:shadow-md"
+                >
+                  <span>{m.title}</span>
+                  <span class="shrink-0 rounded-lg bg-[var(--brand)] px-4 py-2 text-sm text-[var(--ink)]">Download PDF</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p class="mt-8 text-black/70">
+            Want more in the meantime? <a href="/blog/" class="font-semibold underline underline-offset-4">Browse our guides</a>.
+          </p>
+          <script
+            is:inline
+            set:html={`(function(){if(new URLSearchParams(location.search).get('new')&&window.gtag)gtag('event','email_confirm',{track:${JSON.stringify(track)}});})();`}
+          />
+        </>
+      )
+    }
+  </section>
+</Base>

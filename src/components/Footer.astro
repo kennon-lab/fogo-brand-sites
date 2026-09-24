@@ -1,6 +1,7 @@
 ---
 import { getBrand } from '../lib/supabase.js';
 import { getSiteContent, getBlogPosts } from '../lib/content.js';
+import EmailCapture from './EmailCapture.astro';
 
 const brand = await getBrand();
 
@@ -13,7 +14,14 @@ const BrandFooter = footerOverrides[`./brands/${brand.slug}/Footer.astro`]?.defa
 const site = await getSiteContent();
 const hasBlog = (await getBlogPosts()).length > 0;
 const year = new Date().getFullYear();
+
+// Site-wide signup band above the footer (renders nothing unless email capture
+// is on). Skipped where the page already carries its own form.
+const { pageType = 'page' } = Astro.props;
+const showEmailBand = !['pdp', 'blog', 'blog-post', 'subscribe'].includes(pageType);
 ---
+
+{!BrandFooter && showEmailBand && <EmailCapture variant="band" sourceType="footer" />}
 
 {
   BrandFooter ? (

@@ -1,10 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getBrand } from '../lib/supabase.js';
+import { getEmailConfig } from '../lib/email.js';
 
 const brand = await getBrand();
 const domain = brand.domain;
 const hasAnalytics = Boolean(brand.google_analytics_id);
+const emailConfig = await getEmailConfig();
 ---
 
 <Base title="Privacy Policy" description={`Privacy policy for ${domain}.`} pageType="privacy">
@@ -28,10 +30,30 @@ const hasAnalytics = Boolean(brand.google_analytics_id);
           </p>
         ) : (
           <p>
-            This site does not set cookies and does not collect personal information. Standard web server logs
+            This site does not set cookies and does not collect personal information{emailConfig ? ' other than the email signup described below' : ''}. Standard web server logs
             (IP address, user agent, pages requested) may be retained by our hosting provider for security and
             operational purposes.
           </p>
+        )
+      }
+
+      {
+        emailConfig && (
+          <>
+            <h2 class="text-xl font-bold pt-2">Email</h2>
+            <p>
+              If you sign up for our emails, we collect your email address, the page you signed up on, the time you
+              signed up and confirmed, and a one-way hash of your IP address (used only to block automated
+              signups). We use this to send the emails you asked for: our free guides, tips and occasional news
+              about new guides and products. We send email through Postmark and store signups with our database
+              provider, Supabase, both acting on our behalf.
+            </p>
+            <p>
+              We never sell or share your email address. Every email has a one-click unsubscribe link, and
+              unsubscribing takes effect immediately. We keep a record of unsubscribed addresses only so we never
+              email them again. To have your address deleted entirely, email us at the contact address below.
+            </p>
+          </>
         )
       }
 

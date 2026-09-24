@@ -43,6 +43,27 @@ const htmlFiles = [];
   }
 })(DIST);
 
+// Secrets guard (EMAIL_CAPTURE_SCOPE_v1.md §7.6): the Supabase secret key and
+// the Postmark token live only in Vercel Function env and must never reach
+// the static output. Scans every text file, not just HTML.
+const secretValues = [process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.POSTMARK_SERVER_TOKEN, process.env.EMAIL_TOKEN_PEPPER]
+  .filter((v) => v && v.length >= 12);
+const leaks = [];
+(function scan(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, entry.name);
+    if (entry.isDirectory()) scan(p);
+    else if (/\.(html|js|mjs|css|json|txt|xml)$/.test(entry.name)) {
+      const text = readFileSync(p, 'utf8');
+      if (/sb_secret_[A-Za-z0-9]/.test(text) || secretValues.some((v) => text.includes(v))) leaks.push(p);
+    }
+  }
+})(DIST);
+if (leaks.length > 0) {
+  console.error(`[check-dist] FAIL — secret key material in built output:\n  ${leaks.join('\n  ')}`);
+  process.exit(1);
+}
+
 const offenders = [];
 for (const file of htmlFiles) {
   const text = readFileSync(file, 'utf8')

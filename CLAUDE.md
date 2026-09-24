@@ -16,6 +16,8 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `node scripts/mirror-images.mjs --brand=<slug>` — mirror Amazon images to Storage (see below)
 - `.\scripts\rebuild-all.ps1` — POST every `vercel_deploy_hook_url` where `is_live=true`
 - `npm run check:blog` — blog content gate (also the first step of `npm run build`)
+- `npm run check:emails` — email content gate for every brand with `emails/` (runs in `npm run build`
+  after check:blog)
 - `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads [--probe] [--dry-run] [--force]`
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
 - `npm run ads:campaigns -- --brand=<slug>|all [--post=<slug>] [--days=90]` — write Google Ads
@@ -199,6 +201,25 @@ Known quirks (do not re-derive):
   maximize conversions once GA4 `amazon_click` is imported as a conversion → target ROAS once
   Attribution purchases are uploaded. Never enable a campaign from a script without a human
   having read the spec.
+- Email capture (spec: `EMAIL_CAPTURE_SCOPE_v1.md`; live for a brand when it has
+  `src/content/brands/<slug>/emails/` AND `brand_sites.email_enabled` — or `EMAIL_FORCE_ENABLE=1`
+  on the Vercel Preview env for testing). `EmailCapture.astro` renders the form (blog posts, blog
+  index, PDP band, site-wide band above the footer; never beside the Amazon CTA) and posts to the
+  same-origin Vercel Functions in `api/` (`subscribe.js`, `confirm.js`; shared code in
+  `api/_lib/`, `scripts/lib/email-render.mjs`). The static site still makes zero Supabase calls:
+  functions call the service-role-only RPCs `public.email_subscribe` / `public.email_confirm`
+  (SQL in `sql/email_capture.sql`). PII tables `bronze.email_*` are service_role only — a
+  deliberate exception to the bronze RLS pattern; never grant anon/authenticated. Double opt-in:
+  the confirm email links to `/subscribe/confirm/?t=…`, which needs a click to POST (link scanners
+  can't confirm). Confirm mail goes on Postmark's `outbound` stream, drip on the `broadcast` stream
+  (Postmark-managed unsubscribe; `{{{ pm:unsubscribe }}}` in the footer). Sender line = brand +
+  `src/content/email-defaults.yaml` (Fogo Brands LLC + address; per-brand override columns).
+  Content: `emails/sequences.yaml` (consent text+version, tracks with `asins`, lead magnets,
+  step timing) + one markdown file per step; lead-magnet PDFs in `downloads/` are emitted per
+  brand by `src/pages/downloads/[file].ts` (never via shared `public/`). Vercel env (Sensitive):
+  `SUPABASE_SERVICE_ROLE_KEY`, `POSTMARK_SERVER_TOKEN`, `EMAIL_TOKEN_PEPPER`; `vercel.json`
+  `functions.includeFiles` ships the email content to the functions. `check-dist` fails the build
+  if secret key material appears in `dist/`.
 - `toISOString().slice(0,10)` is banned in any script — use a local-date helper if dates are
   ever needed. Never generate files via PowerShell here-strings — write files directly.
 - Complete files only, no partial snippets; validate Astro/JSX parses before finishing.

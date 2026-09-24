@@ -1,0 +1,95 @@
+---
+// Email signup form (EMAIL_CAPTURE_SCOPE_v1.md §5). Renders nothing unless
+// email capture is on for this brand (src/lib/email.js). Posts to the
+// same-origin /api/subscribe function; works without JS (303 to
+// /subscribe/check-inbox/), and with JS swaps in an inline confirmation.
+//
+// Props:
+//   variant     'inline' (card inside page content) | 'band' (full-width strip)
+//   track       starting drip track; derive it with config.trackFor(asin)
+//   sourceType  blog | blog_index | pdp | footer (stored with the signup)
+//   heading, blurb   optional copy overrides
+import { getEmailConfig, leadMagnetsFor } from '../lib/email.js';
+
+const { variant = 'inline', track = 'general', sourceType = 'footer', heading, blurb } = Astro.props;
+const config = await getEmailConfig();
+const magnets = config ? leadMagnetsFor(config, track) : [];
+const offer =
+  magnets.length === 1 ? `the free printable ${magnets[0].title}` : 'our free printable kitchen guides';
+const title = heading ?? (magnets.length === 1 ? `Get the free ${magnets[0].title}` : 'Get our free kitchen guides');
+const lede = blurb ?? `Enter your email and we'll send ${offer}, plus a few short tips emails.`;
+const band = variant === 'band';
+const id = `ec-${sourceType}-${track}`;
+---
+
+{
+  config && (
+    <section
+      class={
+        band
+          ? 'border-t border-black/10 bg-[var(--surface-2)]'
+          : 'my-10 rounded-2xl border border-black/10 bg-[var(--surface)] p-5 shadow-sm sm:p-6'
+      }
+      aria-labelledby={`${id}-h`}
+    >
+      <div class={band ? 'mx-auto max-w-6xl px-4 py-10 sm:flex sm:items-center sm:justify-between sm:gap-10' : ''}>
+        <div class={band ? 'max-w-xl' : ''}>
+          <h2 id={`${id}-h`} class="text-xl font-extrabold leading-snug tracking-tight">
+            {title}
+          </h2>
+          <p class="mt-2 text-black/70">{lede}</p>
+        </div>
+        <form
+          method="post"
+          action="/api/subscribe"
+          class={band ? 'mt-5 w-full sm:mt-0 sm:max-w-md' : 'mt-4'}
+          data-email-capture
+          data-track={track}
+          data-source-type={sourceType}
+        >
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <label for={`${id}-email`} class="sr-only">Email address</label>
+            <input
+              id={`${id}-email`}
+              type="email"
+              name="email"
+              required
+              autocomplete="email"
+              inputmode="email"
+              placeholder="you@example.com"
+              class="min-w-0 flex-1 rounded-lg border border-black/20 bg-white px-4 py-3 text-base text-[var(--ink)]"
+            />
+            <button
+              type="submit"
+              class="rounded-lg bg-[var(--brand)] px-5 py-3 font-bold text-[var(--ink)] hover:opacity-90 disabled:opacity-60"
+            >
+              Send it to me
+            </button>
+          </div>
+          <input type="hidden" name="track" value={track} />
+          <input type="hidden" name="source_type" value={sourceType} />
+          <input type="hidden" name="source_path" value={Astro.url.pathname} />
+          <input type="hidden" name="ts" value="" />
+          <input type="hidden" name="paid" value="" />
+          <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;">
+            <label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+          </div>
+          <p class="mt-2 text-xs text-black/60">
+            {config.consent.text}{' '}
+            <a href="/privacy/" class="underline underline-offset-2">Privacy</a>
+          </p>
+          <p class="mt-2 text-sm font-semibold" role="status" aria-live="polite" data-email-status></p>
+        </form>
+      </div>
+    </section>
+  )
+}
+
+{
+  config && (
+    <script
+      is:inline
+      set:html={`(function(){if(window.__fogoEmailCapture)return;window.__fogoEmailCapture=1;function init(){var fs=document.querySelectorAll('form[data-email-capture]');for(var i=0;i<fs.length;i++){(function(f){f.ts.value=String(Date.now());f.addEventListener('submit',function(e){if(!window.fetch)return;e.preventDefault();var st=f.querySelector('[data-email-status]'),btn=f.querySelector('button');try{f.paid.value=window.fogoPaid?JSON.stringify(window.fogoPaid.params||{}):'';}catch(x){}f.source_path.value=location.pathname;btn.disabled=true;st.textContent='';fetch(f.action,{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(f)).toString()}).then(function(r){return r.json().catch(function(){return{ok:false}})}).then(function(j){if(j&&j.ok){var em=f.email.value;f.innerHTML='';var p=document.createElement('p');p.className='text-lg font-bold';p.textContent='Check your inbox.';var q=document.createElement('p');q.className='mt-1 text-black/70';q.textContent='We sent a confirmation link to '+em+'. Click it and your guide is yours.';f.appendChild(p);f.appendChild(q);if(window.gtag)gtag('event','email_signup',{track:f.dataset.track,source_type:f.dataset.sourceType,cta_channel:window.fogoPaid?window.fogoPaid.channel:'organic'});}else{st.textContent=(j&&j.error)||'Something went wrong. Please try again.';btn.disabled=false;}}).catch(function(){st.textContent='Something went wrong. Please try again.';btn.disabled=false;});});})(fs[i]);}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();})();`}
+    />
+  )
+}

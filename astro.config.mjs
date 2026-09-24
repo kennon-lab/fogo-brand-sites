@@ -56,7 +56,8 @@ export default defineConfig({
   integrations: [
     tailwind({ applyBaseStyles: false }),
     sitemap({
-      filter: (page) => !(isAuthored && /\/products\/B0[A-Z0-9]{8}\/$/.test(page)),
+      filter: (page) =>
+        !(isAuthored && /\/products\/B0[A-Z0-9]{8}\/$/.test(page)) && !/\/(subscribe|downloads)\//.test(page),
     }),
   ],
   image: {

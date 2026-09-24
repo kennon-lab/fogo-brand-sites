@@ -17,6 +17,7 @@ provider): customer-ownership beachhead without commerce") and the open question
 | D4 | **Vercel Pro** (§4.6) | 2026-09-23 |
 | D5 | Claude drafts all emails and PDFs for owner edit. Drafts are in `src/content/brands/otis-classic/{emails,downloads}/` | 2026-09-23 |
 | D6 | Setup progress: Postmark domain `otisclassic.com` verified (DKIM `20260924170510pm._domainkey` + Return-Path `pm-bounces`). Google Workspace (secondary domain on fogobrands.com) handles replies to `hello@otisclassic.com`: MX `smtp.google.com`, SPF `include:_spf.google.com ~all`, Google DKIM, DMARC `p=none`. Pending: Postmark account approval, broadcast stream check | 2026-09-24 |
+| D7 | Phase 1 (capture) built. Migration `sql/email_capture.sql` applied to production (tables + service-role-only RPCs `public.email_subscribe` / `public.email_confirm`; `email_enabled` still false). Changes from the plan: confirm link opens `/subscribe/confirm/?t=…` and needs a click to POST, so link scanners can't confirm; `/api/track` and the drip cron move to Phase 2; `EMAIL_FORCE_ENABLE=1` on the Vercel Preview env turns capture on for testing | 2026-09-24 |
 
 ---
 

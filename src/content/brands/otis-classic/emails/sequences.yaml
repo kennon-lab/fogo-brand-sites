@@ -20,6 +20,12 @@ from_name: "Otis Classic"
 from_local: hello            # hello@otisclassic.com; the reply-to must be a monitored inbox
 confirm: _confirm.md         # transactional ("outbound") stream; never carries marketing
 
+# Shown next to every signup form and stored verbatim with each signup as the
+# consent record. Change the text → bump the version.
+consent:
+  version: "2026-09-24"
+  text: "Get Otis Classic recipes and tips by email. Unsubscribe anytime."
+
 lead_magnets:
   dispenser:
     title: "Whipped Cream Dispenser Cheat Sheet"
@@ -34,6 +40,9 @@ lead_magnets:
 tracks:
   dispenser:
     lead_magnets: [dispenser]
+    # Signups on a page about these ASINs (PDP, or a post whose primary_asin is
+    # one of them) start on this track.
+    asins: [B01DZ2HZ2U, B06WVD2K6N]
     steps:
       - { file: dispenser/1-welcome.md, day: 0 }
       - { file: dispenser/2-fixes.md, day: 2 }
@@ -43,6 +52,7 @@ tracks:
 
   bottles:
     lead_magnets: [bottles]
+    asins: [B01LB1862A, B076PKTRXV, B01DM1J6I0, B0H89XLBKG, B073VHNCQK, B0G1NFP1DM]
     steps:
       - { file: bottles/1-welcome.md, day: 0 }
       - { file: bottles/2-fizz-without-gushers.md, day: 2 }

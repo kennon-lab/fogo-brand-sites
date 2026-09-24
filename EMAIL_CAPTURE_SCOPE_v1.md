@@ -16,6 +16,7 @@ provider): customer-ownership beachhead without commerce") and the open question
 | D3 | **One shared mailing address and legal sender line for every brand**, with an optional per-brand override (§4.5). Set: Fogo Brands LLC, 1590 East Joyce Boulevard, Unit 10471, Fayetteville, AR 72703 | 2026-09-23 |
 | D4 | **Vercel Pro** (§4.6) | 2026-09-23 |
 | D5 | Claude drafts all emails and PDFs for owner edit. Drafts are in `src/content/brands/otis-classic/{emails,downloads}/` | 2026-09-23 |
+| D6 | Setup progress: Postmark domain `otisclassic.com` verified (DKIM `20260924170510pm._domainkey` + Return-Path `pm-bounces`). Google Workspace (secondary domain on fogobrands.com) handles replies to `hello@otisclassic.com`: MX `smtp.google.com`, SPF `include:_spf.google.com ~all`, Google DKIM, DMARC `p=none`. Pending: Postmark account approval, broadcast stream check | 2026-09-24 |
 
 ---
 

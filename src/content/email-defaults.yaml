@@ -5,5 +5,5 @@
 # USPS PO box, or registered commercial mail-receiving agency (CMRA) address.
 # A brand owned by a different entity overrides these via bronze.brand_sites.legal_name /
 # mailing_address. check-emails fails the build while either value is empty.
-legal_name: ""        # TODO(owner): legal entity name
+legal_name: "Fogo Brands LLC"
 mailing_address: "1590 East Joyce Boulevard, Unit 10471, Fayetteville, AR 72703, United States"

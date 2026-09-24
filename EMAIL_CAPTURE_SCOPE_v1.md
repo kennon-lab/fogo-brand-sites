@@ -13,7 +13,7 @@ provider): customer-ownership beachhead without commerce") and the open question
 |---|---|---|
 | D1 | **Postmark** for sending. The list lives in Supabase, and Postmark manages unsubscribes (§4.1) | 2026-09-23 |
 | D2 | Signup incentive: **free printable guide**, one per track (§4.3). Drafts are in the repo | 2026-09-23 |
-| D3 | **One shared mailing address and legal sender line for every brand**, with an optional per-brand override (§4.5). Address still to be supplied | 2026-09-23 |
+| D3 | **One shared mailing address and legal sender line for every brand**, with an optional per-brand override (§4.5). Set: Fogo Brands LLC, 1590 East Joyce Boulevard, Unit 10471, Fayetteville, AR 72703 | 2026-09-23 |
 | D4 | **Vercel Pro** (§4.6) | 2026-09-23 |
 | D5 | Claude drafts all emails and PDFs for owner edit. Drafts are in `src/content/brands/otis-classic/{emails,downloads}/` | 2026-09-23 |
 
@@ -344,7 +344,7 @@ It runs next to `check-blog` and **fails the build** when:
 - an `outbound` step has a marketing CTA (anything other than `{{confirm_url}}`).
 
 ### 7.5 Config
-- `src/content/email-defaults.yaml`: `legal_name`, `mailing_address` (D3). **Pending: address from owner.**
+- `src/content/email-defaults.yaml`: `legal_name`, `mailing_address` (D3). Set to Fogo Brands LLC and the Fayetteville, AR address.
 - `bronze.brand_sites` gets new nullable columns: `email_enabled` bool (a kill switch for capture UI and cron),
   `email_from_name`, `email_from_address`, and the §4.5 overrides `legal_name` and `mailing_address`.
   **`contact_email` is currently null for Otis**, so set it; it's the reply-to and must be a monitored inbox.
@@ -424,12 +424,13 @@ It runs next to `check-blog` and **fails the build** when:
 ---
 
 ## 10. Open items
-1. **Mailing address + legal entity name** for `email-defaults.yaml` (owner; blocks the first send, not the build
-   of Phases 1–2).
-2. **Sender and reply-to:** confirm `hello@otisclassic.com` as From, and which monitored inbox replies should land
+1. ~~Mailing address + legal entity name~~ Done (Fogo Brands LLC; see `src/content/email-defaults.yaml`).
+2. **Logo:** pull `brand-site-images/otis-classic/brand/logo.png` into `downloads/` and replace the text wordmark
+   in both PDFs (blocked in the cloud session by network policy; being done locally).
+3. **Sender and reply-to:** confirm `hello@otisclassic.com` as From, and which monitored inbox replies should land
    in (also set as `brand_sites.contact_email`).
-3. **Copy review:** edit the drafts in `emails/` and `downloads/`. The facts come from the listing bullets and the
+4. **Copy review:** edit the drafts in `emails/` and `downloads/`. The facts come from the listing bullets and the
    three live posts. Per-flavor amounts in the flavor chart are starting points within the post's 10–20% rule.
-4. **Listing inconsistency to check before email 4 ships:** the Professional dispenser (B06WVD2K6N) listing title
+5. **Listing inconsistency to check before email 4 ships:** the Professional dispenser (B06WVD2K6N) listing title
    says "304 Stainless Steel", but one bullet says "Aluminum grade cream whipper". Email 4 says both models are
    stainless steel. Confirm the material, and fix the listing bullet if it's wrong.

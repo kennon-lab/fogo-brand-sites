@@ -66,6 +66,14 @@ export const emailEnabled = (brand) => Boolean(brand.email_enabled) || process.e
 
 export const siteOrigin = (brand) => `https://www.${brand.domain.replace(/^www\./, '')}`;
 
+/** Origin for links in outgoing mail: the live site, except on a Vercel preview
+ *  deploy, where links must come back to the preview so it can be tested. */
+export function linkOrigin(brand, req) {
+  const host = req?.headers?.['x-forwarded-host'] || req?.headers?.host;
+  if (process.env.VERCEL_ENV === 'preview' && host) return `https://${String(host).split(',')[0].trim()}`;
+  return siteOrigin(brand);
+}
+
 let contentCache;
 /** sequences.yaml + email-defaults.yaml for this brand, or null if the brand has no emails. */
 export function getContent() {

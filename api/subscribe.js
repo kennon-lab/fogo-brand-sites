@@ -4,7 +4,7 @@
 // outcome (new, resend, already subscribed, suppressed) looks identical to the
 // visitor so the form can't be used to test whether an address is on the list.
 import {
-  missingEnv, rpc, getBrand, emailEnabled, getContent, siteOrigin, leadMagnetVars, postmarkSend, fromAddress,
+  missingEnv, rpc, getBrand, emailEnabled, getContent, linkOrigin, leadMagnetVars, postmarkSend, fromAddress,
   loadStep, renderEmail, newToken, tokenHash, ipHash, clientIp, sha256,
 } from './_lib/email.js';
 
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     });
 
     if (row?.action === 'send_confirm') {
-      const origin = siteOrigin(brand);
+      const origin = linkOrigin(brand, req);
       const msg = renderEmail({
         step: loadStep(brand.slug, seq.confirm),
         brand,

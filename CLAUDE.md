@@ -14,7 +14,8 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `npm run build` — production build for the brand in `BRAND_SLUG`
 - `npm run preview` — serve `dist/`
 - `node scripts/mirror-images.mjs --brand=<slug>` — mirror Amazon images to Storage (see below)
-- `.\scripts\rebuild-all.ps1` — POST every `vercel_deploy_hook_url` where `is_live=true`
+- `.\scripts\rebuild-all.ps1 [-DryRun]` — POST every `vercel_deploy_hook_url` where `is_live=true`
+  (reads `bronze.brand_sites` with the secret key; `-DryRun` lists sites without POSTing)
 - `npm run check:blog` — blog content gate (also the first step of `npm run build`)
 - `npm run attribution-tags -- --brand=<slug>|all --channel=brand_site|brand_site_blog|google_ads [--probe] [--dry-run] [--force]`
   — create Amazon Attribution tags via the Ads API and write `bronze.attribution_links` (see below)
@@ -88,6 +89,13 @@ Known quirks (do not re-derive):
 - Supabase default privileges grant WRITE on new public views to anon/authenticated — always
   REVOKE those down to SELECT (views execute DML as owner and bypass RLS). Done for the three
   brand-site views in migration `brand_sites_phase1_view_grants_lockdown`.
+- Deploy hooks are secret (unauthenticated build triggers): `vercel_deploy_hook_url` is NOT in
+  `public.brand_sites`, and on `bronze.brand_sites` anon/authenticated have **column-level** SELECT
+  on every column except it (bronze is in `pgrst.db_schemas`, so a table grant would leak it via
+  `Accept-Profile: bronze`). Adding a column to `bronze.brand_sites` → recreate `public.brand_sites`
+  to expose it and add it to the column GRANT. See `sql/brand_sites_hide_deploy_hook.sql`.
+- Supabase rejects `sb_secret` keys from browser-like User-Agents; Windows PowerShell's default
+  UA starts with `Mozilla/5.0`, so pass `-UserAgent` on `Invoke-RestMethod` calls with the secret key.
 - New bronze tables: RLS pattern is service_role ALL + anon SELECT + authenticated SELECT
   (match `bronze.amazon_listing_attributes`)
 

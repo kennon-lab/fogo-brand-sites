@@ -1,6 +1,6 @@
 # Tape King — Email Drip v1 (first order → reorder loop)
 
-Status: DRAFT for review · 2026-10-07 · brand: `tape-king` · site: www.tapeking.com
+Status: DRAFT for review · 2026-10-07 · brand: `tape-king` · site: www.tapeking.com · sender: **Postmark** (see §9)
 
 Tape is a consumable. The homepage promise is "The tape you buy once, then buy every
 time." This drip is built to sell **the reorder**, not to educate. It has two flows:
@@ -17,12 +17,12 @@ time." This drip is built to sell **the reorder**, not to educate. It has two fl
 
 | # | Item | Why | Owner |
 |---|------|-----|-------|
-| P1 | **Email capture on tapeking.com.** No signup form exists today; the site is static. Use an ESP-hosted embed (Klaviyo/Mailchimp form) or a small Vercel function that posts to the ESP. Placements: PDP "Get a reorder reminder" box under the CTA, the homepage "Built for the reorder" band, and the footer. | Without it, there is no audience. | dev |
+| P1 | **Email capture on tapeking.com.** No signup form exists today; the site is static, and Postmark has no hosted forms or lists. A plain `<form>` posts to a Vercel function (`/api/subscribe`) that stores the subscriber in Supabase and sends a confirm (double opt-in) email via Postmark. Placements: PDP "Get a reorder reminder" box under the CTA, the homepage "Built for the reorder" band, and the footer. | Without it, there is no audience. | dev |
 | P2 | **Only site opt-ins enter this drip.** Never import Amazon buyer emails or use Buyer-Seller Messaging for marketing; Amazon policy prohibits it. On the Amazon side, use Brand Tailored Promotions and the "Follow" brand emails. | Account health | ops |
 | P3 | **`email` attribution channel.** `npm run attribution-tags` supports `brand_site`, `brand_site_blog` and `google_ads` only, so it needs an `email` channel. Mapping: campaign `fbs-tape-king-email`, ad group = email id (`a1`…`b3`, `x1`), creative = ASIN. Every CTA links straight to the Amazon tag, so Amazon Attribution reports purchases per email. Until the channel exists, link to the tapeking.com line page with `utm_source=email&utm_medium=drip&utm_campaign=fbs-tape-king-email&utm_content=<email id>`. | Revenue per email, plus the ~10% Brand Referral Bonus | dev |
-| P4 | **Subscriber profile fields:** `cadence_days` (self-reported), `last_amazon_click_at`, `last_asin`, `last_line`, `reorder_clicks` (count). Every CTA click updates the click fields; an ESP link-click trigger is enough. | Drives Flow B timing and dynamic product | ESP setup |
+| P4 | **Subscriber profile fields:** `cadence_days` (self-reported), `last_amazon_click_at`, `last_asin`, `last_line`, `reorder_clicks` (count). These are columns on `bronze.email_subscribers` (§9). Postmark's Click webhook updates the click fields. | Drives Flow B timing and dynamic product | dev |
 | P5 | **Merge data:** product names, pack ladders and per-roll prices come from `public.brand_site_products` + `catalog.yaml` (the same source as the site). Fill `{{per_roll.*}}` tokens with a pre-send sync. If no sync exists, use the no-number fallback lines marked ⟂. Never hard-code prices; they change. | Accuracy | dev |
-| P6 | CAN-SPAM footer: physical mailing address, one-click unsubscribe, "Manage reminders" link (changes cadence). | Compliance | ESP setup |
+| P6 | CAN-SPAM footer in the Postmark layout: physical mailing address, Postmark's `{{{ pm:unsubscribe }}}` link (Broadcast stream only), "Manage reminders" link (changes cadence). | Compliance | dev |
 
 **Claims guardrails** (all taken from `catalog.yaml` / the live site):
 - OK to use: 2.7 mil Standard, 3.2 mil Ultra Thick, 60-yd rolls, XL 110-yd rolls, 3" wide, ~40 lb single-pass seal (Standard), 11 mil duct, cloth gaffers with residue-free removal, 12-pack utility knives, and the review rating/count via token from the live Keepa aggregate.
@@ -31,6 +31,12 @@ time." This drip is built to sell **the reorder**, not to educate. It has two fl
 **Tokens:** `{{first_name|default:"there"}}`, `{{review_rating}}`, `{{review_count}}`,
 `{{last_line_name}}`, `{{last_asin_name}}`, `{{cadence_label}}` ("every 2 weeks" / "monthly" /
 "every few months"), `{{amz:<email-id>:<ASIN>}}` (the email attribution URL for that ASIN).
+
+> **Token notation is shorthand.** Postmark templates use Mustachio, which has no filters,
+> defaults or nested lookups. The send script (§9) resolves every token into a flat
+> `TemplateModel` field before sending. For example, `{{first_name|default:"there"}}` becomes
+> `{{greeting_name}}`, `{{amz:b1:{{last_asin}}}}` becomes `{{cta_url}}`, and the A3 price table
+> becomes `{{#each ladder}}…{{/each}}` with `{{#if has_prices}}` around the ⟂ fallback.
 
 ---
 
@@ -367,7 +373,7 @@ Any new Amazon click restarts the cycle from B1.
 - **Exit Flow A:** any Amazon CTA click. Cadence clicks are preferences, not exits.
 - **Restart Flow B:** any Amazon CTA click from any email.
 - **Sunset:** two consecutive B cycles with zero opens → one "Should we stop?" email → suppress from the drip after 14 days with no response. Keep on the newsletter list only if they opted in to it.
-- **Suppress** if unsubscribed, paused, or bounced. Hold sends for 48 h after a reply to `contact_email` so support isn't contradicted.
+- **Suppress** if unsubscribed, paused, or bounced. Replies go to `contact_email`, which the script can't see; support pauses a subscriber manually (`status = paused`) when a reply needs it.
 - **Only one flow at a time:** Flow B never sends while Flow A is active.
 - **Frequency cap:** max 2 drip emails per 7 days, and 3 total per 7 days including promos.
 - **Re-entry:** a re-signup or resubscribe re-enters Flow A only if they've had no Amazon click in 180 days. Otherwise it goes straight to B1.
@@ -385,6 +391,8 @@ Judge clicks and Attribution sales, not opens.
 
 ## 7. A/B tests (in priority order)
 
+Postmark has no built-in A/B testing, so the send script assigns the arm (a stable hash of the subscriber id), picks the template alias (`tk-b1` / `tk-b1-v2`), and sets the Postmark `Tag` to the arm. Per-tag stats then show in Postmark.
+
 1. **B1 subject: dynamic product vs generic.** "Running low on Standard Clear?" vs "Reorder day, {{first_name}}". 50/50 split, winner on Amazon click rate. Needs ~1,000 sends per arm before calling it.
 2. **A3 with prices vs without** (token table vs ⟂ fallback). Winner on Attribution purchases per send for ad group `a3` vs `a3b`. Give it its own ad-group id so Amazon splits the revenue.
 3. **Signup offer: reminder only vs reminder + promo code.** Split the signup form itself. Winner on 30-day revenue per subscriber (Attribution sales ÷ subscribers), not signup rate.
@@ -396,12 +404,62 @@ Judge clicks and Attribution sales, not opens.
 - **Flow level:** % of Flow A subscribers with ≥1 Amazon click by Day 14; Flow B reorder-click rate per cycle; median days between reorder clicks vs self-reported cadence (recalibrate the 0.8 multiplier); case-pack share of clicks (B2's job).
 - **Review:** weekly for the first 6 weeks, then monthly. Re-check the per-roll sync after any Amazon reprice.
 
-## 9. Setup checklist (any ESP)
+## 9. Postmark build
 
-1. Build P1 signup (with a hidden `signup_line` field on PDP forms) and P4 profile fields.
-2. Create the `email` attribution tags (P3), or start with UTM'd site links.
-3. Flow A: trigger = added to list "Tape King – Subscribers"; delays 0/2/5/8/12 days; filter before each email = "no Amazon-CTA click since flow start".
-4. Flow B: trigger = date property `next_reminder_at` (= last_click + 0.8 × cadence); B2/B3 conditional splits on "clicked previous email".
-5. X1: trigger = `reorder_clicks` changes to 2, with a packing-line filter, once per profile.
-6. Sunset and suppression segments (section 5).
-7. Seed-test every dynamic token (no-ASIN, gaffers, case-already, no-cadence cases) before going live.
+Postmark sends; it does not schedule, branch or hold lists. Everything Klaviyo-style flows would
+do lives in our code, and Postmark is only the delivery step. All the pieces are generic per
+brand: every brand's Vercel project gets the same `/api/*` functions, keyed by `BRAND_SLUG`.
+
+```
+tapeking.com form ──POST──> /api/subscribe (Vercel fn) ──> bronze.email_subscribers (pending)
+                                     └── Postmark *transactional* stream: "Confirm your reminders"
+confirm link ──> /api/confirm ──> status = active, flow = A, next_send_at = now
+
+daily cron ──> scripts/email-drip.mjs
+                 reads due subscribers + catalog/prices ──> builds TemplateModel
+                 ──> Postmark /email/batchWithTemplates (Broadcast stream "tk-drip")
+                 ──> bronze.email_sends (log) + advance step / next_send_at
+
+Postmark webhooks ──> /api/postmark-webhook
+                 Click        → if Amazon link: last_amazon_click_at, last_asin, reorder_clicks++,
+                                restart Flow B; if a cadence/pause link: handled by /api/pref
+                 Bounce / SpamComplaint / SubscriptionChange → status = suppressed
+cadence + pause links ──> /api/pref?t=<signed token>&cadence=30 → updates subscriber, shows a
+                 "Got it" page
+```
+
+**Postmark setup**
+1. One Postmark **server** per brand ("Tape King"). In it, a **Transactional** stream (confirm emails only) and a **Broadcast** stream `tk-drip` (every drip email). Postmark requires marketing mail to go on a Broadcast stream.
+2. Verify the sender domain `tapeking.com` (DKIM + Return-Path CNAME in Squarespace DNS). Send from something like `reminders@tapeking.com`, with reply-to set to `brand_sites.contact_email`.
+3. One **layout** (logo, brand colors, footer with address + `{{{ pm:unsubscribe }}}` + Manage reminders). Nine **templates** with aliases `tk-a1`…`tk-a5`, `tk-b1`…`tk-b3`, `tk-x1`, plus `tk-confirm`. Keep the template sources in this repo (`email/tape-king/templates/*.html` + `.txt`) and push them with a script, so copy edits are reviewed like code.
+4. Turn on link tracking (HTML and text) for the Broadcast stream. Postmark's redirect doesn't change the final Amazon URL, so the Attribution tag and Brand Referral Bonus survive. Open tracking is optional (inflated by Apple MPP).
+5. Webhooks on `tk-drip`: Click, Bounce, SpamComplaint and SubscriptionChange → `https://www.tapeking.com/api/postmark-webhook`, protected with HTTP basic auth.
+6. Postmark reviews new Broadcast senders, and keeping the account needs a low complaint rate. Double opt-in (the confirm step) is what keeps us inside that.
+
+**Supabase** (new bronze tables; RLS = service_role ALL only, no anon read, because these hold PII)
+- `bronze.email_subscribers`: id, brand_slug, email (unique per brand), first_name, status (pending | active | paused | suppressed), flow (A | B), step, next_send_at, cadence_days (default 30), signup_line, signup_page, last_amazon_click_at, last_asin, last_line, reorder_clicks, confirmed_at, created_at.
+- `bronze.email_sends`: subscriber_id, email_id (`a1`…), variant, postmark_message_id, sent_at. The frequency cap and "clicked previous email" checks read this table.
+- Postmark's own suppression list is the source of truth for unsubscribes. The webhook mirrors it into `status` so the script never even tries to send.
+
+**Scheduler.** `scripts/email-drip.mjs --brand=tape-king [--dry-run]` runs once a day, in the
+morning US time. Options, in order of preference: a GitHub Actions scheduled workflow (secrets:
+`SUPABASE_SERVICE_ROLE_KEY`, `POSTMARK_SERVER_TOKEN`), or a Vercel Cron hitting a protected
+`/api/drip-run`. `--dry-run` prints who would get what and with which model, and sends nothing.
+Use local-date helpers only; `toISOString().slice(0,10)` is banned (CLAUDE.md).
+
+**New env vars:** `POSTMARK_SERVER_TOKEN` (per brand server), `EMAIL_LINK_SECRET` (signs
+pref/confirm tokens), `POSTMARK_WEBHOOK_USER`/`POSTMARK_WEBHOOK_PASS`. These go in the brand's
+Vercel project and in the cron's secrets, never in `public.*` views.
+
+**Vercel note:** the site is `output: 'static'`. Root-level `api/*.js` functions deploy alongside
+it on Vercel without an Astro adapter, but confirm on a preview deploy before relying on it.
+The fallback is `@astrojs/vercel` with only these routes server-rendered.
+
+## 10. Launch checklist
+
+1. Supabase tables + RLS (above).
+2. Postmark server, streams, domain DNS, layout and templates (above).
+3. `/api/subscribe`, `/api/confirm`, `/api/pref` and `/api/postmark-webhook`; then the signup box on PDPs, the homepage reorder band and the footer (hidden `signup_line`/`signup_page` fields).
+4. Create the `email` attribution tags (P3), or start with UTM'd site links.
+5. `scripts/email-drip.mjs` with `--dry-run`. Seed-test every dynamic case (no ASIN, gaffers, already on the case pack, no cadence set, prices missing) to an internal address.
+6. Turn on the daily cron. Watch Postmark bounce/complaint rates and the `email_sends` log daily for the first two weeks.

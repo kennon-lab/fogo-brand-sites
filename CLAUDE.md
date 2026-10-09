@@ -14,7 +14,8 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
 - `npm run build` — production build for the brand in `BRAND_SLUG`
 - `npm run preview` — serve `dist/`
 - `node scripts/mirror-images.mjs --brand=<slug>` — mirror Amazon images to Storage (see below)
-- `.\scripts\rebuild-all.ps1` — POST every `vercel_deploy_hook_url` where `is_live=true`
+- `.\scripts\rebuild-all.ps1 [-DryRun]` — POST every `vercel_deploy_hook_url` where `is_live=true`
+  (reads `bronze.brand_sites` with the secret key; `-DryRun` lists sites without POSTing)
 - `npm run check:blog` — blog content gate (also the first step of `npm run build`)
 - `npm run check:emails` — email content gate for every brand with `emails/` (runs in `npm run build`
   after check:blog)
@@ -27,8 +28,24 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   records `review` in each spec — see `ads/README.md`
 - `npm run ads:push -- --spec=ads/<brand>/<post>.json [--dry-run|--validate-only|--sync|--enable [--ack-warnings]|--pause|--stage=…]`
   — create / sync / update that campaign through the Google Ads API (see "Google Ads campaigns")
+- `npm run ga:setup -- --brand=<slug> [--account=<id>] [--dry-run]` — idempotent GA4 setup via
+  the Analytics Admin API: finds/creates property "<Brand> (<domain>)" + web stream under the
+  "FOGO Brands" GA account (408983327), 14-month retention, `amazon_click` key event (once per
+  session), event dimensions asin/cta_channel/cta_position/page_type, Google Ads link, and writes
+  `brand_sites.google_analytics_id`; rebuild afterwards. Live: otis-classic (G-MEK8HE82J9),
+  amazing-shields (G-MSNM6LX9HT), bean-envy (G-QC6SMX79QY), tape-king (G-P7WJ67RDEX),
+  xtreme-comforts (G-JB70EJYHN2) — none of these four has an Ads link yet (no customer id, or
+  for xtreme-comforts the Ads account isn't under the manager yet); re-run ga:setup then.
+  The GA4 ↔ Ads link auto-creates a HIDDEN "(web) amazon_click" conversion action in Ads.
+- `npm run ads:goals -- --brand=<slug> [--apply]` — turns that action on as OUTBOUND_CLICK
+  (secondary → primary), keeps OUTBOUND_CLICK out of the account-default goals (shared accounts:
+  Quartile's campaigns bid on PURCHASE), and sets every `fbs-<slug>-*` campaign's
+  campaign-level goal to OUTBOUND_CLICK only. Validate-only by default. Counting type is
+  immutable on GA4 imports (GA4's once-per-session applies). Applied for otis-classic
+  2026-09-23. The auto-mode classifier blocks Claude from mutating shared Ads accounts — the
+  user runs `--apply`. Re-run after pushing new campaigns (new campaigns start on PURCHASE).
 - `npm run ads:auth [-- --accounts]` — one-time loopback OAuth (Desktop client in Cloud project
-  404956388162) that writes `GOOGLE_ADS_REFRESH_TOKEN` into `.env`; `--accounts` lists the
+  404956388162; scopes adwords + analytics.edit, Analytics Admin API enabled) that writes `GOOGLE_ADS_REFRESH_TOKEN` into `.env`; `--accounts` lists the
   client accounts under the manager (ids for `brand_sites.google_ads_customer_id`). API version
   defaults to v25 (v20/v21 are sunset); override with `GOOGLE_ADS_API_VERSION`.
 - `npm run attribution-report -- --brand=<slug>|all [--days=90] [--dry-run]` — pull the Attribution
@@ -74,6 +91,13 @@ Known quirks (do not re-derive):
 - Supabase default privileges grant WRITE on new public views to anon/authenticated — always
   REVOKE those down to SELECT (views execute DML as owner and bypass RLS). Done for the three
   brand-site views in migration `brand_sites_phase1_view_grants_lockdown`.
+- Deploy hooks are secret (unauthenticated build triggers): `vercel_deploy_hook_url` is NOT in
+  `public.brand_sites`, and on `bronze.brand_sites` anon/authenticated have **column-level** SELECT
+  on every column except it (bronze is in `pgrst.db_schemas`, so a table grant would leak it via
+  `Accept-Profile: bronze`). Adding a column to `bronze.brand_sites` → recreate `public.brand_sites`
+  to expose it and add it to the column GRANT. See `sql/brand_sites_hide_deploy_hook.sql`.
+- Supabase rejects `sb_secret` keys from browser-like User-Agents; Windows PowerShell's default
+  UA starts with `Mozilla/5.0`, so pass `-UserAgent` on `Invoke-RestMethod` calls with the secret key.
 - New bronze tables: RLS pattern is service_role ALL + anon SELECT + authenticated SELECT
   (match `bronze.amazon_listing_attributes`)
 

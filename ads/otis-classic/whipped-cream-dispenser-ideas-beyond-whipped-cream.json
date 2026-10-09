@@ -9,9 +9,11 @@
   },
   "google": {
     "customer_id": "6291008270",
-    "campaign": null,
-    "ad_groups": {},
-    "pushed": null
+    "campaign": "customers/6291008270/campaigns/24276538512",
+    "ad_groups": {
+      "guide": "customers/6291008270/adGroups/200759283575"
+    },
+    "pushed": "9/23/2026, 1:43:59 PM"
   },
   "source": {
     "post": "src\\content\\brands\\otis-classic\\blog\\whipped-cream-dispenser-ideas-beyond-whipped-cream.md",
@@ -384,15 +386,13 @@
     ]
   },
   "review": {
-    "date": "2026-09-22",
+    "date": "2026-09-23",
     "hash": "a5c3a74279e7d4e5",
     "status": "warn",
     "errors": [],
     "warnings": [
       "2 other campaign(s) live in this account (QT_GTA_KW_B01DZ2HZ2U, QT_GTA_KW_B0G7Y80MGW) — confirm with their owner (e.g. the agency) before launching",
-      "no amazon_click conversion action in the account — this campaign will report 0 conversions in Google Ads and cannot move past maximize-clicks bidding; import GA4 amazon_click",
-      "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
-      "brand has no google_analytics_id — no GA4 on the site, so no amazon_click events to import as conversions"
+      "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged"
     ]
   }
 }

@@ -9,9 +9,12 @@
   },
   "google": {
     "customer_id": "6291008270",
-    "campaign": null,
-    "ad_groups": {},
-    "pushed": null
+    "campaign": "customers/6291008270/campaigns/24287622868",
+    "ad_groups": {
+      "guide": "customers/6291008270/adGroups/200759269095",
+      "product": "customers/6291008270/adGroups/201476094698"
+    },
+    "pushed": "9/23/2026, 1:43:55 PM"
   },
   "source": {
     "post": "src\\content\\brands\\otis-classic\\blog\\how-to-use-a-whipped-cream-dispenser.md",
@@ -516,22 +519,20 @@
     ]
   },
   "review": {
-    "date": "2026-09-22",
+    "date": "2026-09-23",
     "hash": "7eb454418e3634af",
     "status": "warn",
     "errors": [],
     "warnings": [
       "2 other campaign(s) live in this account (QT_GTA_KW_B01DZ2HZ2U, QT_GTA_KW_B0G7Y80MGW) — confirm with their owner (e.g. the agency) before launching",
-      "no amazon_click conversion action in the account — this campaign will report 0 conversions in Google Ads and cannot move past maximize-clicks bidding; import GA4 amazon_click",
-      "the account pays more than our $1.5 CPC ceiling on: \"whip cream dispenser\" $1.87 — expect low impression share there",
+      "the account pays more than our $1.5 CPC ceiling on: \"whip cream dispenser\" $1.56, \"whip cream dispenser\" $1.87 — expect low impression share there",
       "guide ad copy mentions \"Charger\" (\"Which Charger to Use\") — policy-sensitive; watch the ad review",
       "guide ad copy mentions \"N2O\" (\"Cold heavy cream, one N2O charger, four to six shakes. The full beginner's guide.\") — policy-sensitive; watch the ad review",
       "guide ad copy mentions \"N2O\" (\"One 8 g N2O charger per pint (500 ml) of cream.\") — policy-sensitive; watch the ad review",
       "guide ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
       "product ad copy mentions \"Charger\" (\"Which Charger to Use\") — policy-sensitive; watch the ad review",
       "product ad copy mentions \"N2O\" (\"Cold heavy cream, one N2O charger, four to six shakes. The full beginner's guide.\") — policy-sensitive; watch the ad review",
-      "product ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged",
-      "brand has no google_analytics_id — no GA4 on the site, so no amazon_click events to import as conversions"
+      "product ad copy names Amazon (\"Sold on Amazon\", …) — trademark use Google may limit; drop those lines if the ad is flagged"
     ]
   }
 }

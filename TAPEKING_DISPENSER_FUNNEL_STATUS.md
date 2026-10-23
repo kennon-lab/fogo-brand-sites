@@ -27,8 +27,9 @@ production; the site changes deploy when this branch merges.
   three review flags, rate limits, cap → paused, kill switch → ended, and that anon/authenticated
   can't reach anything. After applying: grants and RLS re-checked in production; Supabase security
   advisors show only the expected INFO "RLS enabled, no policy" on the new tables.
-- **Edge Functions:** `npm run test:functions` (15 tests, Turnstile and PostgREST mocked). Deployed
-  copies smoke-tested from the database with `pg_net`: GET → `{"ok":true,"state":"unavailable"}`
+- **Edge Functions:** `npm run test:functions` (17 tests, Turnstile and PostgREST mocked —
+  including replayed tokens, wrong action or hostname, and a siteverify outage). Deployed copies
+  smoke-tested from the database with `pg_net`: GET → `{"ok":true,"state":"unavailable"}`
   with the right CORS header; POSTs without an allowed Origin → 403.
 - **Page, end to end:** the site built for `tape-king` against a local mock of Supabase that runs the
   real `handler.ts` code on PGlite with the migration, then a headless phone browser walked the
@@ -42,16 +43,18 @@ production; the site changes deploy when this branch merges.
 
 ## To go live — needs you
 
-1. **Cloudflare Turnstile.** Create a widget (Managed) for `tapeking.com` and `www.tapeking.com`. To
-   test on a Vercel preview, add that preview's hostname to the widget too.
-2. **Edge Function secrets** (Supabase dashboard → Edge Functions → Secrets, or the CLI):
-   ```sh
-   supabase secrets set --project-ref avlhnogtosjxdyibjipz \
-     TK_HASH_PEPPER="$(openssl rand -hex 32)" \
-     TURNSTILE_SITE_KEY=<site key> TURNSTILE_SECRET_KEY=<secret key>
-   ```
-   `TK_HASH_PEPPER` hashes IPs, addresses and claim tokens. Set it once and never change it after
-   launch, or the one-per-address check stops matching earlier claims. No function redeploy needed.
+1. **Cloudflare Turnstile — done except one value.** Widget `0x4AAAAAAFifp7lkrIeBcyHo` (created in
+   the Cloudflare dashboard). `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` and `TK_HASH_PEPPER` are
+   stored as Edge Function secrets (2026-10-23). Still to do:
+   - Add the secret `TURNSTILE_HOSTNAMES` = `tapeking.com,www.tapeking.com` (Supabase dashboard →
+     Edge Functions → Secrets). Until it exists the claim page shows "unavailable": siteverify
+     must report one of these hostnames for a token to count, and an empty list refuses everything.
+     Never add `localhost` to it in production.
+   - In the Cloudflare dashboard, confirm the widget's hostnames include `tapeking.com` and
+     `www.tapeking.com`. To test on a Vercel preview, add that preview's hostname to the widget
+     **and** to `TURNSTILE_HOSTNAMES`, then remove it from both afterwards.
+2. **`TK_HASH_PEPPER`** hashes IPs, addresses and claim tokens. Never change it after launch, or the
+   one-per-address check stops matching earlier claims. Secret changes need no function redeploy.
 3. **Contact address.** `brand_sites.contact_email` is empty for Tape King, so the page omits the
    "Questions about your dispenser shipment? Email …" line and the privacy page falls back to the
    contact page. Set it to the Tape King address that should get dispenser-shipping questions.
@@ -64,12 +67,12 @@ production; the site changes deploy when this branch merges.
    plus Tape King product tips and offers. I can unsubscribe at any time." To change it, insert a new
    `marketing.tk_consent_versions` row and point `consent_version` at it (claims keep the version
    they agreed to).
-6. **Merge this branch** so tapeking.com gets `/claim/`, `/r/` and `/free/`.
+6. ~~Merge this branch~~ — merged 2026-10-23 (PR #6); `/claim/`, `/r/` and `/free/` are live on tapeking.com.
 7. **Phase 0:** Seller Support / account-manager confirmation of the flow (save the case ID) before
    the print run. Printer files: `qr/tape-king/` (see its README). Add lot suffixes with
    `npm run qr -- --lot=26a` if a print run should be traceable.
 
-### Phase 1 acceptance test (real phone, after 1–6)
+### Phase 1 acceptance test (real phone, once `TURNSTILE_HOSTNAMES` is set)
 
 1. Open `qr/tape-king/sc.svg` on a screen and scan it with a phone. It should land on
    `https://www.tapeking.com/claim/?src=qr&sku=sc&utm_source=tape_core&utm_medium=qr&utm_campaign=dispenser_claim`.
@@ -83,7 +86,11 @@ production; the site changes deploy when this branch merges.
    ```
 4. Claim again with the same email (blocked), then with another email and the same address
    (blocked at step 2).
-5. Before launch, remove the test data (children first):
+5. **Turnstile replay check** (Cloudflare's validation step): on a desktop browser, open DevTools →
+   Network before submitting step 1, then right-click the successful `tk-claim` POST → Copy → Copy as
+   fetch, paste it into the Console and run it. The response must be
+   `{"ok":false,"error":"turnstile"}` — a Turnstile token works exactly once.
+6. Before launch, remove the test data (children first):
    ```sql
    delete from marketing.tk_email_sends where claim_id in (<test ids>);
    delete from marketing.tk_claim_events where claim_id in (<test ids>);

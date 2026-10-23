@@ -8,6 +8,9 @@ export type Env = {
   pepper: string; // TK_HASH_PEPPER
   turnstileSecret?: string;
   turnstileSiteKey?: string;
+  // Hostnames siteverify may report for a valid token (TURNSTILE_HOSTNAMES, comma list).
+  // Production lists only the live hosts — never localhost. Empty = every token refused.
+  turnstileHostnames: string[];
   allowedOrigins: string[]; // exact origins
   allowedOriginPattern?: RegExp; // e.g. Vercel preview deploys of brand-tape-king
 };
@@ -20,16 +23,19 @@ const DEFAULT_ORIGINS = [
 ];
 const DEFAULT_ORIGIN_PATTERN = '^https://brand-tape-king-[a-z0-9-]+\\.vercel\\.app$';
 
+const list = (v: string | undefined) =>
+  (v ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+
 /** Env from Deno.env-like getter (TK_ALLOWED_ORIGINS / TK_ALLOWED_ORIGIN_PATTERN optional). */
 export function readEnv(get: (k: string) => string | undefined): Env {
-  const extra = (get('TK_ALLOWED_ORIGINS') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
   return {
     supabaseUrl: get('SUPABASE_URL') ?? '',
     serviceKey: get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     pepper: get('TK_HASH_PEPPER') ?? '',
     turnstileSecret: get('TURNSTILE_SECRET_KEY') || undefined,
     turnstileSiteKey: get('TURNSTILE_SITE_KEY') || undefined,
-    allowedOrigins: [...DEFAULT_ORIGINS, ...extra],
+    turnstileHostnames: list(get('TURNSTILE_HOSTNAMES')).map((h) => h.toLowerCase()),
+    allowedOrigins: [...DEFAULT_ORIGINS, ...list(get('TK_ALLOWED_ORIGINS'))],
     allowedOriginPattern: new RegExp(get('TK_ALLOWED_ORIGIN_PATTERN') || DEFAULT_ORIGIN_PATTERN),
   };
 }

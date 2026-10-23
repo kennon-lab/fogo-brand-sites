@@ -14,8 +14,8 @@
 // already_claimed (never says which field matched), ended, paused, rate_limited,
 // outside_us, expired (step-2 token unknown — start again), unavailable, server.
 // Every DB write goes through the public.tk_* RPCs (service role); the browser never
-// sees a key. Fails closed: without TK_HASH_PEPPER and the Turnstile keys the GET
-// reports state "unavailable" and POSTs are refused.
+// sees a key. Fails closed: without TK_HASH_PEPPER, the Turnstile keys and
+// TURNSTILE_HOSTNAMES the GET reports state "unavailable" and POSTs are refused.
 import {
   type Env,
   clientIp,
@@ -49,17 +49,41 @@ const TURNSTILE_ACTION = 'tk_claim';
 type Body = Record<string, unknown>;
 
 const configured = (env: Env) =>
-  Boolean(env.supabaseUrl && env.serviceKey && env.pepper && env.turnstileSecret && env.turnstileSiteKey);
+  Boolean(
+    env.supabaseUrl &&
+      env.serviceKey &&
+      env.pepper &&
+      env.turnstileSecret &&
+      env.turnstileSiteKey &&
+      env.turnstileHostnames.length > 0
+  );
 
+// Canonical siteverify (Cloudflare Turnstile "Spin" contract): the token must come back
+// success, with our widget action, from a page on one of TURNSTILE_HOSTNAMES. Tokens are
+// single-use, so a replayed token fails here. A siteverify outage refuses the claim.
 async function verifyTurnstile(env: Env, token: string, ip: string | null): Promise<boolean> {
-  if (!token || token.length > 2048) return false;
+  if (!token || token.length > 2048 || env.turnstileHostnames.length === 0) return false;
   const form = new URLSearchParams({ secret: env.turnstileSecret!, response: token });
   if (ip) form.set('remoteip', ip);
-  const res = await fetch(TURNSTILE_VERIFY, { method: 'POST', body: form });
-  if (!res.ok) throw new Error(`turnstile siteverify → ${res.status}`);
-  const out = (await res.json()) as { success?: boolean; action?: string };
-  // Cloudflare's always-pass test keys report no action; real widgets echo ours.
-  return out.success === true && (!out.action || out.action === TURNSTILE_ACTION);
+  let out: { success?: boolean; action?: string; hostname?: string };
+  try {
+    const res = await fetch(TURNSTILE_VERIFY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      signal: AbortSignal.timeout(10_000),
+      body: form,
+    });
+    if (!res.ok) throw new Error(`siteverify ${res.status}`);
+    out = await res.json();
+  } catch (err) {
+    console.error('[tk-claim] siteverify', err instanceof Error ? err.message : err);
+    return false;
+  }
+  return (
+    out.success === true &&
+    out.action === TURNSTILE_ACTION &&
+    env.turnstileHostnames.includes(String(out.hostname ?? '').toLowerCase())
+  );
 }
 
 function attribution(b: Body) {

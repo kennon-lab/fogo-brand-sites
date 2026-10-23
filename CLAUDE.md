@@ -278,7 +278,11 @@ off-Amazon prices/codes, Amazon order issues stay on Amazon.
   Origin (tapeking.com, localhost:4321, `brand-tape-king-*.vercel.app`) and Turnstile themselves
   and fail closed (GET → `state: unavailable`) until secrets exist. Secrets: `TK_HASH_PEPPER`
   (HMAC for IP / address / street / claim-token hashes — never rotate it after launch or address
-  dedupe breaks), `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`. Deploy with the Supabase CLI
+  dedupe breaks), `TURNSTILE_SITE_KEY` (widget `0x4AAAAAAFifp7lkrIeBcyHo`, created in the
+  Cloudflare dashboard), `TURNSTILE_SECRET_KEY`, `TURNSTILE_HOSTNAMES` (`tapeking.com,www.tapeking.com`
+  — never localhost in production). Siteverify follows Cloudflare's Turnstile Spin contract
+  (developers.cloudflare.com/turnstile/spin): `success`, action `tk_claim` and an allowlisted
+  hostname are all required; a 10 s timeout or siteverify error refuses the claim. Deploy with the Supabase CLI
   (`supabase functions deploy tk-claim --project-ref avlhnogtosjxdyibjipz`) or the MCP deploy
   tool with file names `tk-claim/index.ts`, `tk-claim/handler.ts`, `_shared/*.ts` and entrypoint
   `tk-claim/index.ts`. Change the shared option sets and the SQL check constraints together.

@@ -19,18 +19,25 @@ const env: Env = readEnv(
       TK_HASH_PEPPER: 'pepper',
       TURNSTILE_SECRET_KEY: 'ts-secret',
       TURNSTILE_SITE_KEY: 'ts-site',
+      TURNSTILE_HOSTNAMES: 'tapeking.com, WWW.tapeking.com',
     })[k]
 );
 
 type Call = { url: string; body: any };
-function fakeFetch(answers: Record<string, unknown>, turnstileOk = true) {
+type Siteverify = { success: boolean; action?: string; hostname?: string; 'error-codes'?: string[] };
+const PASS: Siteverify = { success: true, action: 'tk_claim', hostname: 'www.tapeking.com' };
+
+function fakeFetch(answers: Record<string, unknown>, turnstile: boolean | Siteverify = true) {
   const calls: Call[] = [];
   globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
     const url = String(input);
     const raw = init?.body;
     const body = raw instanceof URLSearchParams ? Object.fromEntries(raw) : raw ? JSON.parse(String(raw)) : null;
     calls.push({ url, body });
-    if (url.includes('turnstile')) return Response.json({ success: turnstileOk, action: 'tk_claim' });
+    if (url.includes('turnstile')) {
+      const verdict = typeof turnstile === 'boolean' ? (turnstile ? PASS : { success: false }) : turnstile;
+      return Response.json(verdict);
+    }
     const fn = url.split('/rpc/')[1];
     return Response.json(answers[fn] ?? {});
   }) as typeof fetch;
@@ -223,11 +230,48 @@ test('step 2 refuses outside-US and bad fields without calling the database', as
 test('a database error becomes a generic server error', async () => {
   globalThis.fetch = (async (input: string) =>
     String(input).includes('turnstile')
-      ? Response.json({ success: true })
+      ? Response.json(PASS)
       : new Response('boom', { status: 500 })) as typeof fetch;
   const res = await claim(post(step1), env);
   assert.equal(res.status, 500);
   assert.equal((await res.json()).error, 'server');
+});
+
+test('Turnstile: replayed token, wrong action, wrong hostname and outages are all refused', async () => {
+  const cases: [string, Siteverify | 'outage'][] = [
+    ['replay', { success: false, 'error-codes': ['timeout-or-duplicate'] }],
+    ['wrong action', { ...PASS, action: 'signup' }],
+    ['missing action', { success: true, hostname: 'www.tapeking.com' }],
+    ['wrong hostname', { ...PASS, hostname: 'evil.example' }],
+    ['localhost', { ...PASS, hostname: 'localhost' }],
+    ['outage', 'outage'],
+  ];
+  for (const [label, verdict] of cases) {
+    const calls: string[] = [];
+    globalThis.fetch = (async (input: string) => {
+      calls.push(String(input));
+      if (String(input).includes('turnstile')) {
+        return verdict === 'outage' ? new Response('down', { status: 503 }) : Response.json(verdict);
+      }
+      return Response.json({ result: 'started', claim_id: 'c-1' });
+    }) as typeof fetch;
+    const res = await claim(post(step1), env);
+    assert.equal(res.status, 403, label);
+    assert.equal((await res.json()).error, 'turnstile', label);
+    assert.ok(calls.every((u) => !u.includes('/rpc/')), `${label}: no database call`);
+  }
+  // Apex host is allowed too (case-insensitive list).
+  fakeFetch({ tk_claim_start: { result: 'started', claim_id: 'c-1' } }, { ...PASS, hostname: 'tapeking.com' });
+  assert.equal((await claim(post(step1), env)).status, 200);
+});
+
+test('no TURNSTILE_HOSTNAMES → unavailable (fails closed)', async () => {
+  const noHosts = { ...env, turnstileHostnames: [] };
+  fakeFetch({ tk_claim_config: { state: 'open' } });
+  const get = await claim(new Request('https://fn.test/tk-claim', { headers: { origin: ORIGIN } }), noHosts);
+  assert.equal((await get.json()).state, 'unavailable');
+  const res = await claim(post(step1), noHosts);
+  assert.equal(res.status, 503);
 });
 
 // ---------------------------------------------------------------- tk-scan

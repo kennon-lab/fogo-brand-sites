@@ -536,6 +536,7 @@ const eyebrow = 'font-mono text-[12px] font-semibold uppercase tracking-[0.12em]
       "This offer has already been claimed with these details. It's limited to one dispenser per business and per address.",
     rate_limited: 'Too many tries from this connection. Give it an hour, then try again.',
     turnstile: "We couldn't confirm this browser. Refresh the page and try again.",
+    turnstile_pending: 'Still checking this browser. If a check box shows above the button, tick it, then tap Continue again.',
     invalid: 'Check the highlighted fields.',
     outside_us: 'Sorry — this offer ships to US addresses only.',
     expired: "Your session timed out. Fill in step 1 again — it'll pick up where you left off.",
@@ -717,8 +718,8 @@ const eyebrow = 'font-mono text-[12px] font-semibold uppercase tracking-[0.12em]
     const turnstile = await turnstileToken();
     if (!turnstile) {
       busy(step1, false);
-      track('claim_error', { error: 'turnstile', step: 1 });
-      return showError('turnstile');
+      track('claim_error', { error: 'turnstile_pending', step: 1 });
+      return showError('turnstile_pending');
     }
     const f = new FormData(step1);
     const out = await api({

@@ -243,7 +243,7 @@ if (mode === 'v1') {
 
       {/* 1 — Gallery + buy column */}
       <section class="mx-auto grid max-w-6xl gap-10 px-4 py-8 lg:grid-cols-2">
-        <div>
+        <div class="min-w-0">
           {images.length > 0 ? (
             <ProductGallery images={images} title={a.display_name} />
           ) : (
@@ -253,7 +253,7 @@ if (mode === 'v1') {
           )}
         </div>
 
-        <div class="flex flex-col gap-5">
+        <div class="flex min-w-0 flex-col gap-5">
           <div class="flex flex-wrap gap-2">
             {a.badges.map((b) => (
               <Badge>{b.replace(/-/g, ' ')}</Badge>
@@ -449,7 +449,7 @@ if (mode === 'v1') {
       </nav>
 
       <section class="mx-auto max-w-6xl px-4 py-8 grid gap-10 lg:grid-cols-2">
-        <div>
+        <div class="min-w-0">
           {v1Images.length > 0 ? (
             <ProductGallery images={v1Images} title={product.display_title} />
           ) : (
@@ -459,7 +459,7 @@ if (mode === 'v1') {
           )}
         </div>
 
-        <div class="flex flex-col gap-5">
+        <div class="flex min-w-0 flex-col gap-5">
           <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">{product.display_title}</h1>
           {v1Price && (
             <p class="text-3xl font-extrabold" style="color: var(--brand-2);">

@@ -3,8 +3,8 @@
 Spec: `TAPEKING_DISPENSER_FUNNEL_SCOPE.md` (Oct 22, 2026, with the QR-generator update). This file
 tracks what is built, what is live, and what has to happen before rolls with the QR ship.
 
-Updated 2026-10-23 · **Phase 1 (Capture) built.** Database and Edge Functions are live in
-production; the site changes deploy when this branch merges.
+Updated 2026-10-23 · **Phase 1 (Capture) live.** Database, Edge Functions (with Turnstile) and the
+`/claim/`, `/r/`, `/free/` pages are in production; the real-phone acceptance test is next.
 
 ## Phase 1 — what exists
 
@@ -13,10 +13,10 @@ production; the site changes deploy when this branch merges.
 | `marketing` schema: claims, scans, claim events, drip steps, scheduled sends, email events, program config, consent versions, submit log | `sql/tk_dispenser_funnel_phase1.sql` → migration `tk_dispenser_funnel_phase1` | **Applied to production** 2026-10-23. RLS on, no anon/authenticated access, not exposed through PostgREST |
 | RPCs `public.tk_claim_config`, `tk_claim_start`, `tk_claim_address`, `tk_log_scan` | same migration | Live, service_role only |
 | Drip definition (A1–A7, B1, D1) + program config seed | same migration | Seeded; nothing sends until Phase 3 builds `tk-drip` (`drip_enabled` = false) |
-| `tk-claim` Edge Function | `supabase/functions/tk-claim/` | **Deployed** (v1). Fails closed: answers `state: unavailable` until its secrets are set |
-| `tk-scan` Edge Function | `supabase/functions/tk-scan/` | **Deployed** (v1). Refuses scans until `TK_HASH_PEPPER` is set |
-| `/claim/` two-step page, offer terms, thank-you, ended / paused / unavailable states | `src/components/brands/tape-king/ClaimPage.astro`, copy in `src/content/brands/tape-king/claim.yaml` | On this branch |
-| `/r/<code>[<lot>]` redirect + scan beacon, `/free/` typed fallback | `src/pages/r/`, `src/pages/[typed]/`, `vercel.json` rewrite | On this branch |
+| `tk-claim` Edge Function | `supabase/functions/tk-claim/` | **Deployed** (v3, Turnstile Spin siteverify). Secrets set; answers `state: open`. Fails closed (`state: unavailable`) if any secret goes missing |
+| `tk-scan` Edge Function | `supabase/functions/tk-scan/` | **Deployed** (v3). Refuses scans if `TK_HASH_PEPPER` is missing |
+| `/claim/` two-step page, offer terms, thank-you, ended / paused / unavailable states | `src/components/brands/tape-king/ClaimPage.astro`, copy in `src/content/brands/tape-king/claim.yaml` | Live on tapeking.com |
+| `/r/<code>[<lot>]` redirect + scan beacon, `/free/` typed fallback | `src/pages/r/`, `src/pages/[typed]/`, `vercel.json` rewrite | Live on tapeking.com |
 | QR printer artwork (SVG + PDF, EC Q, 22 mm incl. quiet zone) for `sc`, `ut`, `gf`, `dt` | `scripts/make-qr.ts` → `qr/tape-king/` | Generated; each file decoded back to its URL |
 | Privacy-policy section for the offer | `src/components/ClaimPrivacy.astro` (Tape King only) | On this branch |
 
@@ -43,16 +43,13 @@ production; the site changes deploy when this branch merges.
 
 ## To go live — needs you
 
-1. **Cloudflare Turnstile — done except one value.** Widget `0x4AAAAAAFifp7lkrIeBcyHo` (created in
-   the Cloudflare dashboard). `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` and `TK_HASH_PEPPER` are
-   stored as Edge Function secrets (2026-10-23). Still to do:
-   - Add the secret `TURNSTILE_HOSTNAMES` = `tapeking.com,www.tapeking.com` (Supabase dashboard →
-     Edge Functions → Secrets). Until it exists the claim page shows "unavailable": siteverify
-     must report one of these hostnames for a token to count, and an empty list refuses everything.
-     Never add `localhost` to it in production.
-   - In the Cloudflare dashboard, confirm the widget's hostnames include `tapeking.com` and
-     `www.tapeking.com`. To test on a Vercel preview, add that preview's hostname to the widget
-     **and** to `TURNSTILE_HOSTNAMES`, then remove it from both afterwards.
+1. ~~Cloudflare Turnstile~~ — done 2026-10-23. Widget `0x4AAAAAAFifp7lkrIeBcyHo` ("Tape King claim",
+   hostnames `tapeking.com` + `www.tapeking.com`, Managed). Edge Function secrets `TURNSTILE_SITE_KEY`,
+   `TURNSTILE_SECRET_KEY`, `TURNSTILE_HOSTNAMES` (`tapeking.com,www.tapeking.com`) and
+   `TK_HASH_PEPPER` are set; `tk-claim` answers `state: open` with the site key. Never add
+   `localhost` to `TURNSTILE_HOSTNAMES` in production. To test on a Vercel preview, add that
+   preview's hostname to the widget **and** to `TURNSTILE_HOSTNAMES`, then remove it from both
+   afterwards. Still owed: the real-phone acceptance test below, including the replay check.
 2. **`TK_HASH_PEPPER`** hashes IPs, addresses and claim tokens. Never change it after launch, or the
    one-per-address check stops matching earlier claims. Secret changes need no function redeploy.
 3. **Contact address.** `brand_sites.contact_email` is empty for Tape King, so the page omits the
@@ -72,7 +69,7 @@ production; the site changes deploy when this branch merges.
    the print run. Printer files: `qr/tape-king/` (see its README). Add lot suffixes with
    `npm run qr -- --lot=26a` if a print run should be traceable.
 
-### Phase 1 acceptance test (real phone, once `TURNSTILE_HOSTNAMES` is set)
+### Phase 1 acceptance test (real phone — ready to run)
 
 1. Open `qr/tape-king/sc.svg` on a screen and scan it with a phone. It should land on
    `https://www.tapeking.com/claim/?src=qr&sku=sc&utm_source=tape_core&utm_medium=qr&utm_campaign=dispenser_claim`.

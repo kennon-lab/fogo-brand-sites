@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/r/:code", "destination": "/r/" },
-    { "source": "/r/:code/", "destination": "/r/" }
+    { "source": "/r/:code", "destination": "/r/index.html" },
+    { "source": "/r/:code/", "destination": "/r/index.html" }
   ]
 }

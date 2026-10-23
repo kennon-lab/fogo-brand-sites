@@ -1,0 +1,33 @@
+---
+// Typed fallback printed beside the QR code: <qr.host>/<qr.typed_path> (tapeking.com/free)
+// → the claim page with src=typed (TAPEKING_DISPENSER_FUNNEL_SCOPE.md, "QR code and URL
+// spec"). Built only for brands with a claim program. Not a scan, so nothing is logged
+// here — the claim row records src=typed. Bare page (no Base, no GA) for the same
+// reason as /r/: the claim page's GA hit carries the UTMs. noindex.
+import { getBrand } from '../../lib/supabase.js';
+import { CLAIM_UTM, getClaimProgram } from '../../lib/claim.js';
+
+export async function getStaticPaths() {
+  const program = await getClaimProgram();
+  return program ? [{ params: { typed: program.qr.typed_path } }] : [];
+}
+
+const brand = await getBrand();
+const program = await getClaimProgram();
+const target = `${program.qr.target}?${new URLSearchParams({ src: 'typed', ...CLAIM_UTM, utm_medium: 'print_url' })}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{brand.brand}</title>
+    <script is:inline set:html={`location.replace(${JSON.stringify(target)});`} />
+    <noscript><meta http-equiv="refresh" content={`0;url=${target}`} /></noscript>
+  </head>
+  <body style="margin:0;padding:32px 20px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#171a1e;background:#fafaf8;">
+    <p>Taking you to your free dispenser… <a href={target} style="color:#8f5a0e;">Continue</a></p>
+  </body>
+</html>

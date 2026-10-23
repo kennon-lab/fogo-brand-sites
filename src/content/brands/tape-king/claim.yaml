@@ -1,0 +1,70 @@
+# Tape King free-dispenser claim program (TAPEKING_DISPENSER_FUNNEL_SCOPE.md).
+# Copy for /claim/, the printed QR codes (/r/<code>[<lot>]) and the typed fallback
+# (/free/). Builds those three routes for this brand only (src/lib/claim.js).
+#
+# Runtime state is NOT here: whether the offer is open, ended or paused, the active
+# dispenser's headline / size / photo, and the consent text all come from
+# marketing.program_config through the tk-claim Edge Function at page load, so the
+# kill switch, the monthly cap and the 3" → 2" gun switch need no deploy.
+#
+# Compliance (scope "Amazon compliance guardrails"): no review language anywhere,
+# no off-Amazon prices or codes, no customer-service diversion — Amazon order
+# questions stay on Amazon; only dispenser-shipping questions come to us.
+
+functions:
+  claim: tk-claim
+  scan: tk-scan
+
+hero:
+  eyebrow: FREE WITH YOUR TAPE
+  headline: Your free Tape King dispenser gun
+  value_props:
+    - Load a roll, pull, seal, cut — one hand, every carton.
+    - Free and shipped to you. One per business or address, US only.
+    - Two quick steps. No order number needed.
+  button: Claim my dispenser
+  image_asin: B077GCV6PH
+
+terms:
+  - One dispenser per business and per shipping address.
+  - US shipping addresses only.
+  - While supplies last. The dispenser model can change as stock runs out.
+  - We may change or end this offer at any time.
+  - We check each request before it ships and may decline duplicates or misuse.
+
+how_to_load:
+  title: Loading a tape gun
+  steps:
+    - Slide a roll onto the hub so the tape feeds off the bottom, sticky side facing down.
+    - Thread the end under the roller and up past the blade guard until it reaches the teeth.
+    - Press the tape to the carton, roll the gun along the seam, then tip it forward to cut.
+    - Roll spinning too freely? Tighten the tension knob on the hub a quarter turn at a time.
+
+thanks:
+  headline: You're in — it ships within ~5 business days.
+  body: We'll email tracking when it leaves our warehouse. Here's how to load it while you wait.
+  cta_asin: B072LGT8CX
+  cta_label: Stock up on Ultra Thick for heavy cartons
+
+ended:
+  headline: This dispenser offer has ended
+  body: >-
+    Thanks for scanning. The free dispenser is no longer available, but every Tape
+    King roll, case and dispenser is still on Amazon.
+
+paused:
+  headline: This month's dispensers are spoken for
+  body: >-
+    We ship a set number of free dispensers each month and they've all been
+    claimed. Scan again next month.
+
+qr:
+  host: tapeking.com
+  target: /claim/
+  codes:
+    - { code: sc, line: standard-clear, label: Standard Clear }
+    - { code: ut, line: ultra-thick, label: Ultra Thick }
+    - { code: gf, line: gaffers, label: Gaffers }
+    - { code: dt, line: duct-tape, label: Duct }
+  lots: []
+  typed_path: free

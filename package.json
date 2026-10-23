@@ -17,7 +17,9 @@
     "ads:auth": "node scripts/ads-auth.mjs",
     "ads:review": "node scripts/ads-review.mjs",
     "ga:setup": "node scripts/ga-setup.mjs",
-    "ads:goals": "node scripts/ads-goals.mjs"
+    "ads:goals": "node scripts/ads-goals.mjs",
+    "qr": "node scripts/make-qr.ts",
+    "test:functions": "node --test supabase/functions/tests/*.test.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.1",
@@ -37,5 +39,8 @@
     "astro": "^5.1.1",
     "tailwindcss": "^3.4.17",
     "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "qrcode": "^1.5.4"
   }
 }

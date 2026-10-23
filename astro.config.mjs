@@ -56,7 +56,11 @@ export default defineConfig({
   integrations: [
     tailwind({ applyBaseStyles: false }),
     sitemap({
-      filter: (page) => !(isAuthored && /\/products\/B0[A-Z0-9]{8}\/$/.test(page)),
+      // The claim funnel (/claim/, the /r/ QR redirect, the typed /free/ fallback) is
+      // for people holding a roll, not search — noindex and out of the sitemap.
+      filter: (page) =>
+        !(isAuthored && /\/products\/B0[A-Z0-9]{8}\/$/.test(page)) &&
+        !/^https:\/\/[^/]+\/(claim|r|free)\/$/.test(page),
     }),
   ],
   image: {

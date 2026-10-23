@@ -1,0 +1,14 @@
+---
+// /claim/ — the free-dispenser claim page. Exists only for brands with a claim program
+// (src/content/brands/<slug>/claim.yaml, today tape-king); every other brand builds no
+// /claim/ route (same rest-param gating as warranty/[...path].astro). The page itself
+// is Tape King's: src/components/brands/tape-king/ClaimPage.astro.
+import ClaimPage from '../../components/brands/tape-king/ClaimPage.astro';
+import { getClaimProgram } from '../../lib/claim.js';
+
+export async function getStaticPaths() {
+  return (await getClaimProgram()) ? [{ params: { path: undefined } }] : [];
+}
+---
+
+<ClaimPage />

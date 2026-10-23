@@ -1,0 +1,58 @@
+---
+// QR redirect (TAPEKING_DISPENSER_FUNNEL_SCOPE.md, "QR code and URL spec"). Printed codes
+// are https://<qr.host>/r/<code>[<lot>] (scripts/make-qr.ts); vercel.json rewrites every
+// /r/<anything> to this one page, which logs the scan with tk-scan (sendBeacon, never
+// blocks) and forwards with location.replace to the code's target — claim.yaml
+// qr.codes[].target, default qr.target — carrying src=qr, sku, lot and the UTMs.
+// Repointing a printed code is a claim.yaml edit; the claim form is untouched.
+//
+// /r/sc26a = code "sc" + lot "26a" (codes are letters, lots start with a digit).
+// Unknown codes still forward to the claim page and are logged raw, so a misprint
+// shows up in marketing.tk_scans. `?c=<code>` stands in for the path under
+// `astro dev`, which has no rewrites.
+//
+// Deliberately bare: no Base layout and no GA, so the claim page's first GA hit
+// carries the UTMs as the session source. noindex.
+import { getBrand } from '../../lib/supabase.js';
+import { CLAIM_UTM, claimFunctionUrl, getClaimProgram } from '../../lib/claim.js';
+
+export async function getStaticPaths() {
+  return (await getClaimProgram()) ? [{ params: { path: undefined } }] : [];
+}
+
+const brand = await getBrand();
+const program = await getClaimProgram();
+const C = {
+  targets: Object.fromEntries(program.qr.codes.map((c) => [c.code, c.target ?? program.qr.target])),
+  fallback: program.qr.target,
+  utm: { ...CLAIM_UTM, utm_medium: 'qr' },
+  scan: claimFunctionUrl(program.functions.scan),
+};
+const noJs = `${program.qr.target}?${new URLSearchParams({ src: 'qr', ...C.utm })}`;
+const script = `(function(){var C=${JSON.stringify(C).replace(/</g, '\\u003c')};
+var seg=location.pathname.replace(/^\\/r\\/?/,'').replace(/\\/+$/,'')||new URLSearchParams(location.search).get('c')||'';
+seg=seg.toLowerCase().slice(0,32);
+var m=/^([a-z]+)([0-9][0-9a-z]*)?$/.exec(seg);
+var code=m&&C.targets[m[1]]?m[1]:'';var lot=code&&m[2]?m[2].slice(0,16):'';
+var q=new URLSearchParams({src:'qr'});if(code)q.set('sku',code);if(lot)q.set('lot',lot);
+for(var k in C.utm)q.set(k,C.utm[k]);
+var t=code?C.targets[code]:C.fallback;var url=t+(t.indexOf('?')<0?'?':'&')+q.toString();
+try{var b=JSON.stringify({code:code||seg.slice(0,24)||'none',lot:lot||null});
+if(!(navigator.sendBeacon&&navigator.sendBeacon(C.scan,b)))fetch(C.scan,{method:'POST',body:b,keepalive:true,mode:'no-cors'});}catch(e){}
+location.replace(url);})();`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{brand.brand}</title>
+    <script is:inline set:html={script} />
+    <noscript><meta http-equiv="refresh" content={`0;url=${noJs}`} /></noscript>
+  </head>
+  <body style="margin:0;padding:32px 20px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#171a1e;background:#fafaf8;">
+    <p>Taking you to your free dispenser… <a href={noJs} style="color:#8f5a0e;">Continue</a></p>
+  </body>
+</html>

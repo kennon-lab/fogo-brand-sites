@@ -1,0 +1,21 @@
+---
+// "How to load a dispenser" card (claim.yaml how_to_load) — on the claim page's
+// thank-you, offer-ended and paused states.
+const { title, steps } = Astro.props;
+---
+
+<div class="mt-6 rounded-[10px] border border-[var(--line)] bg-[var(--surface-2)] p-5">
+  <h3 class="text-[17px]">{title}</h3>
+  <ol class="mt-3 space-y-2.5">
+    {
+      steps.map((step, i) => (
+        <li class="flex gap-3 text-[14.5px] leading-relaxed">
+          <span class="mt-0.5 shrink-0 font-mono text-[12px] font-semibold text-[var(--accent-ink)]">
+            {String(i + 1).padStart(2, '0')}
+          </span>
+          <span>{step}</span>
+        </li>
+      ))
+    }
+  </ol>
+</div>

@@ -237,6 +237,53 @@ const catalog = defineCollection({
   }),
 });
 
+// Free-dispenser claim program (Tape King QR funnel, TAPEKING_DISPENSER_FUNNEL_SCOPE.md):
+// src/content/brands/<slug>/claim.yaml. A brand with the file builds /claim/, /r/ and
+// /free/ (src/lib/claim.js); others build none of them. Copy and QR routing only —
+// whether the offer is open, the active dispenser and the consent text are runtime
+// state in marketing.program_config, served by the tk-claim Edge Function.
+const claim = defineCollection({
+  loader: glob({ pattern: '*/claim.yaml', base: './src/content/brands' }),
+  schema: z.object({
+    functions: z.object({ claim: z.string(), scan: z.string() }), // Edge Function names
+    hero: z.object({
+      eyebrow: z.string(),
+      headline: z.string(), // shown until the live config loads, and if it can't
+      value_props: z.array(z.string()).length(3),
+      button: z.string(),
+      image_asin: z.string().regex(ASIN), // fallback photo; the live dispenser's image_asin wins
+    }),
+    terms: z.array(z.string()).min(1),
+    how_to_load: z.object({ title: z.string(), steps: z.array(z.string()).min(2) }),
+    thanks: z.object({
+      headline: z.string(),
+      body: z.string(),
+      cta_asin: z.string().regex(ASIN), // the one Amazon link on the thank-you state
+      cta_label: z.string(),
+    }),
+    ended: z.object({ headline: z.string(), body: z.string() }), // claims_enabled = false
+    paused: z.object({ headline: z.string(), body: z.string() }), // monthly cap reached
+    qr: z.object({
+      host: z.string(), // printed host — the bare apex keeps the URL (and the code) short
+      target: z.string(), // where codes forward unless a code sets its own target
+      // Letters only, so a lot suffix (which starts with a digit) parses unambiguously:
+      // /r/sc26a = code sc + lot 26a.
+      codes: z
+        .array(
+          z.object({
+            code: z.string().regex(/^[a-z]{2,6}$/),
+            line: z.string(), // catalog.yaml line the code is printed on
+            label: z.string(), // for the printer manifest
+            target: z.string().optional(), // repoint one code (e.g. an offer-ended page)
+          })
+        )
+        .min(1),
+      lots: z.array(z.string().regex(/^[0-9][0-9a-z]{0,7}$/)).default([]), // print-run suffixes
+      typed_path: z.string().regex(/^[a-z]+$/), // fallback text printed beside the QR: <host>/<typed_path>
+    }),
+  }),
+});
+
 // Per-brand blog: src/content/brands/<slug>/blog/<post-slug>.md. A brand with no
 // posts builds no /blog/ routes and gets no nav link (gated in
 // src/pages/blog/[...slug].astro + getBlogPosts() in src/lib/content.js).
@@ -304,4 +351,4 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { products, needs, site, catalog, blog };
+export const collections = { products, needs, site, catalog, claim, blog };

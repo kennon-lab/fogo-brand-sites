@@ -1,0 +1,36 @@
+---
+// Privacy-policy section for the free-dispenser claim program (Tape King QR funnel,
+// scope "CAN-SPAM: … update tapeking.com/privacy"). Renders only for brands with a
+// claim.yaml; included from src/pages/privacy.astro.
+import { getClaimProgram } from '../lib/claim.js';
+
+const program = await getClaimProgram();
+---
+
+{
+  program && (
+    <>
+      <h2 class="text-xl font-bold pt-2">Free dispenser offer</h2>
+      <p>
+        When you claim a free dispenser on our <a href="/claim/" class="underline underline-offset-4">claim page</a>,
+        we collect your email address, first name, company name if you give one, your answers about how you use tape
+        and where you buy it, and your shipping name and address. We use them to ship the dispenser, to email you
+        about the shipment, and — because you agree to it on the form — to send product tips and offers by email.
+      </p>
+      <p>
+        Every marketing email includes a one-click unsubscribe link and our mailing address. Unsubscribing stops
+        marketing email; a shipping update for a dispenser you claimed may still arrive.
+      </p>
+      <p>
+        We share these details only with the services that do the work: our shipping software and carrier, to deliver
+        the dispenser; our email provider, Postmark, to send email; and Cloudflare Turnstile, which checks that the
+        form is being used by a person. We do not sell them. Your IP address is stored only as a one-way hash, to stop
+        repeat and automated claims.
+      </p>
+      <p>
+        We delete your shipping address 180 days after the dispenser is delivered. We keep your email address and
+        answers to report on the offer; contact us any time to have them deleted.
+      </p>
+    </>
+  )
+}

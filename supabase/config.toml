@@ -1,0 +1,15 @@
+# Supabase CLI config for the Edge Functions that live in this repo (the Tape King
+# dispenser funnel). Everything else in the FOGO project — tables, the other Edge
+# Functions — is managed from the dashboard repo; this file only pins how these
+# functions deploy:
+#   supabase functions deploy tk-claim --project-ref avlhnogtosjxdyibjipz
+#   supabase functions deploy tk-scan --project-ref avlhnogtosjxdyibjipz
+project_id = "avlhnogtosjxdyibjipz"
+
+# Public endpoints called from www.tapeking.com without a Supabase JWT; they check
+# Origin and Turnstile themselves and write only through service-role RPCs.
+[functions.tk-claim]
+verify_jwt = false
+
+[functions.tk-scan]
+verify_jwt = false

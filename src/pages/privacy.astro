@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import ClaimPrivacy from '../components/ClaimPrivacy.astro';
 import { getBrand } from '../lib/supabase.js';
 
 const brand = await getBrand();
@@ -47,6 +48,8 @@ const hasAnalytics = Boolean(brand.google_analytics_id);
         >privacy notice</a>{' '}
         governs your visit and any purchase you make there.
       </p>
+
+      <ClaimPrivacy />
 
       <h2 class="text-xl font-bold pt-2">Contact</h2>
       <p>

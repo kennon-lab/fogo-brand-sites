@@ -69,8 +69,9 @@ const {
   ogType = 'website', // 'article' for blog posts
   jsonLd = null,
   // GA4 outbound_amazon_click dimension; every page sets its own
-  // (home | pdp | collection | catalog | about | contact | privacy).
+  // (home | pdp | collection | catalog | about | contact | privacy | claim).
   pageType = 'page',
+  noindex = false, // QR landing pages (claim funnel) stay out of search results
 } = Astro.props;
 
 const pageTitle = title ? `${title} | ${brand.brand}` : `${brand.brand} — ${brand.tagline ?? 'Official Site'}`;
@@ -107,6 +108,7 @@ const gaId = brand.google_analytics_id;
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
     {favicon && <link rel="icon" type="image/png" href={favicon} />}
     {appleTouchIcon && <link rel="apple-touch-icon" href={appleTouchIcon} />}
     <link rel="sitemap" href="/sitemap-index.xml" />

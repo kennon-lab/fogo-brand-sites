@@ -53,6 +53,12 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   90-day clicks/purchases/sales/BRB, is_active = traffic in last 14 days). Re-run any time;
   upserts on (advertiser_id, campaign_id, ad_group_id). The site's own tags stay in
   `bronze.attribution_links`; the two tables together are the full Attribution picture.
+- `npm run qr -- [--brand=tape-king] [--lot=26a] [--mm=22]` — printer artwork for the claim-program
+  QR codes (`scripts/make-qr.ts`, `qrcode` package): one vector SVG + PDF per
+  `https://<qr.host>/r/<code>[<lot>]` from `claim.yaml`, EC Q, 4-module quiet zone, written to
+  `qr/<brand>/` with a printer README. Deterministic; committed.
+- `npm run test:functions` — Node tests for the `supabase/functions/` Edge Function handlers
+  (Turnstile + PostgREST mocked). Node ≥ 22.18 runs the `.ts` files directly.
 
 ## Environment (`.env`, never committed; see `.env.example`)
 
@@ -67,6 +73,10 @@ Authoritative spec: `BRAND_SITES_SCOPE_v1.md` (kept in repo root). Original brie
   clear it (`Remove-Item env:SUPABASE_SERVICE_ROLE_KEY`) so `.env` wins.
 
 ## Data layer (all build-time; zero runtime Supabase calls)
+
+One exception: the Tape King claim funnel's `/claim/` and `/r/` pages call the `tk-claim` /
+`tk-scan` Edge Functions at runtime (never PostgREST, never a key) — see "Tape King dispenser
+funnel" below.
 
 Reads go through PostgREST with the anon key, only in `src/lib/supabase.js` and
 `astro.config.mjs`:
@@ -226,6 +236,58 @@ Known quirks (do not re-derive):
 - `toISOString().slice(0,10)` is banned in any script — use a local-date helper if dates are
   ever needed. Never generate files via PowerShell here-strings — write files directly.
 - Complete files only, no partial snippets; validate Astro/JSX parses before finishing.
+
+## Tape King dispenser funnel (QR → claim → drip)
+
+Spec: `TAPEKING_DISPENSER_FUNNEL_SCOPE.md`; build status + what's pending:
+`TAPEKING_DISPENSER_FUNNEL_STATUS.md`. A QR inside every roll → `/r/<code>` → `/claim/` (email +
+answers, then shipping address) → free dispenser → Postmark drip that sells case / S&S reorders
+on Amazon. Compliance rules in the scope are hard rules: no review language anywhere, no
+off-Amazon prices/codes, Amazon order issues stay on Amazon.
+
+- Opt-in by content: `src/content/brands/<slug>/claim.yaml` (schema `claim` in
+  `content.config.ts`, cross-checked against `catalog.yaml` in `src/lib/claim.js`) builds
+  `/claim/` (`src/components/brands/tape-king/ClaimPage.astro`), `/r/` and `/<qr.typed_path>/`
+  (`free`); other brands build none of them. All three are noindex and filtered out of the sitemap.
+- `/r/<code>[<lot>]`: `vercel.json` rewrites every `/r/*` to the one `/r/` page (other brands just
+  404), which beacons `tk-scan` and `location.replace`s to the code's target (claim.yaml
+  `qr.codes[].target`, default `qr.target`) with `src/sku/lot` + `utm_source=tape_core&utm_medium=qr
+  &utm_campaign=dispenser_claim`. Codes are letters, lots start with a digit (`sc26a`). The
+  printed URLs are permanent — repoint in claim.yaml, never change a code. `?c=<code>` stands in
+  for the path under `astro dev`/`preview` (no rewrites there). `/r/` and `/free/` are bare pages
+  (no Base, no GA) so the claim page's GA hit owns the UTMs.
+- Runtime state is NOT in the repo: `marketing.program_config` (kill switch `claims_enabled`,
+  `monthly_cap`, `auto_approve`, `drip_enabled`, `active_dispenser_sku` + `dispensers` map with the
+  public headline/size/`image_asin`, run-out days, rate limits, disposable domains, send window) and
+  `marketing.tk_consent_versions`. The page GETs `tk-claim` at load for state, dispenser and
+  consent text, so flipping config needs no deploy. Dispenser photos: every `dispenser-guns` SKU
+  image is shipped with the page; config picks one by ASIN.
+- Data: `marketing` schema (`sql/tk_dispenser_funnel_phase1.sql`, applied as migration
+  `tk_dispenser_funnel_phase1`). NOT in `pgrst.db_schemas` and must stay out; RLS on, no
+  anon/authenticated grants. Writes go only through `public.tk_claim_config|tk_claim_start|
+  tk_claim_address|tk_log_scan(p jsonb)` — SECURITY INVOKER, EXECUTE for service_role only. SQL
+  owns segment (`marketing.tk_segment`), dedupe (email unique; address_hash unique unless
+  rejected), rate limits (`tk_submit_log`), cap/kill switch (`tk_offer_state`), review flags
+  (disposable domain, 3+ per street in 30 days, + `zip_state_mismatch` from the function) and
+  drip enrollment (`marketing.tk_enroll`: step 1 → Flow B; step 2 cancels B, schedules A + D).
+  Emails are stored lowercased text (not citext — its operators live in `extensions` and
+  `search_path=''` functions would silently compare case-sensitively).
+- Edge Functions live in this repo: `supabase/functions/{tk-claim,tk-scan}` (thin `index.ts` →
+  `handler.ts`, shared `_shared/{http,claim-fields,us,address}.ts` — `claim-fields.ts` and
+  `us.ts` are also imported by the page). verify_jwt=false (`supabase/config.toml`); they check
+  Origin (tapeking.com, localhost:4321, `brand-tape-king-*.vercel.app`) and Turnstile themselves
+  and fail closed (GET → `state: unavailable`) until secrets exist. Secrets: `TK_HASH_PEPPER`
+  (HMAC for IP / address / street / claim-token hashes — never rotate it after launch or address
+  dedupe breaks), `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`. Deploy with the Supabase CLI
+  (`supabase functions deploy tk-claim --project-ref avlhnogtosjxdyibjipz`) or the MCP deploy
+  tool with file names `tk-claim/index.ts`, `tk-claim/handler.ts`, `_shared/*.ts` and entrypoint
+  `tk-claim/index.ts`. Change the shared option sets and the SQL check constraints together.
+- Step 2 is authorized by a random claim token from step 1 (HMAC stored); the page keeps it in
+  sessionStorage so a refresh resumes at step 2. Re-entering step 1 with an unfinished claim's
+  email resumes it; a finished one answers `already_claimed` (never says which field matched).
+- The sandbox network blocks `*.supabase.co`; test the page locally against a mock that runs the
+  real handlers on PGlite (pattern in the status doc), and smoke-test deployed functions from the
+  database with `net.http_get` / `net.http_post`.
 
 ## Per-brand rollout (scope §6, ~30–45 min once template is stable)
 

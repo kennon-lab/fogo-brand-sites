@@ -1,0 +1,804 @@
+---
+// Tape King free-dispenser claim page (TAPEKING_DISPENSER_FUNNEL_SCOPE.md, "Landing page
+// spec"), rendered at /claim/ by src/pages/claim/[...path].astro. Mobile-first: nearly
+// every visitor arrives from a phone camera via /r/<code>.
+//
+// Two steps so the email is saved even if the address step is abandoned:
+//   step 1 (who you are) → tk-claim { action: 'start' }  → claim row + Flow B reminder
+//   step 2 (ship it)     → tk-claim { action: 'address' } → status, Flow A + D sends
+// The static HTML carries all copy (claim.yaml) and both forms. One GET to tk-claim at
+// load picks the view — open → the form; ended (kill switch) → Amazon + how-to;
+// paused (monthly cap); unavailable — and supplies the active dispenser's headline,
+// chip and photo plus the consent text, all from marketing.program_config. Without JS
+// only the <noscript> note shows (Turnstile needs JS anyway).
+//
+// Compliance: no review language, no off-Amazon prices or codes; the only buy links
+// are Amazon (Attribution-tagged when a tag exists), and Amazon order questions stay
+// on Amazon. GA4 events: claim_view, step1_submit, step2_submit, claim_error.
+import Base from '../../../layouts/Base.astro';
+import Ticks from './Ticks.astro';
+import HowToLoad from './HowToLoad.astro';
+import { getBrand } from '../../../lib/supabase.js';
+import { getClaimProgram, claimFunctionUrl } from '../../../lib/claim.js';
+import { getTapeCatalog } from '../../../lib/tapeking.js';
+import { getLocalImagesByAsin } from '../../../lib/images.js';
+import { USE_CASES, VOLUME_BANDS, PURCHASE_CHANNELS, LIMITS } from '../../../../supabase/functions/_shared/claim-fields.ts';
+import { US_STATES, OUTSIDE_US } from '../../../../supabase/functions/_shared/us.ts';
+
+const brand = await getBrand();
+const program = await getClaimProgram();
+const { lines, skuByAsin } = await getTapeCatalog();
+const imagesByAsin = await getLocalImagesByAsin();
+
+// A photo for every dispenser the live config might name (program_config
+// dispensers.*.image_asin points into the dispenser-guns line).
+const dispenserLine = lines.find((l) => l.slug === 'dispenser-guns');
+const dispenserImages = Object.fromEntries(
+  (dispenserLine?.skus ?? [])
+    .map((s) => [s.asin, imagesByAsin.get(s.asin)?.[0] ?? null])
+    .filter(([, src]) => src)
+);
+const heroImage = dispenserImages[program.hero.image_asin] ?? Object.values(dispenserImages)[0] ?? null;
+
+const thanksSku = skuByAsin.get(program.thanks.cta_asin);
+const thanksUrl = thanksSku.attribution_url ?? thanksSku.amazon_url;
+
+// Ended / paused states point to Amazon through the flagship's reorder link (the
+// same target as the header's REORDER ON AMAZON).
+const std = lines.find((l) => l.slug === 'standard-clear');
+const shopSku = std.skus.find((s) => s.asin === std.representative_asin);
+const shopUrl = shopSku.attribution_url ?? shopSku.amazon_url;
+
+const data = { claimUrl: claimFunctionUrl(program.functions.claim), images: dispenserImages };
+
+const label = 'block text-[14.5px] font-semibold';
+const input =
+  'mt-1.5 block w-full rounded-[6px] border border-[var(--line)] bg-white px-3.5 py-3 text-[16px] text-[var(--ink)] placeholder:text-[#9aa1a9] aria-[invalid=true]:border-[#C2412D]';
+const chip =
+  'flex min-h-[46px] items-center justify-center rounded-[6px] border border-[var(--line)] bg-white px-2.5 py-2 text-center text-[14px] font-medium leading-tight text-[var(--steel)] peer-checked:border-[var(--amber)] peer-checked:bg-[#fbf6ec] peer-checked:font-semibold peer-checked:text-[var(--ink)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--amber)]';
+const primary =
+  'inline-flex w-full items-center justify-center rounded-[6px] bg-[var(--amber)] px-5 py-3.5 text-[15.5px] font-bold text-white no-underline hover:bg-[var(--amber-dk)] disabled:cursor-wait disabled:opacity-60';
+const eyebrow = 'font-mono text-[12px] font-semibold uppercase tracking-[0.12em] text-[var(--accent-ink)]';
+---
+
+<Base
+  title="Free dispenser gun"
+  description={`Claim a free ${brand.brand} dispenser gun — two quick steps, shipped free to US addresses.`}
+  ogImage={heroImage}
+  pageType="claim"
+  noindex
+>
+  <div id="tk-claim">
+    {/* ---- Hero: headline, photo, three-line value prop, one button ---- */}
+    <section class="tk-claim-hero mx-auto max-w-6xl gap-x-12 px-4 pb-8 pt-5 sm:px-6 sm:pt-10 lg:pb-12">
+      <div class="tk-claim-head">
+        <p class={eyebrow}>{program.hero.eyebrow}</p>
+        <h1 data-headline class="mt-2 text-[clamp(28px,7vw,54px)] leading-[1.04]">{program.hero.headline}</h1>
+        <p
+          data-chip
+          hidden
+          class="mt-3 inline-block rounded-[4px] border border-[var(--line)] bg-[var(--card)] px-2 py-1 font-mono text-[11.5px] font-semibold tracking-[0.04em] text-[var(--steel)]"
+        >
+        </p>
+      </div>
+      <div class="tk-claim-img my-4 lg:my-0">
+        {
+          heroImage ? (
+            <div class="rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-3 sm:p-6">
+              <img
+                data-dispenser-img
+                src={heroImage}
+                alt={`${brand.brand} packing tape dispenser gun`}
+                width="800"
+                height="800"
+                fetchpriority="high"
+                decoding="async"
+                class="mx-auto h-[120px] w-auto object-contain sm:h-[260px] lg:h-[380px]"
+              />
+            </div>
+          ) : (
+            <div class="flex h-[144px] items-center justify-center rounded-[10px] border border-[var(--line)] bg-[repeating-linear-gradient(45deg,#F1F1ED_0_10px,#FAFAF8_10px_20px)] sm:h-[260px]">
+              <span class="font-mono text-[12px] text-[var(--steel)]">DISPENSER GUN</span>
+            </div>
+          )
+        }
+      </div>
+      <div class="tk-claim-body">
+        <ul class="space-y-2">
+          {
+            program.hero.value_props.map((v) => (
+              <li class="flex gap-3 text-[15px] leading-snug sm:text-[15.5px]">
+                <span class="mt-[9px] h-[3px] w-3 shrink-0 bg-[var(--amber)]" aria-hidden="true" />
+                <span>{v}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <a href="#claim-form" data-claim-jump class={`${primary} mt-5 sm:w-auto sm:px-8`}>{program.hero.button}</a>
+      </div>
+    </section>
+
+    <Ticks />
+
+    {/* ---- The form card: one view at a time ---- */}
+    <section id="claim-form" class="scroll-mt-20 px-4 py-8 sm:px-6 sm:py-12">
+      <div class="mx-auto max-w-xl rounded-[10px] border border-[var(--line)] bg-[var(--card)] p-5 shadow-token-1 sm:p-7">
+        <noscript>
+          <p class="text-[15px]">
+            The claim form needs JavaScript. Turn it on, or open this page in your phone's regular browser.
+          </p>
+        </noscript>
+
+        <p data-view="loading" class="font-mono text-[12.5px] text-[var(--steel)]">CHECKING THE OFFER…</p>
+
+        <div
+          data-claim-error
+          role="alert"
+          hidden
+          class="mb-5 rounded-[6px] border border-[#E7C3BE] bg-[#FBEDEB] px-4 py-3 text-[14.5px] leading-snug text-[#8A2B1E]"
+        >
+        </div>
+
+        {/* Step 1 — who you are */}
+        <form id="tk-step1" data-view="step1" hidden novalidate>
+          <p class={eyebrow}>STEP 1 OF 2 · WHO YOU ARE</p>
+          <h2 class="mt-2 text-[24px] leading-tight">Tell us where to send updates</h2>
+
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label for="tk-email" class={label}>Email</label>
+              <input
+                id="tk-email"
+                name="email"
+                type="email"
+                required
+                maxlength={LIMITS.email}
+                autocomplete="email"
+                inputmode="email"
+                autocapitalize="off"
+                spellcheck="false"
+                class={input}
+              />
+            </div>
+            <div>
+              <label for="tk-first-name" class={label}>First name</label>
+              <input
+                id="tk-first-name"
+                name="first_name"
+                type="text"
+                required
+                maxlength={LIMITS.first_name}
+                autocomplete="given-name"
+                class={input}
+              />
+            </div>
+            <div>
+              <label for="tk-company" class={label}>
+                Company <span class="font-normal text-[var(--steel)]">(optional)</span>
+              </label>
+              <input id="tk-company" name="company" type="text" maxlength={LIMITS.company} autocomplete="organization" class={input} />
+            </div>
+          </div>
+
+          <fieldset class="mt-6" data-group="use_case">
+            <legend class={label}>What do you use tape for?</legend>
+            <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {
+                USE_CASES.map((o) => (
+                  <label>
+                    <input type="radio" name="use_case" value={o.value} class="peer sr-only" />
+                    <span class={chip}>{o.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <fieldset class="mt-6" data-group="monthly_rolls_band">
+            <legend class={label}>Rolls per month</legend>
+            <div class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
+              {
+                VOLUME_BANDS.map((o) => (
+                  <label>
+                    <input type="radio" name="monthly_rolls_band" value={o.value} class="peer sr-only" />
+                    <span class={chip}>{o.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <fieldset class="mt-6">
+            <legend class={label}>
+              Where do you usually buy tape? <span class="font-normal text-[var(--steel)]">(optional)</span>
+            </legend>
+            <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {
+                PURCHASE_CHANNELS.map((o) => (
+                  <label>
+                    <input type="radio" name="purchase_channel" value={o.value} class="peer sr-only" />
+                    <span class={chip}>{o.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <label class="mt-6 flex gap-3 text-[14px] leading-snug" data-group="consent">
+            <input
+              type="checkbox"
+              name="consent"
+              required
+              class="mt-0.5 h-5 w-5 shrink-0 accent-[var(--amber)]"
+            />
+            <span>
+              <span data-consent-text></span>
+              <a href="/privacy/" class="text-[var(--steel)] underline underline-offset-2">Privacy</a>
+            </span>
+          </label>
+
+          <div id="tk-turnstile" class="mt-4 empty:hidden"></div>
+
+          <button type="submit" class={`${primary} mt-6`}>Continue to shipping →</button>
+        </form>
+
+        {/* Step 2 — ship it */}
+        <form id="tk-step2" data-view="step2" hidden novalidate>
+          <p class={eyebrow}>STEP 2 OF 2 · SHIP IT</p>
+          <h2 class="mt-2 text-[24px] leading-tight">
+            Where should it ship<span data-first-name></span>?
+          </h2>
+
+          <div class="mt-5 grid gap-4 sm:grid-cols-6">
+            <div class="sm:col-span-6">
+              <label for="tk-ship-name" class={label}>Full name</label>
+              <input
+                id="tk-ship-name"
+                name="ship_name"
+                type="text"
+                required
+                maxlength={LIMITS.ship_name}
+                autocomplete="shipping name"
+                class={input}
+              />
+            </div>
+            <div class="sm:col-span-6">
+              <label for="tk-address1" class={label}>Address</label>
+              <input
+                id="tk-address1"
+                name="address1"
+                type="text"
+                required
+                maxlength={LIMITS.address1}
+                autocomplete="shipping address-line1"
+                class={input}
+              />
+            </div>
+            <div class="sm:col-span-6">
+              <label for="tk-address2" class={label}>
+                Apt, suite, unit <span class="font-normal text-[var(--steel)]">(optional)</span>
+              </label>
+              <input
+                id="tk-address2"
+                name="address2"
+                type="text"
+                maxlength={LIMITS.address2}
+                autocomplete="shipping address-line2"
+                class={input}
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label for="tk-city" class={label}>City</label>
+              <input
+                id="tk-city"
+                name="city"
+                type="text"
+                required
+                maxlength={LIMITS.city}
+                autocomplete="shipping address-level2"
+                class={input}
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label for="tk-state" class={label}>State</label>
+              <select id="tk-state" name="state" required autocomplete="shipping address-level1" class={input}>
+                <option value="" selected disabled>Select</option>
+                {US_STATES.map(([code, name]) => <option value={code}>{name}</option>)}
+                <option value={OUTSIDE_US}>I'm outside the US</option>
+              </select>
+            </div>
+            <div class="sm:col-span-3">
+              <label for="tk-zip" class={label}>ZIP</label>
+              <input
+                id="tk-zip"
+                name="zip"
+                type="text"
+                required
+                inputmode="numeric"
+                maxlength="10"
+                pattern="[0-9]{5}(-?[0-9]{4})?"
+                autocomplete="shipping postal-code"
+                class={input}
+              />
+            </div>
+          </div>
+
+          <p data-zip-warning hidden class="mt-4 rounded-[6px] border border-[#EBD3A6] bg-[#FBF6EC] px-4 py-3 text-[14px] leading-snug"></p>
+
+          <button type="submit" class={`${primary} mt-6`}>Ship my dispenser</button>
+        </form>
+
+        {/* Thank-you */}
+        <div data-view="thanks" hidden tabindex="-1" class="outline-none">
+          <p class={eyebrow}>CLAIM RECEIVED</p>
+          <h2 class="mt-2 text-[26px] leading-tight">{program.thanks.headline}</h2>
+          <p class="mt-3 text-[15.5px] leading-relaxed text-[var(--steel)]">{program.thanks.body}</p>
+          <HowToLoad title={program.how_to_load.title} steps={program.how_to_load.steps} />
+          <a
+            href={thanksUrl}
+            target="_blank"
+            rel="sponsored noopener"
+            data-amazon-cta
+            data-asin={thanksSku.asin}
+            data-cta-position="claim-thanks"
+            class={`${primary} mt-6`}
+          >
+            {program.thanks.cta_label} ↗
+          </a>
+          <p class="mt-2.5 text-[12.5px] text-[var(--steel)]">Opens Amazon — checkout completes there.</p>
+        </div>
+
+        {/* Offer ended (claims_enabled = false) */}
+        <div data-view="ended" hidden>
+          <p class={eyebrow}>OFFER ENDED</p>
+          <h2 class="mt-2 text-[26px] leading-tight">{program.ended.headline}</h2>
+          <p class="mt-3 text-[15.5px] leading-relaxed text-[var(--steel)]">{program.ended.body}</p>
+          <a
+            href={shopUrl}
+            target="_blank"
+            rel="sponsored noopener"
+            data-amazon-cta
+            data-asin={shopSku.asin}
+            data-cta-position="claim-ended"
+            class={`${primary} mt-6`}
+          >
+            Shop Tape King on Amazon ↗
+          </a>
+          <a href="/#cmp" class="mt-4 block text-center text-[14.5px] font-semibold text-[var(--ink)] underline-offset-4 hover:underline">
+            Which tape do I need? →
+          </a>
+          <HowToLoad title={program.how_to_load.title} steps={program.how_to_load.steps} />
+        </div>
+
+        {/* Paused (monthly cap reached) */}
+        <div data-view="paused" hidden>
+          <p class={eyebrow}>OFFER PAUSED</p>
+          <h2 class="mt-2 text-[26px] leading-tight">{program.paused.headline}</h2>
+          <p class="mt-3 text-[15.5px] leading-relaxed text-[var(--steel)]">{program.paused.body}</p>
+          <a
+            href={shopUrl}
+            target="_blank"
+            rel="sponsored noopener"
+            data-amazon-cta
+            data-asin={shopSku.asin}
+            data-cta-position="claim-paused"
+            class={`${primary} mt-6`}
+          >
+            Shop Tape King on Amazon ↗
+          </a>
+          <HowToLoad title={program.how_to_load.title} steps={program.how_to_load.steps} />
+        </div>
+
+        {/* Config couldn't load, or the funnel isn't configured yet */}
+        <div data-view="unavailable" hidden>
+          <h2 class="text-[22px] leading-tight">We can't load the claim form right now</h2>
+          <p class="mt-3 text-[15px] leading-relaxed text-[var(--steel)]">
+            It's on our end. Give it a minute and try again.
+          </p>
+          <button type="button" data-retry class={`${primary} mt-5`}>Try again</button>
+        </div>
+      </div>
+    </section>
+
+    {/* ---- Offer terms ---- */}
+    <section class="mx-auto max-w-xl px-4 pb-14 sm:px-0">
+      <h2 class="font-mono text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--steel)]">Offer terms</h2>
+      <ul class="mt-3 space-y-1.5 text-[13.5px] leading-relaxed text-[var(--steel)]">
+        {program.terms.map((t) => <li>{t}</li>)}
+      </ul>
+      <p class="mt-4 text-[13.5px] leading-relaxed text-[var(--steel)]">
+        {
+          brand.contact_email ? (
+            <>
+              Questions about your dispenser shipment? Email{' '}
+              <a href={`mailto:${brand.contact_email}`} class="underline underline-offset-2">{brand.contact_email}</a>.{' '}
+            </>
+          ) : null
+        }
+        Questions about a tape order go through your Amazon account.
+      </p>
+    </section>
+  </div>
+
+  <script type="application/json" id="tk-claim-data" set:html={JSON.stringify(data)} />
+</Base>
+
+<style>
+  /* Views toggle with the hidden attribute; display utilities (inline-block,
+     inline-flex) would otherwise out-rank preflight's [hidden] rule. */
+  [hidden] {
+    display: none !important;
+  }
+
+  /* Inline validation: the group's legend / the consent label turn red. */
+  [data-group][aria-invalid='true'] > legend,
+  label[data-group][aria-invalid='true'] {
+    color: #8a2b1e;
+  }
+
+  /* Phone: headline → photo → value props → button, all above the form. Desktop:
+     text column beside the photo. */
+  .tk-claim-hero {
+    display: grid;
+    grid-template-areas: 'head' 'img' 'body';
+  }
+  .tk-claim-head {
+    grid-area: head;
+  }
+  .tk-claim-img {
+    grid-area: img;
+  }
+  .tk-claim-body {
+    grid-area: body;
+  }
+  @media (min-width: 1024px) {
+    .tk-claim-hero {
+      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-areas: 'head img' 'body img';
+      align-items: center;
+    }
+    .tk-claim-head {
+      align-self: end;
+    }
+    .tk-claim-body {
+      align-self: start;
+      margin-top: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { zipState } from '../../../../supabase/functions/_shared/us.ts';
+
+  const root = document.getElementById('tk-claim');
+  const data = JSON.parse(document.getElementById('tk-claim-data').textContent);
+  const views = [...root.querySelectorAll('[data-view]')];
+  const errorBox = root.querySelector('[data-claim-error]');
+  const step1 = document.getElementById('tk-step1');
+  const step2 = document.getElementById('tk-step2');
+  const zipWarning = root.querySelector('[data-zip-warning]');
+  const STORE = 'tkClaim';
+
+  // ---- attribution carried in from /r/<code> (hidden fields, scope "Tracking") ----
+  const q = new URLSearchParams(location.search);
+  const pick = (v, re) => (v && re.test(v.toLowerCase()) ? v.toLowerCase() : '');
+  const ctx = {
+    sku_code: pick(q.get('sku'), /^[a-z0-9]{1,24}$/),
+    lot: pick(q.get('lot'), /^[a-z0-9]{1,16}$/),
+    src: ['qr', 'typed'].includes(q.get('src')) ? q.get('src') : 'direct',
+    utm: Object.fromEntries(
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
+        .filter((k) => q.get(k))
+        .map((k) => [k, q.get(k).slice(0, 100)])
+    ),
+  };
+
+  function track(name, params = {}) {
+    try {
+      window.gtag?.('event', name, { sku_code: ctx.sku_code || 'none', src: ctx.src, ...params });
+    } catch {
+      /* analytics never blocks the form */
+    }
+  }
+
+  const session = {
+    read() {
+      try {
+        return JSON.parse(sessionStorage.getItem(STORE) ?? 'null');
+      } catch {
+        return null;
+      }
+    },
+    write(v) {
+      try {
+        sessionStorage.setItem(STORE, JSON.stringify(v));
+      } catch {
+        /* private mode: step 2 still works in this page view */
+      }
+    },
+    clear() {
+      try {
+        sessionStorage.removeItem(STORE);
+      } catch {
+        /* ignore */
+      }
+    },
+  };
+  let pending = null; // in-memory copy, for when sessionStorage is unavailable
+
+  function show(name) {
+    for (const v of views) v.hidden = v.dataset.view !== name;
+    root.querySelector('[data-claim-jump]').hidden = !['step1', 'step2'].includes(name);
+  }
+
+  const MESSAGES = {
+    already_claimed:
+      "This offer has already been claimed with these details. It's limited to one dispenser per business and per address.",
+    rate_limited: 'Too many tries from this connection. Give it an hour, then try again.',
+    turnstile: "We couldn't confirm this browser. Refresh the page and try again.",
+    invalid: 'Check the highlighted fields.',
+    outside_us: 'Sorry — this offer ships to US addresses only.',
+    expired: "Your session timed out. Fill in step 1 again — it'll pick up where you left off.",
+    network: 'No connection. Check your signal and try again.',
+    server: 'Something went wrong on our end. Try again in a moment.',
+  };
+
+  function showError(code) {
+    errorBox.textContent = MESSAGES[code] ?? MESSAGES.server;
+    errorBox.hidden = false;
+    errorBox.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  function clearErrors(form) {
+    errorBox.hidden = true;
+    zipWarning.hidden = true;
+    form?.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+  }
+
+  function markInvalid(form, names) {
+    for (const name of names) {
+      const el = form.querySelector(`[data-group="${name}"]`) ?? form.elements.namedItem(name);
+      if (el && 'setAttribute' in el) el.setAttribute('aria-invalid', 'true');
+    }
+    const first = names.map((n) => form.elements.namedItem(n)).find(Boolean);
+    const target = first instanceof RadioNodeList ? first[0] : first;
+    target?.focus?.({ preventScroll: true });
+  }
+
+  // Required radio groups + the consent box + native constraints, checked by hand so
+  // the errors render inline instead of as browser bubbles on visually hidden inputs.
+  function missing(form, groups) {
+    const out = [];
+    for (const name of groups) {
+      const v = form.elements.namedItem(name);
+      if (v instanceof RadioNodeList ? !v.value : !v.checked) out.push(name);
+    }
+    for (const el of form.querySelectorAll('input:not([type=radio]):not([type=checkbox]), select')) {
+      if (!el.checkValidity()) out.push(el.name);
+    }
+    return out;
+  }
+
+  function busy(form, on) {
+    const btn = form.querySelector('[type=submit]');
+    btn.disabled = on;
+    btn.dataset.label ??= btn.textContent;
+    btn.textContent = on ? 'One moment…' : btn.dataset.label;
+  }
+
+  async function api(body) {
+    try {
+      const res = await fetch(data.claimUrl, {
+        method: 'POST',
+        // text/plain keeps this a CORS "simple request" — no preflight round trip.
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(body),
+      });
+      return (await res.json().catch(() => null)) ?? { ok: false, error: 'server' };
+    } catch {
+      return { ok: false, error: 'network' };
+    }
+  }
+
+  // ---- Turnstile (rendered once the live config hands over the site key) ----
+  let widgetId = null;
+  let tsToken = null;
+  let tsWaiters = [];
+  function loadTurnstile(siteKey) {
+    if (window.__tkTurnstile) return;
+    window.__tkTurnstile = true;
+    window.tkTurnstileReady = () => {
+      widgetId = window.turnstile.render('#tk-turnstile', {
+        sitekey: siteKey,
+        action: 'tk_claim',
+        appearance: 'interaction-only',
+        size: 'flexible',
+        callback: (t) => {
+          tsToken = t;
+          tsWaiters.splice(0).forEach((resolve) => resolve(t));
+        },
+        'expired-callback': () => (tsToken = null),
+        'error-callback': () => (tsToken = null),
+      });
+    };
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=tkTurnstileReady';
+    s.async = true;
+    document.head.appendChild(s);
+  }
+  function turnstileToken(ms = 15000) {
+    if (tsToken) return Promise.resolve(tsToken);
+    return new Promise((resolve) => {
+      tsWaiters.push(resolve);
+      setTimeout(() => resolve(null), ms);
+    });
+  }
+  function resetTurnstile() {
+    tsToken = null; // tokens are single-use
+    try {
+      if (widgetId !== null) window.turnstile.reset(widgetId);
+    } catch {
+      /* widget gone — the next submit waits for a fresh one */
+    }
+  }
+
+  // ---- live config ----
+  let config = null;
+
+  function applyDispenser(d) {
+    if (!d) return;
+    if (d.headline) root.querySelector('[data-headline]').textContent = d.headline;
+    const chipText = [d.size_in ? `${d.size_in}" GUN` : null, d.tape_included ? 'TAPE INCLUDED' : null]
+      .filter(Boolean)
+      .join(' · ');
+    const chipEl = root.querySelector('[data-chip]');
+    chipEl.textContent = chipText;
+    chipEl.hidden = !chipText;
+    const img = root.querySelector('[data-dispenser-img]');
+    const src = data.images[d.image_asin];
+    if (img && src && img.getAttribute('src') !== src) img.src = src;
+  }
+
+  function toStep2(firstName) {
+    root.querySelector('[data-first-name]').textContent = firstName ? `, ${firstName}` : '';
+    show('step2');
+  }
+
+  function finish(name) {
+    show(name);
+    root.querySelector('#claim-form').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  async function init() {
+    show('loading');
+    errorBox.hidden = true;
+    let cfg = null;
+    try {
+      cfg = await (await fetch(data.claimUrl)).json();
+    } catch {
+      cfg = null;
+    }
+    if (!cfg?.ok) return show('unavailable');
+    config = cfg;
+    applyDispenser(cfg.dispenser);
+    if (cfg.state === 'ended' || cfg.state === 'paused') return show(cfg.state);
+    if (cfg.state !== 'open' || !cfg.consent?.text || !cfg.turnstile_site_key) return show('unavailable');
+
+    root.querySelector('[data-consent-text]').textContent = `${cfg.consent.text} `;
+    loadTurnstile(cfg.turnstile_site_key);
+    const saved = session.read();
+    if (saved?.claim_id && saved?.token) toStep2(saved.first_name);
+    else show('step1');
+  }
+
+  function handleError(out, form, step) {
+    track('claim_error', { error: out.error, step });
+    if (out.error === 'ended' || out.error === 'paused') return finish(out.error);
+    if (out.error === 'unavailable') return show('unavailable');
+    if (out.error === 'expired') {
+      session.clear();
+      pending = null;
+      show('step1');
+    }
+    if (out.error === 'invalid' && out.fields?.length) markInvalid(form, out.fields);
+    showError(out.error);
+  }
+
+  step1.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrors(step1);
+    const bad = missing(step1, ['use_case', 'monthly_rolls_band', 'consent']);
+    if (bad.length) {
+      markInvalid(step1, bad);
+      track('claim_error', { error: 'invalid', step: 1 });
+      return showError('invalid');
+    }
+    busy(step1, true);
+    const turnstile = await turnstileToken();
+    if (!turnstile) {
+      busy(step1, false);
+      track('claim_error', { error: 'turnstile', step: 1 });
+      return showError('turnstile');
+    }
+    const f = new FormData(step1);
+    const out = await api({
+      action: 'start',
+      turnstile_token: turnstile,
+      email: f.get('email'),
+      first_name: f.get('first_name'),
+      company: f.get('company') ?? '',
+      use_case: f.get('use_case'),
+      monthly_rolls_band: f.get('monthly_rolls_band'),
+      purchase_channel: f.get('purchase_channel') ?? '',
+      consent: f.get('consent') === 'on',
+      consent_version: config.consent.version,
+      ...ctx,
+    });
+    resetTurnstile();
+    busy(step1, false);
+    if (!out.ok) return handleError(out, step1, 1);
+    pending = { claim_id: out.claim_id, token: out.token, first_name: String(f.get('first_name') ?? '').trim() };
+    session.write(pending);
+    track('step1_submit', { use_case: f.get('use_case'), monthly_rolls_band: f.get('monthly_rolls_band') });
+    toStep2(pending.first_name);
+    root.querySelector('#claim-form').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('tk-ship-name').focus({ preventScroll: true });
+  });
+
+  let zipWarnedFor = '';
+  step2.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrors(step2);
+    const f = new FormData(step2);
+    const state = String(f.get('state') ?? '');
+    if (state === 'XX') {
+      track('claim_error', { error: 'outside_us', step: 2 });
+      return showError('outside_us');
+    }
+    const bad = missing(step2, []);
+    if (bad.length) {
+      markInvalid(step2, bad);
+      track('claim_error', { error: 'invalid', step: 2 });
+      return showError('invalid');
+    }
+    // Soft check: a ZIP outside the chosen state gets one warning, then goes through
+    // (the server flags it for review rather than rejecting it).
+    const zip = String(f.get('zip')).trim();
+    const zs = zipState(zip);
+    if (zs && zs !== state && zipWarnedFor !== `${zip}|${state}`) {
+      zipWarnedFor = `${zip}|${state}`;
+      zipWarning.textContent = `ZIP ${zip} is usually in ${zs}. Double-check the state — or tap “Ship my dispenser” again if it's right.`;
+      zipWarning.hidden = false;
+      return;
+    }
+    const saved = session.read() ?? pending;
+    if (!saved) return handleError({ ok: false, error: 'expired' }, step2, 2);
+    busy(step2, true);
+    const out = await api({
+      action: 'address',
+      claim_id: saved.claim_id,
+      token: saved.token,
+      ship_name: f.get('ship_name'),
+      address1: f.get('address1'),
+      address2: f.get('address2') ?? '',
+      city: f.get('city'),
+      state,
+      zip,
+    });
+    busy(step2, false);
+    if (!out.ok) return handleError(out, step2, 2);
+    session.clear();
+    pending = null;
+    track('step2_submit', { state });
+    finish('thanks');
+    root.querySelector('[data-view="thanks"]').focus({ preventScroll: true });
+  });
+
+  root.querySelector('[data-retry]').addEventListener('click', init);
+  root.querySelector('[data-claim-jump]').addEventListener('click', () => {
+    setTimeout(() => root.querySelector('[data-view]:not([hidden]) input')?.focus({ preventScroll: true }), 350);
+  });
+
+  track('claim_view');
+  init();
+</script>

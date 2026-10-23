@@ -282,7 +282,10 @@ off-Amazon prices/codes, Amazon order issues stay on Amazon.
   Cloudflare dashboard), `TURNSTILE_SECRET_KEY`, `TURNSTILE_HOSTNAMES` (`tapeking.com,www.tapeking.com`
   — never localhost in production). Siteverify follows Cloudflare's Turnstile Spin contract
   (developers.cloudflare.com/turnstile/spin): `success`, action `tk_claim` and an allowlisted
-  hostname are all required; a 10 s timeout or siteverify error refuses the claim. Deploy with the Supabase CLI
+  hostname are all required; a 10 s timeout or siteverify error refuses the claim. Adding
+  Turnstile to another brand: follow `.claude/skills/turnstile-spin/` (Cloudflare's skill); a
+  widget holds 10 hostnames (apex + www per brand), and each new host goes in both the widget and
+  that backend's `TURNSTILE_HOSTNAMES`. Deploy with the Supabase CLI
   (`supabase functions deploy tk-claim --project-ref avlhnogtosjxdyibjipz`) or the MCP deploy
   tool with file names `tk-claim/index.ts`, `tk-claim/handler.ts`, `_shared/*.ts` and entrypoint
   `tk-claim/index.ts`. Change the shared option sets and the SQL check constraints together.

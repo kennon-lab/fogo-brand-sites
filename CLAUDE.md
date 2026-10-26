@@ -269,7 +269,8 @@ off-Amazon prices/codes, Amazon order issues stay on Amazon.
   owns segment (`marketing.tk_segment`), dedupe (email unique; address_hash unique unless
   rejected), rate limits (`tk_submit_log`), cap/kill switch (`tk_offer_state`), review flags
   (disposable domain, 3+ per street in 30 days, + `zip_state_mismatch` from the function) and
-  drip enrollment (`marketing.tk_enroll`: step 1 → Flow B; step 2 cancels B, schedules A + D).
+  drip enrollment (`marketing.tk_enroll`: step 1 → Flow B; step 2 cancels B, schedules A + D; a
+  step 2 refused for a taken address also cancels B — `sql/tk_claim_address_dup_cancels_flow_b.sql`).
   Emails are stored lowercased text (not citext — its operators live in `extensions` and
   `search_path=''` functions would silently compare case-sensitively).
 - Edge Functions live in this repo: `supabase/functions/{tk-claim,tk-scan}` (thin `index.ts` →

@@ -380,6 +380,8 @@ begin
   return jsonb_build_object('result', v_result, 'claim_id', v_claim.id);
 end $$;
 
+-- Superseded by sql/tk_claim_address_dup_cancels_flow_b.sql (2026-10-26): already_claimed
+-- now also cancels Flow B. Re-creating from scratch: apply that file after this one.
 -- Step 2. p: claim_id, token_hash, ship_name, address1, address2, city, state, zip,
 -- address_hash, street_hash, flags (text[] computed by tk-claim, e.g.
 -- zip_state_mismatch), ip_hash. Result: ok | invalid (unknown claim / wrong token) |

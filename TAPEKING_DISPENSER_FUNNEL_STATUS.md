@@ -55,11 +55,12 @@ Updated 2026-10-23 · **Phase 1 (Capture) live.** Database, Edge Functions (with
 3. **Contact address.** `brand_sites.contact_email` is empty for Tape King, so the page omits the
    "Questions about your dispenser shipment? Email …" line and the privacy page falls back to the
    contact page. Set it to the Tape King address that should get dispenser-shipping questions.
-4. **Program config (Phase 0 numbers).** In `marketing.program_config`: replace the placeholder
-   dispenser SKUs `GUN-3IN-TBD` / `GUN-2IN-TBD` (keys of `dispensers`, `active_dispenser_sku`,
-   `fallback_dispenser_sku`, `dispenser_floor`) with the real warehouse SKUs; set `monthly_cap`
-   (500 is the scope's placeholder) and the floors; confirm whether the 2" gun ships with tape
-   (`tape_included`) and that `image_asin` B077GCV6PH / B01MAT3DPM show the right guns.
+4. **Program config (Phase 0 numbers).** In `marketing.program_config`: the 3" gun is set —
+   `TK-062-FBA` (B077GCV6PH, 3" gun + 1 bonus roll) replaced `GUN-3IN-TBD` as `active_dispenser_sku`
+   and as its key in `dispensers` / `dispenser_floor` (2026-10-26). Still to do: the 2" fallback
+   `GUN-2IN-TBD` (`fallback_dispenser_sku`, B01MAT3DPM — the catalog's product id for it is
+   `TK-036-NEWBOX-FBA-CHINA-1`); its `tape_included` is false but that listing is a 2-pack with 2
+   bonus rolls — confirm what ships; set `monthly_cap` (500 is the scope's placeholder) and the floors.
 5. **Consent text sign-off.** v1 (`2026-10-v1`): "Email me shipping updates for my free dispenser,
    plus Tape King product tips and offers. I can unsubscribe at any time." To change it, insert a new
    `marketing.tk_consent_versions` row and point `consent_version` at it (claims keep the version
@@ -69,7 +70,13 @@ Updated 2026-10-23 · **Phase 1 (Capture) live.** Database, Edge Functions (with
    the print run. Printer files: `qr/tape-king/` (see its README). Add lot suffixes with
    `npm run qr -- --lot=26a` if a print run should be traceable.
 
-### Phase 1 acceptance test (real phone — ready to run)
+### Phase 1 acceptance test (real phone)
+
+Run 2026-10-26 on an iPhone: steps 1–4 passed (scan logged as `sc`, claim approved as `biz_core`
+with the right UTMs, A1–A7 + D1 scheduled and B1 cancelled, same email refused at step 1, same
+address under a new email refused at step 2). **Step 5 (replay) not run yet.** A forged token sent
+to the live function was refused (`403 turnstile`), which proves siteverify and the secret are live
+but not that a real token is single-use. Test rows still in the tables (step 6).
 
 1. Open `qr/tape-king/sc.svg` on a screen and scan it with a phone. It should land on
    `https://www.tapeking.com/claim/?src=qr&sku=sc&utm_source=tape_core&utm_medium=qr&utm_campaign=dispenser_claim`.
@@ -118,6 +125,10 @@ Updated 2026-10-23 · **Phase 1 (Capture) live.** Database, Edge Functions (with
   Rate limit counts step-1 submits per IP hash (3/hour); step 2 is limited per claim (5/hour).
 - **Resume:** step 1 with the email of an unfinished claim updates it and issues a new token;
   a finished claim answers "already claimed" without saying which field matched.
+- **Address already in use cancels Flow B** (`sql/tk_claim_address_dup_cancels_flow_b.sql`, found
+  in the live test): the refused claim stays `started` with no address, its B1 "finish your claim"
+  email is cancelled and `step2_address_in_use` is logged. Re-entering step 1 with that email
+  re-arms B1; a different, free address at step 2 completes the claim normally.
 - **Thank-you Amazon link** uses Ultra Thick's existing `brand_site` Attribution tag. A dedicated tag
   (e.g. a `claim_page` channel) would separate the funnel's sales from the rest of the site — worth
   adding with the Phase 3 per-email tags.
